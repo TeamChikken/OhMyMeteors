@@ -30,11 +30,14 @@ public class MeteorProjectileEntityModel extends EntityModel<MeteorProjectileEnt
 		ModelPartData cube_r2 = main.addChild("cube_r2", ModelPartBuilder.create().uv(0, 0).cuboid(3.0F, -12.0F, -1.0F, 12.0F, 12.0F, 12.0F, new Dilation(0.0F)), ModelTransform.of(-2.0F, 0.0F, -10.0F, 0.0F, -0.7854F, 0.0F));
 		return TexturedModelData.of(modelData, 16, 16);
 	}
+
 	@Override
 	public void setAngles(MeteorProjectileEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 	}
+
+
 	@Override
-	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, int color) {
-		main.render(matrices, vertexConsumer, light, overlay, color);
+	public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+		main.render(matrices, vertices, light, overlay, red, green, blue, alpha);
 	}
 }

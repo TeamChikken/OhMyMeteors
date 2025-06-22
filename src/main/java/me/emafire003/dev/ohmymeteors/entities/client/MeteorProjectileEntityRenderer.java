@@ -42,13 +42,14 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
 
         matrices.push();
         VertexConsumer vertexconsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers,
-                this.model.getLayer(Identifier.ofVanilla("textures/block/smooth_basalt.png")), false, false);
+                this.model.getLayer(new Identifier("minecraft", "textures/block/smooth_basalt.png")), false, false);
 
-        matrices.translate(0, -entity.getDimensions(entity.getPose()).height()/1.5, 0);
+        matrices.translate(0, -entity.getDimensions(entity.getPose()).height/1.5, 0);
 
         matrices.scale(entity.getSize(), entity.getSize(), entity.getSize());
 
-        this.model.render(matrices, vertexconsumer, light, OverlayTexture.DEFAULT_UV);
+
+        this.model.render(matrices, vertexconsumer, light, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
 
         matrices.pop();
         super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
@@ -67,6 +68,6 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
     @Override
     public Identifier getTexture(MeteorProjectileEntity entity) {
         //TODO update
-        return Identifier.ofVanilla("textures/block/smooth_basalt.png");
+        return new Identifier("minecraft", "textures/block/smooth_basalt.png");
     }
 }

@@ -10,20 +10,22 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.projectile.ExplosiveProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.tag.BlockTags;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
-import net.minecraft.world.explosion.ExplosionBehavior;
+import net.minecraft.world.explosion.Explosion;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -50,20 +52,12 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         initialize();
     }
 
-    public MeteorProjectileEntity(double x, double y, double z, Vec3d velocity, World world) {
-        super(OMMEntities.METEOR_PROJECTILE_ENTITY, x, y, z, velocity, world);
-        initialize();
-    }
 
-    public MeteorProjectileEntity(LivingEntity owner, Vec3d velocity, World world) {
-        super(OMMEntities.METEOR_PROJECTILE_ENTITY, owner, velocity, world);
-        initialize();
-    }
 
     @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
-        super.initDataTracker(builder);
-        builder.add(SIZE, 1);
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(SIZE, 1);
     }
 
 
@@ -112,12 +106,17 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         super.onTrackedDataSet(data);
     }
 
+    @Override
+    protected float getDrag() {
+        return 1f;
+    }
+
     /**
      * Initializes the meteor with a random size upon creation of the meteor object.
      * Called along with the constructor method
      * */
     public void initialize() {
-        Random random = this.getRandom();
+        Random random = this.getWorld().getRandom();
         int i = random.nextInt(3);
         if (i < 2 && random.nextFloat() < 0.5f) {
             i++;
@@ -136,9 +135,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     private int loadingChuckTicks = 0;
     private ChunkPos currentlyLoadedChunk;
 
-    @Override
-    public void tick() {
-        super.tick();
+    public void manageChunkLoading(){
         //Every 100 seconds or every time the meteor enters a new chuck, the meteor loads the chunk it's in for 5 seconds or 100 ticks
         if(this.getWorld() instanceof ServerWorld world){
             if(loadingChuckTicks > 0){
@@ -157,6 +154,46 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }
     }
 
+    @Override
+    public void tick() {
+        manageChunkLoading();
+
+        Entity entity = this.getOwner();
+        if (this.world.isClient || (entity == null || !entity.isRemoved()) ) {
+            super.tick();
+            if (this.isBurning()) {
+                this.setOnFireFor(1);
+            }
+
+            HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);
+            if (hitResult.getType() != HitResult.Type.MISS) {
+                this.onCollision(hitResult);
+            }
+
+            this.checkBlockCollision();
+            Vec3d vec3d = this.getVelocity();
+            double d = this.getX() + vec3d.x;
+            double e = this.getY() + vec3d.y;
+            double f = this.getZ() + vec3d.z;
+            ProjectileUtil.setRotationFromVelocity(this, 0.2F);
+
+            if (this.isTouchingWater()) {
+                for (int i = 0; i < 4; i++) {
+                    float h = 0.25F;
+                    this.world.addParticle(ParticleTypes.BUBBLE, d - vec3d.x * 0.25, e - vec3d.y * 0.25, f - vec3d.z * 0.25, vec3d.x, vec3d.y, vec3d.z);
+                }
+
+            }
+
+            this.setVelocity(vec3d.add(this.powerX, this.powerY, this.powerZ));
+            this.world.addParticle(this.getParticleType(), d, e + 0.5, f, 0.0, 0.0, 0.0);
+            this.setPosition(d, e, f);
+        } else {
+            this.discard();
+        }
+
+    }
+
     /// This is the main method which does the meteor stuff on impact
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
@@ -173,12 +210,15 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             //this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), 10, World.ExplosionSourceType.NONE);
 
 
-            ExplosionBehavior explosionBehavior = new ExplosionBehavior();
+            //ExplosionBehavior explosionBehavior = new ExplosionBehavior();
 
             //entity.getWorld().addParticle(ParticleTypes.FLASH, pos.getX(), pos.getY(), pos.getZ(), 0,0,0);
-            this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize(), true, World.ExplosionSourceType.TNT);
 
+            this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), this.getSize(), true, Explosion.DestructionType.DESTROY);
+
+            //TODO for some reason this doesn't work, make sure it's this here or the API later on
             if(!this.getWorld().isClient()){
+                //TODO read all the filenames inside the /structre/
                 StructurePlacerAPI placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("proto_meteor"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, true, 1f, new BlockPos(0, 0, 0));
                 placer.loadStructure();
             }
