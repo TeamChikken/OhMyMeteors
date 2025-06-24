@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "ohmymeteors:block/meteorlazerblock"
+    },
+    "facing=east": {
+      "model": "ohmymeteors:block/meteorlazerblock",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "ohmymeteors:block/meteorlazerblock",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "ohmymeteors:block/meteorlazerblock",
+      "y": 270
+    }
+  }
+}
