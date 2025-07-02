@@ -26,6 +26,7 @@ public class Config {
     public static int METEOR_SPAWN_HEIGHT = 300; //At which y level should meteors spawn?
 
     public static boolean SHOULD_BYPASS_LEAVES = true; //Should the meteor bypass leaves instead of exploding midair om them?
+    public static boolean SHOULD_DESTROY_LEAVES = true; //aka the bypassed leaves will be removed
 
     public static int METEOR_SPAWN_CHANCE = 20000;
     public static boolean SPAWN_HUGE_METEORS = true;
@@ -146,6 +147,8 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
         configs.addKeyValuePair(new Pair<>("should_bypass_leaves", true),"Should meteors bypass leaves blocks instead of colliding with them midair?");
+        configs.addKeyValuePair(new Pair<>("should_destroy_leaves", true),"Should the bypassed leaves be destroyed when the meteor passes through them?");
+
         configs.addKeyValuePair(new Pair<>("homing_meteors", false),"Should meteors be (more or less) directed towards the nearest player?");
 
         configs.addKeyValuePair(new Pair<>("announce_meteor_spawn", false),"Should players get a message in chat/hotbar when a meteor spawns?");
@@ -212,6 +215,7 @@ public class Config {
         NATURAL_METEOR_MAX_SIZE = CONFIG.getOrDefault("natural_meteor_max_size", 10);
 
         SHOULD_BYPASS_LEAVES = CONFIG.getOrDefault("should_bypass_leaves", true);
+        SHOULD_DESTROY_LEAVES = CONFIG.getOrDefault("should_destroy_leaves", true);
         HOMING_METEORS = CONFIG.getOrDefault("homing_meteors", false);
 
         SHOULD_COOLDOWN_BETWEEN_METEORS = CONFIG.getOrDefault("should_cooldown_between_meteors", true);
