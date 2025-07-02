@@ -116,11 +116,12 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
             }
 
             Box box = new Box(new BlockPos(pos.getX(), Math.min(pos.getY()+getYLevelAreaCoverage(), Config.METEOR_SPAWN_HEIGHT), pos.getZ())).expand(getRadiusAreaCoverage(), 1, getRadiusAreaCoverage());
-            
+
             //useful to see where the box is, gets shown when the the show area blockstate property is true
             if(state.get(SHOW_AREA)){
-                CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, new Vec3d(box.minX, box.minY, box.minZ))
-                        .particles(30).targetPos(new Vec3d(box.maxX, box.maxY, box.maxZ)).iterations(1)
+                CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, box.getMinPos())
+                        .particles(30).targetPos(box.getMaxPos()).iterations(1)
+                        .forced(true)
                         .build();
                 cuboidEffect.run();
 
