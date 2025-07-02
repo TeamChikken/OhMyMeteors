@@ -477,8 +477,18 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         //It also registers Air blocks as a collision so we need to avoid such cases
         if(!state.isAir()){
             //If bypass leaves is false skip directly to the other code
+            //TODO maybe this should work like a tag instead of being just leaves
             if(Config.SHOULD_BYPASS_LEAVES && state.isIn(BlockTags.LEAVES)){
                 //Early return so the rest of the code doesn't run if the meteor hits a leaves block and the config option is there
+                if(Config.SHOULD_DESTROY_LEAVES){
+                    Box box = this.getBoundingBox();
+                    BlockPos.stream(box).forEach((blockPos -> {
+                        if(this.getWorld().getBlockState(blockPos).isIn(BlockTags.LEAVES)){
+                            this.getWorld().setBlockState(blockPos, Blocks.AIR.getDefaultState());
+                            this.getWorld().addParticle(ParticleTypes.EXPLOSION, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0, 0,0 );
+                        }
+                    }));
+                }
                 return;
             }
             collisionPos = Vec3d.ofCenter(getBlockPos());
