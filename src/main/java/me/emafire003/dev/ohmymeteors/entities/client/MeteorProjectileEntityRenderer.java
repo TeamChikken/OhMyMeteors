@@ -45,11 +45,12 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
         VertexConsumer vertexconsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers,
                 this.model.getLayer(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
 
-        matrices.translate(0, -entity.getDimensions(entity.getPose()).height()/1.5, 0);
+        matrices.translate(0, -entity.getDimensions(entity.getPose()).height/1.5, 0);
 
         matrices.scale(entity.getSize(), entity.getSize(), entity.getSize());
 
-        this.model.render(matrices, vertexconsumer, light, OverlayTexture.DEFAULT_UV);
+        this.model.render(matrices, vertexconsumer, light, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
+        //this.model.render(matrices, vertexconsumer, light, OverlayTexture.DEFAULT_UV);
 
         matrices.pop();
         super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);

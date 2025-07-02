@@ -38,7 +38,7 @@ public class SpawnMeteorCommand implements OMMCommand {
             return 1;
         }catch(Exception e){
             e.printStackTrace();
-            source.sendFeedback( () -> Text.literal("Error: " + e),false);
+            source.sendFeedback( Text.literal("Error: " + e),false);
             return 0;
         }
     }
@@ -63,7 +63,7 @@ public class SpawnMeteorCommand implements OMMCommand {
             return 1;
         }catch(Exception e){
             e.printStackTrace();
-            source.sendFeedback( () -> Text.literal("Error: " + e),false);
+            source.sendFeedback( Text.literal("Error: " + e),false);
             return 0;
         }
     }
@@ -82,13 +82,15 @@ public class SpawnMeteorCommand implements OMMCommand {
             meteorProjectile.setPos(source.getPlayer().getX(), source.getPlayer().getEyeY(), source.getPlayer().getZ());
 
             meteorProjectile.setVelocity(source.getPlayer(), source.getPlayer().getPitch(), source.getPlayer().getYaw(), 0f, FloatArgumentType.getFloat(context, "speed"), 0f);
+            //necessary in 1.19.2 apparently
+            meteorProjectile.setVelocity(meteorProjectile.getVelocity().multiply(2));
             meteorProjectile.setSize(IntegerArgumentType.getInteger(context, "size"));
             source.getWorld().spawnEntity(meteorProjectile);
 
             return 1;
         }catch(Exception e){
             e.printStackTrace();
-            source.sendFeedback( () -> Text.literal("Error: " + e),false);
+            source.sendFeedback( Text.literal("Error: " + e),false);
             return 0;
         }
     }

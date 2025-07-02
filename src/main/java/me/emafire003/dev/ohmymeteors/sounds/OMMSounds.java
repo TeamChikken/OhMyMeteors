@@ -1,10 +1,9 @@
 package me.emafire003.dev.ohmymeteors.sounds;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 public class OMMSounds {
 
@@ -15,7 +14,7 @@ public class OMMSounds {
 
     private static SoundEvent registerSoundEvent(String name) {
         Identifier id = OhMyMeteors.getIdentifier(name);
-        return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.of(id));
+        return Registry.register(Registry.SOUND_EVENT, id, new SoundEvent(id));
     }
 
     public static void registerSounds(){

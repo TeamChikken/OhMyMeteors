@@ -1,6 +1,5 @@
 package me.emafire003.dev.ohmymeteors.blocks.advanced_laser;
 
-import com.mojang.serialization.MapCodec;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.blocks.basic_laser.BasicMeteorLaserBlock;
@@ -12,7 +11,6 @@ import me.emafire003.dev.particleanimationlib.effects.CuboidEffect;
 import me.emafire003.dev.particleanimationlib.effects.LineEffect;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
@@ -51,11 +49,6 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
     }
 
     @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
-        return createCodec(AdvancedMeteorLaserBlock::new);
-    }
-
-    @Override
     public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new AdvancedMeteorLaserBlockEntity(pos, state);
     }
@@ -63,7 +56,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return !world.isClient && world.getDimension().hasSkyLight() ? validateTicker(type, OMMBlocks.ADVANCED_METEOR_LASER_BLOCK_ENTITY, AdvancedMeteorLaserBlock::tick) : null;
+        return !world.isClient && world.getDimension().hasSkyLight() ? checkType(type, OMMBlocks.ADVANCED_METEOR_LASER_BLOCK_ENTITY, AdvancedMeteorLaserBlock::tick) : null;
     }
 
     /**
@@ -123,32 +116,31 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
             }
 
             Box box = new Box(new BlockPos(pos.getX(), Math.min(pos.getY()+getYLevelAreaCoverage(), Config.METEOR_SPAWN_HEIGHT), pos.getZ())).expand(getRadiusAreaCoverage(), 1, getRadiusAreaCoverage());
-
-
+            
             //useful to see where the box is, gets shown when the the show area blockstate property is true
             if(state.get(SHOW_AREA)){
-                CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, box.getMinPos())
-                        .particles(30).targetPos(box.getMaxPos()).iterations(1)
+                CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, new Vec3d(box.minX, box.minY, box.minZ))
+                        .particles(30).targetPos(new Vec3d(box.maxX, box.maxY, box.maxZ)).iterations(1)
                         .build();
                 cuboidEffect.run();
 
 
-                Vec3d lowerPos = new Vec3d(box.getMaxPos().getX(), pos.getY(), box.getMaxPos().getZ());
+                Vec3d lowerPos = new Vec3d(new Vec3d(box.maxX, box.maxY, box.maxZ).getX(), pos.getY(), new Vec3d(box.maxX, box.maxY, box.maxZ).getZ());
 
                 //The two vertical lines at the angles
                 LineEffect line = LineEffect
-                        .builder(serverWorld, ParticleTypes.BUBBLE_POP, box.getMaxPos())
+                        .builder(serverWorld, ParticleTypes.BUBBLE_POP, new Vec3d(box.maxX, box.maxY, box.maxZ))
                         .targetPos(lowerPos)
-                        .particles((int) (lowerPos.distanceTo(box.getMaxPos())))
+                        .particles((int) (lowerPos.distanceTo(new Vec3d(box.maxX, box.maxY, box.maxZ))))
                         .iterations(1)
                         .forced(true)
                         .build();
                 line.run();
 
-                lowerPos = new Vec3d(box.getMinPos().getX(), pos.getY(), box.getMinPos().getZ());
+                lowerPos = new Vec3d(new Vec3d(box.minX, box.minY, box.minZ).getX(), pos.getY(), new Vec3d(box.minX, box.minY, box.minZ).getZ());
                 line.setTargetPos(lowerPos);
-                line.setOriginPos(box.getMinPos());
-                line.setParticles((int) (lowerPos.distanceTo(box.getMinPos())));
+                line.setOriginPos(new Vec3d(box.minX, box.minY, box.minZ));
+                line.setParticles((int) (lowerPos.distanceTo(new Vec3d(box.minX, box.minY, box.minZ))));
                 line.run();
 
                 //The vertical line in the middle
@@ -160,13 +152,13 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 line.run();
 
                 //The horizontal lines at the top which point to the corner of the box
-                lowerPos = box.getMaxPos();
+                lowerPos = new Vec3d(box.maxX, box.maxY, box.maxZ);
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
                 line.run();
 
-                lowerPos = box.getMinPos();
+                lowerPos = new Vec3d(box.minX, box.minY, box.minZ);
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
@@ -202,33 +194,33 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
 
                 //BUBBLE_POP could also work?
                 LineEffect lineEffect = LineEffect
-                        .builder(serverWorld, OMMParticles.LASER_PARTICLE, pos.up().toCenterPos())
+                        .builder(serverWorld, OMMParticles.LASER_PARTICLE, Vec3d.of(pos.up()))
                         .targetPos(meteorProjectileEntity.getPos())
-                        .particles((int) (pos.toCenterPos().distanceTo(meteorProjectileEntity.getPos())*2))
+                        .particles((int) (Vec3d.of(pos).distanceTo(meteorProjectileEntity.getPos())*2))
                         .forced(true)
                         .build();
 
                 lineEffect.setParticle(OMMParticles.LASER_PARTICLE_SMALL);
-                lineEffect.setOriginPos(pos.up().toCenterPos().add(0.5, -0.5, 0));
-                lineEffect.setParticles((int) (pos.up().toCenterPos().add(0.5, -0.5, 0).distanceTo(meteorProjectileEntity.getPos())*2));
+                lineEffect.setOriginPos(Vec3d.of(pos.up()).add(0.5, -0.5, 0));
+                lineEffect.setParticles((int) (Vec3d.of(pos.up()).add(0.5, -0.5, 0).distanceTo(meteorProjectileEntity.getPos())*2));
                 lineEffect.runFor(1);
 
-                lineEffect.setOriginPos(pos.up().toCenterPos().add(-0.5, -0.5, 0));
-                lineEffect.setParticles((int) (pos.up().toCenterPos().add(-0.5, -0.5, 0).distanceTo(meteorProjectileEntity.getPos())*2));
+                lineEffect.setOriginPos(Vec3d.of(pos.up()).add(-0.5, -0.5, 0));
+                lineEffect.setParticles((int) (Vec3d.of(pos.up()).add(-0.5, -0.5, 0).distanceTo(meteorProjectileEntity.getPos())*2));
                 lineEffect.runFor(1);
 
-                lineEffect.setOriginPos(pos.up().toCenterPos().add(0, -0.5, 0.5));
-                lineEffect.setParticles((int) (pos.up().toCenterPos().add(0, -0.5, 0.5).distanceTo(meteorProjectileEntity.getPos())*2));
+                lineEffect.setOriginPos(Vec3d.of(pos.up()).add(0, -0.5, 0.5));
+                lineEffect.setParticles((int) (Vec3d.of(pos.up()).add(0, -0.5, 0.5).distanceTo(meteorProjectileEntity.getPos())*2));
                 lineEffect.runFor(1);
 
-                lineEffect.setOriginPos(pos.up().toCenterPos().add(0, -0.5, -0.5));
-                lineEffect.setParticles((int) (pos.up().toCenterPos().add(0, -0.5, -0.5).distanceTo(meteorProjectileEntity.getPos())*2));
+                lineEffect.setOriginPos(Vec3d.of(pos.up()).add(0, -0.5, -0.5));
+                lineEffect.setParticles((int) (Vec3d.of(pos.up()).add(0, -0.5, -0.5).distanceTo(meteorProjectileEntity.getPos())*2));
                 lineEffect.runFor(1);
 
                 lineEffect.setParticle(OMMParticles.LASER_PARTICLE);
-                lineEffect.setOriginPos(pos.up().toCenterPos());
+                lineEffect.setOriginPos(Vec3d.of(pos.up()));
                 lineEffect.setTargetPos(meteorProjectileEntity.getPos());
-                lineEffect.setParticles((int) (pos.toCenterPos().distanceTo(meteorProjectileEntity.getPos())*2));
+                lineEffect.setParticles((int) (Vec3d.of(pos).distanceTo(meteorProjectileEntity.getPos())*2));
                 lineEffect.runFor(1, (effect, t) -> {
                     //If the ticks are 19/20 it means the effect is about to end (1 second = 20 ticks), so revert back the state
                     if(t >= 19){

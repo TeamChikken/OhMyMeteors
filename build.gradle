@@ -39,8 +39,7 @@ dependencies {
 
 	//ParticleAnimationLib for cool particle effects
 	include(modImplementation "maven.modrinth:particleanimationlib:${project.pal_version}")
-	//Only used for easier prototyping, TODO remove on release if stuff doesn't work
-	include(modImplementation "maven.modrinth:particleanimationlibcommands:0.1.0+1.21")
+
 
 }
 

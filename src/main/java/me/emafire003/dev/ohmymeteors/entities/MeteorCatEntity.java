@@ -9,10 +9,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.CatEntity;
-import net.minecraft.entity.passive.CatVariant;
 import net.minecraft.entity.passive.PassiveEntity;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -33,14 +30,13 @@ public class MeteorCatEntity extends CatEntity {
         return MobEntity.createMobAttributes()
                 .add(EntityAttributes.GENERIC_MAX_HEALTH, 15.0)
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.35F)
-                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.0)
-                .add(EntityAttributes.GENERIC_BURNING_TIME, 0); //So even if it gets on fire it won't last
+                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.0);
     }
 
 
     @Override
     public boolean damage(DamageSource source, float amount) {
-        if(source.isIn(DamageTypeTags.IS_FIRE)){
+        if(source.isFire()){
             return false;
         }
         return super.damage(source, amount);
@@ -59,10 +55,6 @@ public class MeteorCatEntity extends CatEntity {
         return null;
     }
 */
-    @Override
-    public void setVariant(RegistryEntry<CatVariant> registryEntry) {
-
-    }
 
     //TODO if to breed with cats, just needs to remove the "meteor" part
     //also should not need overriding
@@ -75,7 +67,7 @@ public class MeteorCatEntity extends CatEntity {
 
             if (this.isTamed()) {
                 catEntity.setOwnerUuid(this.getOwnerUuid());
-                catEntity.setTamed(true, true);
+                catEntity.setTamed(true);
                 if (this.random.nextBoolean()) {
                     ((CatCollarInvoker) catEntity).invokeSetCollarColor(this.getCollarColor());
                 } else {

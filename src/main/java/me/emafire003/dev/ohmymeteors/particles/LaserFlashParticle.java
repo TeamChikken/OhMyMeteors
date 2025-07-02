@@ -6,7 +6,7 @@ import net.minecraft.client.particle.*;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particle.SimpleParticleType;
+import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.util.math.MathHelper;
 
 public class LaserFlashParticle extends SpriteBillboardParticle {
@@ -33,14 +33,14 @@ public class LaserFlashParticle extends SpriteBillboardParticle {
 
 
     @Environment(EnvType.CLIENT)
-    public static class LaserFlashFactory implements ParticleFactory<SimpleParticleType> {
+    public static class LaserFlashFactory implements ParticleFactory<DefaultParticleType> {
         private final SpriteProvider spriteProvider;
 
         public LaserFlashFactory(SpriteProvider spriteProvider) {
             this.spriteProvider = spriteProvider;
         }
 
-        public Particle createParticle(SimpleParticleType simpleParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
+        public Particle createParticle(DefaultParticleType simpleParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
             LaserFlashParticle flash = new LaserFlashParticle(clientWorld, d, e, f);
             flash.setSprite(this.spriteProvider);
             return flash;
