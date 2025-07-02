@@ -158,6 +158,7 @@ public class BasicMeteorLaserBlock extends BlockWithEntity implements BlockEntit
             if(state.get(SHOW_AREA)){
                 CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, box.getMinPos())
                         .particles(30).targetPos(box.getMaxPos()).iterations(1)
+                        .forced(true)
                         .build();
                 cuboidEffect.run();
 
