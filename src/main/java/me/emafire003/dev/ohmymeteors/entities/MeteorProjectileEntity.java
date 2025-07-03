@@ -178,7 +178,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     }*/
     
     private Vec3d collisionPos = null;
-    
+
     @Override
     public void tick() {
         loadChunk();
@@ -318,6 +318,13 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }else{
             this.getWorld().createExplosion(this, DamageSource.explosion(e), safeExplosion, this.getX(), this.getY(), this.getZ(), this.getSize(), false, Explosion.DestructionType.DESTROY);
         }
+
+        if(!this.getWorld().isClient()){
+            ((ServerWorld)this.getWorld()).getPlayers().forEach(serverPlayerEntity -> {
+                ((ServerWorld)this.getWorld()).spawnParticles(serverPlayerEntity, ParticleTypes.EXPLOSION_EMITTER, true, this.getX(), this.getY(), this.getZ(), 1, 0.1, 0.1, 0.1, 0.1);
+            });
+        }
+
         //entity.getWorld().addParticle(ParticleTypes.FLASH, pos.getX(), pos.getY(), pos.getZ(), 0,0,0);
         this.discard();
     }
