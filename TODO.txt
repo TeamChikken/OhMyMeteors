@@ -1,1 +1,5 @@
 Maybe add a tool to allow meteor tracking?
+
+Add (neo)forge support with connector
+
+Add REI/Jei compat
