@@ -6,6 +6,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.CatEntity;
@@ -36,7 +37,7 @@ public class MeteorCatEntity extends CatEntity {
 
     @Override
     public boolean damage(DamageSource source, float amount) {
-        if(source.isFire()){
+        if(source.isOf(DamageTypes.ON_FIRE) || source.isOf(DamageTypes.IN_FIRE)  ){
             return false;
         }
         return super.damage(source, amount);
