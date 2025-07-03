@@ -1,0 +1,34 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license="GNU LGLP3"
+
+[properties]
+"connector:placeholder"=true
+
+[[mods]]
+modId="ohmymeteors"
+version="0.0.1+1.21.1"
+displayName="LightWithin"
+authors="Emafire003, SlayerTheChikken"
+description='''A mod that introduces meteors that fall from the sky! Extremely configurable, a lot of meteor sizes with different types of impact and generated structures. And also a new kitty! Commissioned by SlayerTheChikken'''
+
+[[dependencies.ohmymeteors]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ohmymeteors]]
+modId="minecraft"
+mandatory=true
+versionRange="*"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.ohmymeteors]]
+modId="connector"
+mandatory=true
+versionRange="*"
+ordering="NONE"
+side="BOTH"
