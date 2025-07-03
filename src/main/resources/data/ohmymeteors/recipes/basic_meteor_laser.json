@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "L": {
+      "item": "ohmymeteors:focusing_lenses"
+    },
+    "D": {
+      "item": "minecraft:daylight_detector"
+    },
+    "O": {
+      "item": "minecraft:observer"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    }
+
+  },
+  "pattern": [
+    "ILI",
+    "IDI",
+    "ROR"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ohmymeteors:basic_meteor_laser"
+  }
+}

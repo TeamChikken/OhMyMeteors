@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "G": {
+      "item": "minecraft:lime_stained_glass"
+    },
+    "Q": {
+      "item": "minecraft:quartz"
+    },
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    }
+  },
+  "pattern": [
+    " A ",
+    "AQA",
+    "GGG"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ohmymeteors:focusing_lenses"
+  }
+}
