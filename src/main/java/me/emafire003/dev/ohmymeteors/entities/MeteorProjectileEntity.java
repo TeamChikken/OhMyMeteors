@@ -9,7 +9,10 @@ import me.emafire003.dev.particleanimationlib.effects.AnimatedCircleEffect;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.entity.EntityPose;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -257,6 +260,13 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }else{
             this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize(), false, World.ExplosionSourceType.TNT);
         }
+
+        if(!this.getWorld().isClient()){
+            ((ServerWorld)this.getWorld()).getPlayers().forEach(serverPlayerEntity -> {
+                ((ServerWorld)this.getWorld()).spawnParticles(serverPlayerEntity, ParticleTypes.EXPLOSION_EMITTER, true, this.getX(), this.getY(), this.getZ(), 1, 0.1, 0.1, 0.1, 0.1);
+            });
+        }
+
         //entity.getWorld().addParticle(ParticleTypes.FLASH, pos.getX(), pos.getY(), pos.getZ(), 0,0,0);
         this.discard();
     }
