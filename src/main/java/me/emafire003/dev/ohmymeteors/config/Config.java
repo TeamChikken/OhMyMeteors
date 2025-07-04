@@ -65,6 +65,8 @@ public class Config {
     public static int MAX_MEDIUM_METEOR_SIZE = 7;
     public static int MAX_BIG_METEOR_SIZE = 20;
 
+    public static boolean USE_FORCED_PARTICLES = true;
+
 
 
     public static void handleVersionChange(){
@@ -187,6 +189,10 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("max_medium_meteor_size", 7),"The maximum size of meteor that can be considered medium, and will spawn a medium meteor structure upon impact");
         configs.addKeyValuePair(new Pair<>("max_big_meteor_size", 7),"The maximum size of meteor that can be considered big, and will spawn a big meteor structure upon impact. Only these can spawn a meteor cat by default.");
 
+        configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
+        configs.addKeyValuePair(new Pair<>("use_forced_particles", true),"Should meteor and laser particles be forced? They will be rendered further away and look better, but if there are too many of them you may want to disable this for lag reasons. Note: some particles will never displays as forced, like the lasers target box");
+
+
 
     }
 
@@ -246,6 +252,8 @@ public class Config {
         MAX_SMALL_METEOR_SIZE = CONFIG.getOrDefault("max_small_meteor_size", 4);
         MAX_MEDIUM_METEOR_SIZE = CONFIG.getOrDefault("max_medium_meteor_size", 7);
         MAX_BIG_METEOR_SIZE = CONFIG.getOrDefault("max_big_meteor_size", 20);
+
+        USE_FORCED_PARTICLES = CONFIG.getOrDefault("use_forced_particles", true);
 
     }
 }

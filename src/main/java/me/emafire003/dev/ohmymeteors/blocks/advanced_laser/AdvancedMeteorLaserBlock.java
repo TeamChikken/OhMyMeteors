@@ -129,7 +129,6 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
             if(state.get(SHOW_AREA)){
                 CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, box.getMinPos())
                         .particles(30).targetPos(box.getMaxPos()).iterations(1)
-                        .forced(true)
                         .build();
                 cuboidEffect.run();
 
@@ -142,7 +141,6 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                         .targetPos(lowerPos)
                         .particles((int) (lowerPos.distanceTo(box.getMaxPos())))
                         .iterations(1)
-                        .forced(true)
                         .build();
                 line.run();
 
@@ -158,10 +156,13 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
+                line.setForced(Config.USE_FORCED_PARTICLES);
                 line.run();
 
                 //The horizontal lines at the top which point to the corner of the box
                 lowerPos = box.getMaxPos();
+                line.setForced(false);
+                //TODO these don't work at all anymore
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
@@ -206,7 +207,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                         .builder(serverWorld, OMMParticles.LASER_PARTICLE, pos.up().toCenterPos())
                         .targetPos(meteorProjectileEntity.getPos())
                         .particles((int) (pos.toCenterPos().distanceTo(meteorProjectileEntity.getPos())*2))
-                        .forced(true)
+                        .forced(Config.USE_FORCED_PARTICLES)
                         .build();
 
                 lineEffect.setParticle(OMMParticles.LASER_PARTICLE_SMALL);
@@ -230,11 +231,12 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 lineEffect.setOriginPos(pos.up().toCenterPos());
                 lineEffect.setTargetPos(meteorProjectileEntity.getPos());
                 lineEffect.setParticles((int) (pos.toCenterPos().distanceTo(meteorProjectileEntity.getPos())*2));
+                putInCooldown(blockEntity);
                 lineEffect.runFor(1, (effect, t) -> {
                     //If the ticks are 19/20 it means the effect is about to end (1 second = 20 ticks), so revert back the state
                     if(t >= 19){
                         world.setBlockState(pos, state.with(FIRING, false).with(IN_COOLDOWN, true), Block.NOTIFY_LISTENERS);
-                        putInCooldown(blockEntity);
+
                     }
                 });
 

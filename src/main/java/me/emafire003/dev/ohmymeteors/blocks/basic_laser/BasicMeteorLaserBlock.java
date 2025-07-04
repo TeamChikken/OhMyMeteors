@@ -158,7 +158,6 @@ public class BasicMeteorLaserBlock extends BlockWithEntity implements BlockEntit
             if(state.get(SHOW_AREA)){
                 CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, box.getMinPos())
                         .particles(30).targetPos(box.getMaxPos()).iterations(1)
-                        .forced(true)
                         .build();
                 cuboidEffect.run();
 
@@ -170,7 +169,6 @@ public class BasicMeteorLaserBlock extends BlockWithEntity implements BlockEntit
                         .targetPos(lowerPos)
                         .particles((int) (lowerPos.distanceTo(box.getMaxPos())))
                         .iterations(1)
-                        .forced(true)
                         .build();
                 line.run();
 
@@ -186,12 +184,14 @@ public class BasicMeteorLaserBlock extends BlockWithEntity implements BlockEntit
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
+                line.setForced(Config.USE_FORCED_PARTICLES);
                 line.run();
 
                 //The horizontal lines at the top which point to the corner of the box
                 lowerPos = box.getMaxPos();
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
+                line.setForced(false);
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
                 line.run();
 
@@ -235,14 +235,14 @@ public class BasicMeteorLaserBlock extends BlockWithEntity implements BlockEntit
                 LineEffect lineEffect = LineEffect
                         .builder(serverWorld, OMMParticles.LASER_PARTICLE, pos.toCenterPos().add(0, 0.5, 0))
                         .targetPos(meteorProjectileEntity.getPos())
-                        .forced(true)
+                        .forced(Config.USE_FORCED_PARTICLES)
                         .particles((int) (pos.toCenterPos().distanceTo(meteorProjectileEntity.getPos())*3))
                         .build();
+                putInCooldown(blockEntity);
                 lineEffect.runFor(1, (effect, t) -> {
                     //If the ticks are 19 it means the effect is about to end (1 second = 20 ticks), so revert back the state
                     if(t >= 19){
                         world.setBlockState(pos, state.with(FIRING, false).with(IN_COOLDOWN, true), Block.NOTIFY_LISTENERS);
-                        putInCooldown(blockEntity);
                     }
                 });
 
