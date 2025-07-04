@@ -5,7 +5,6 @@ import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.events.MeteorSpawnEvent;
 import me.emafire003.dev.ohmymeteors.config.Config;
-import me.emafire003.dev.particleanimationlib.effects.AnimatedCircleEffect;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -147,11 +146,17 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     private ChunkPos currentlyLoadedChunk;
 
     /**Gets called every tick and makes sure that when the meteor travels through a chunk it is loaded*/
+    //TODO this doesn't seem to be working as it should
     public void loadChunk(){
-        //Every 100 seconds or every time the meteor enters a new chuck, the meteor loads the chunk it's in for 5 seconds or 100 ticks
+        //Safety feature so the meteor despawns if it gets too high, for example using commands and such
+        if(this.getY() > Config.METEOR_SPAWN_HEIGHT+50){
+            this.discard();
+        }
+        //Every 100 seconds or every time the meteor enters a new chunk, the meteor loads the chunk it's in for 5 seconds or 100 ticks
         if(this.getWorld() instanceof ServerWorld world){
             if(loadingChuckTicks > 0){
                 if(currentlyLoadedChunk == null || !currentlyLoadedChunk.equals(this.getChunkPos())){
+                    OhMyMeteors.LOGGER.info("loading chunk at " + this.getChunkPos());
                     world.getChunkManager().addTicket(METEOR_CHUCK_TICKET,  this.getChunkPos(), 2, this.getBlockPos());
                     currentlyLoadedChunk = this.getChunkPos();
                     loadingChuckTicks = 5*20;
@@ -268,24 +273,17 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     /**
      * Spawns the particle effects behind the meteor*/
     public void particleAnimation(double d, double e, double f){
-        this.getWorld().addParticle(ParticleTypes.FLASH, true, d, e + 0.5, f, 0.0, 0.0, 0.0);
-        this.getWorld().addParticle(ParticleTypes.EXPLOSION, true, d, e + 0.5, f, 0.0, 0.0, 0.0);
+        this.getWorld().addParticle(ParticleTypes.FLASH, Config.USE_FORCED_PARTICLES, d, e + 0.5, f, 0.0, 0.0, 0.0);
+        this.getWorld().addParticle(ParticleTypes.EXPLOSION, Config.USE_FORCED_PARTICLES, d, e + 0.5, f, 0.0, 0.0, 0.0);
 
-        if(this.getWorld().isClient()){
-            return;
+        if(this.getWorld() instanceof ServerWorld world){
+            world.getPlayers().forEach(p -> {
+                world.spawnParticles(p, ParticleTypes.FLAME, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
+                world.spawnParticles(p, ParticleTypes.SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
+                world.spawnParticles(p, ParticleTypes.CAMPFIRE_COSY_SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 10+this.getSize()*2, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
+
+            });
         }
-
-        ///pal animatedcircle minecraft:soul_fire_flame ~ ~ ~ 100 2 0 3.14 false false true 2.0 0.0 0.0 0.0 0.0 0.0 5
-
-        AnimatedCircleEffect circle = AnimatedCircleEffect
-                .builder((ServerWorld) this.getWorld(), ParticleTypes.FLAME, new Vec3d(d,e,f))
-                .particles(100).radius(this.getSize()).wholeCircle(false).maxAngle(3.14)
-                .forced(true)
-                .enableRotation(true).angularVelocityX(2)
-                .build();
-
-        circle.setIterations(10);
-        circle.run();
     }
 
 
