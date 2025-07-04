@@ -139,6 +139,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     private int loadingChuckTicks = 0;
     private ChunkPos currentlyLoadedChunk;
 
+    private int chunksLoaded = 0;
+
     /**Gets called every tick and makes sure that when the meteor travels through a chunk it is loaded*/
     //TODO this doesn't seem to be working as it should
     public void loadChunk(){
@@ -146,14 +148,20 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         if(this.getY() > Config.METEOR_SPAWN_HEIGHT+50){
             this.discard();
         }
-        //Every 100 seconds or every time the meteor enters a new chunk, the meteor loads the chunk it's in for 5 seconds or 100 ticks
+        //Every 100 seconds or every time the meteor enters a new chunk, the meteor loads the chunk it's in for 10 seconds or 200 ticks
         if(this.getWorld() instanceof ServerWorld world){
             if(loadingChuckTicks > 0){
                 if(currentlyLoadedChunk == null || !currentlyLoadedChunk.equals(this.getChunkPos())){
                     OhMyMeteors.LOGGER.info("loading chunk at " + this.getChunkPos());
-                    world.getChunkManager().addTicket(METEOR_CHUCK_TICKET,  this.getChunkPos(), 2, this.getBlockPos());
+                    world.getChunkManager().addTicket(METEOR_CHUCK_TICKET,  this.getChunkPos(), 3, this.getBlockPos());
                     currentlyLoadedChunk = this.getChunkPos();
-                    loadingChuckTicks = 5*20;
+                    loadingChuckTicks = 10*20;
+                    chunksLoaded++;
+                }
+                //So it avoids loading chunks forever and slowing down the game
+                if(chunksLoaded > 100){
+                    OhMyMeteors.LOGGER.warn("Discarded meteor projectile at " + this.getPos() + " after having loaded too many chunks (" + chunksLoaded + ")");
+                    this.discard();
                 }
                 loadingChuckTicks++;
                 return;
@@ -221,9 +229,9 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         if(this.getWorld() instanceof ServerWorld world){
             world.getPlayers().forEach(p -> {
-                world.spawnParticles(p, ParticleTypes.FLAME, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
-                world.spawnParticles(p, ParticleTypes.SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
-                world.spawnParticles(p, ParticleTypes.CAMPFIRE_COSY_SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 10+this.getSize()*2, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
+                world.spawnParticles(p, ParticleTypes.FLAME, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.1);
+                world.spawnParticles(p, ParticleTypes.SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.1);
+                world.spawnParticles(p, ParticleTypes.CAMPFIRE_COSY_SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 10+this.getSize()*2, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.1);
 
             });
         }
