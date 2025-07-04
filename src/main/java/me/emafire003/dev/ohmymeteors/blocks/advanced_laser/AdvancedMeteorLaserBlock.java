@@ -119,9 +119,8 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
 
             //useful to see where the box is, gets shown when the the show area blockstate property is true
             if(state.get(SHOW_AREA)){
-                CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, box.getMinPos())
-                        .particles(30).targetPos(box.getMaxPos()).iterations(1)
-                        .forced(true)
+                CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, new Vec3d(box.minX, box.minY, box.minZ))
+                        .particles(30).targetPos(new Vec3d(box.maxX, box.maxY, box.maxZ)).iterations(1)
                         .build();
                 cuboidEffect.run();
 
@@ -134,7 +133,6 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                         .targetPos(lowerPos)
                         .particles((int) (lowerPos.distanceTo(new Vec3d(box.maxX, box.maxY, box.maxZ))))
                         .iterations(1)
-                        .forced(true)
                         .build();
                 line.run();
 
@@ -150,9 +148,11 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
+                line.setForced(Config.USE_FORCED_PARTICLES);
                 line.run();
 
                 //The horizontal lines at the top which point to the corner of the box
+                line.setForced(false);
                 lowerPos = new Vec3d(box.maxX, box.maxY, box.maxZ);
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
@@ -198,7 +198,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                         .builder(serverWorld, OMMParticles.LASER_PARTICLE, Vec3d.of(pos.up()))
                         .targetPos(meteorProjectileEntity.getPos())
                         .particles((int) (Vec3d.of(pos).distanceTo(meteorProjectileEntity.getPos())*2))
-                        .forced(true)
+                        .forced(Config.USE_FORCED_PARTICLES)
                         .build();
 
                 lineEffect.setParticle(OMMParticles.LASER_PARTICLE_SMALL);
@@ -222,11 +222,12 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 lineEffect.setOriginPos(Vec3d.of(pos.up()));
                 lineEffect.setTargetPos(meteorProjectileEntity.getPos());
                 lineEffect.setParticles((int) (Vec3d.of(pos).distanceTo(meteorProjectileEntity.getPos())*2));
+                putInCooldown(blockEntity);
                 lineEffect.runFor(1, (effect, t) -> {
                     //If the ticks are 19/20 it means the effect is about to end (1 second = 20 ticks), so revert back the state
                     if(t >= 19){
                         world.setBlockState(pos, state.with(FIRING, false).with(IN_COOLDOWN, true), Block.NOTIFY_LISTENERS);
-                        putInCooldown(blockEntity);
+
                     }
                 });
 
