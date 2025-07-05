@@ -7,6 +7,8 @@ This mod adds meteors, chunks of rock that randomly fall from the sky every now 
 You will be able to craft lasers to defend yourself from the destructive power of these touchy sky rocks, or maybe you could
 find some cuteness inside some them! Meow!
 
+![oh my meteor](https://github.com/user-attachments/assets/2b4d86fe-4e99-4844-82ad-42cd914a147b)
+
 This mod is extremely configurable, meaning that you can adjust it however you like. Would you like more metors at night? Cool!
 Would like them not to explode anything? Done! And a lot of other settings!
 
