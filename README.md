@@ -32,6 +32,8 @@ Then we have the **Focusing Lenses**, which are used in the crafting of the two 
 ### Meteor structures
 The ones that spawn when a meteor explodes. They are located in the folder /data/ohmymeteors/structure(*s* if below mc1.21) and you can customized them using a datapack. They are the same files that you get out of the Structure Block in vanilla. 
 
+![Meteorimpact-ezgif com-optimize](https://github.com/user-attachments/assets/e65a71bf-1d3a-40b6-b039-9f4a46ab1238)
+
 ### Meteor cat
 A cute kitty could be travelling the galaxy at any given moment. And it could land on your minecraft world (as long as you don't shoot it down with a laser that is).
 They can survive in the fire, have a 15HP instead of 10HP, and if you so chose to dispose of them, they will drop some meteoric chunks (reminding you of your cruelty and cosmic-feline-bloodstained hands)
