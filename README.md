@@ -15,7 +15,9 @@ Inspired by the old meteor mods and commissioned by SlayerTheChikken
 ## Feature list
 ### Meteor sizes
 Meteors can spawn in a variety of different sizes, the bigger the size the bigger the damage and the "structure" that will be left behind. You can adjust which size of meteors is able to spawn and how frequently the meteors spawn. 
-### Lasers
+### Lasers blocks
+They are used to defend your base from the falling meteorites, by shooting a laser at the meteor and destroying it while midair
+
 There are two tiers of lasers: 
 - The basic one has a shorter, but still very considerable range by default (you can change it in the config file!). It also has a loger cooldown time (3s by default, you can even disable it all together) and won't be able to destroy meteors past a certain size (up to sizes that are 1/3 smaller than the biggest, configurable too)
 - The advanced laser, bigger area coverage, shorter cooldown time and can destroy every type of laser. You will however need to gather some meteorich chunks to craft meteoric alloy in order to power up your basic laser to this advanced version
