@@ -1,10 +1,8 @@
 # ![logo_meteor](https://github.com/user-attachments/assets/63402bad-1439-4fb9-8aab-a386f0ce75d8)
 
-Add _spice_ to you
-r world, with giant peppers of molten (or frozen!) rock that fall from the sky!
+Add _spice_ to your world, with giant peppers of molten (or frozen!) rock that fall from the sky!
 
-This mod adds meteors, chunks of rock that randomly fall from the sky every now and then, exploding on impact and leaving 
-useful resources inside the craters they create.
+This mod adds meteors, chunks of rock that randomly fall from the sky every now and then, exploding on impact and leaving useful resources in the impact crates they make.
 
 You will be able to craft lasers to defend yourself from the destructive power of these touchy sky rocks, or maybe you could
 find some cuteness inside some them! Meow!
