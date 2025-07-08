@@ -21,6 +21,7 @@ public class MeteorCatHelmetFeatureRenderer extends FeatureRenderer<CatEntity, C
     }
 
 
+
     public void render(
             MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CatEntity catEntity, float f, float g, float h, float j, float k, float l
     ) {
