@@ -18,6 +18,11 @@ public class OMMItems {
     public static final Item FOCUSING_LENSES = registerItem("focusing_lenses",
             new Item( new FabricItemSettings().rarity(Rarity.COMMON).maxCount(16).group(ItemGroup.MISC)));
 
+    public static final Item METEOR_CAT_SPAWN_EGG = registerItem(
+            "meteor_cat_spawn_egg",
+            new Item( new FabricItemSettings().rarity(Rarity.COMMON).group(ItemGroup.MISC)));
+
+
     private static Item registerItem(String name, Item item){
         return Registry.register(Registry.ITEM, OhMyMeteors.getIdentifier(name), item);
     }
