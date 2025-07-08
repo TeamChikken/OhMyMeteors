@@ -1,5 +1,6 @@
 {
   "entity.ohmymeteors.meteor_projectile": "Meteora",
+  "entity.ohmymeteors.meteor_cat": "Meteorgatto",
 
   "block.ohmymeteors.basic_meteor_laser": "Laser Base per Meteore",
   "block.ohmymeteors.advanced_meteor_laser": "Laser Avanzato per Meteore",
@@ -8,6 +9,7 @@
   "item.ohmymeteors.meteoric_chunk": "Pezzo di Meteorite",
   "item.ohmymeteors.focusing_lenses": "Lenti Convergenti",
   "item.ohmymeteors.meteoric_alloy": "Lega Meteoritica",
+  "item.ohmymeteors.meteor_cat_spawn_egg": "Uovo di Meteorgatto",
 
   "message.ohmymeteors.meteor_spawned": "È apparsa una nuova meteora!",
   "message.ohmymeteors.meteor_destroyed": "Una meteora è stata distrutta!",

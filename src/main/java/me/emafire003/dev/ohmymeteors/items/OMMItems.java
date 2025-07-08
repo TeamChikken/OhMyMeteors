@@ -1,11 +1,9 @@
 package me.emafire003.dev.ohmymeteors.items;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -24,6 +22,11 @@ public class OMMItems {
             new Item(new Item.Settings().maxCount(16)),
             ItemGroups.INGREDIENTS, METEORIC_CHUNK);
 
+    public static final Item METEOR_CAT_SPAWN_EGG = registerItem(
+            "meteor_cat_spawn_egg",
+            new SpawnEggItem(OMMEntities.METEOR_KITTY_CAT, 0x472750, 0x180A1E, new Item.Settings().maxCount(16)),
+                    ItemGroups.SPAWN_EGGS, Items.CAT_SPAWN_EGG
+    );
 
     private static Item registerItem(String name, Item item, RegistryKey<ItemGroup> group, Item add_after){
         ItemGroupEvents.modifyEntriesEvent(group).register(content -> content.addAfter(add_after, item));
