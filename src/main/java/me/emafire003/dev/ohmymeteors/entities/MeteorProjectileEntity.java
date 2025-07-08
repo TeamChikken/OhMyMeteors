@@ -152,7 +152,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         if(this.getWorld() instanceof ServerWorld world){
             if(loadingChuckTicks > 0){
                 if(currentlyLoadedChunk == null || !currentlyLoadedChunk.equals(this.getChunkPos())){
-                    OhMyMeteors.LOGGER.info("loading chunk at " + this.getChunkPos());
                     world.getChunkManager().addTicket(METEOR_CHUCK_TICKET,  this.getChunkPos(), 3, this.getBlockPos());
                     currentlyLoadedChunk = this.getChunkPos();
                     loadingChuckTicks = 10*20;

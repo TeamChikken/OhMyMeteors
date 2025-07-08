@@ -2,9 +2,8 @@ package me.emafire003.dev.ohmymeteors;
 
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
-import me.emafire003.dev.ohmymeteors.entities.client.MeteorCatEntityRenderer;
-import me.emafire003.dev.ohmymeteors.entities.client.MeteorProjectileEntityModel;
-import me.emafire003.dev.ohmymeteors.entities.client.MeteorProjectileEntityRenderer;
+import me.emafire003.dev.ohmymeteors.entities.client.*;
+import me.emafire003.dev.ohmymeteors.entities.client.idkstuff.MeteorCatEntityModelold;
 import me.emafire003.dev.ohmymeteors.particles.LaserFlashParticle;
 import me.emafire003.dev.ohmymeteors.particles.LaserParticle;
 import me.emafire003.dev.ohmymeteors.particles.LaserParticleSmall;
@@ -36,7 +35,9 @@ public class OhMyMeteorsClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(MeteorProjectileEntityModel.METEOR, MeteorProjectileEntityModel::getTexturedModelData);
         EntityRendererRegistry.register(OMMEntities.METEOR_PROJECTILE_ENTITY, MeteorProjectileEntityRenderer::new);
         //TODO this may be needed
-        //EntityModelLayerRegistry.registerModelLayer(MeteorCatEntityModel., MeteorProjectileEntityModel::getTexturedModelData);
+        //EntityModelLayerRegistry.registerModelLayer(MeteorCatEntityModelold.METEOR_CAT, MeteorCatEntityModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(MeteorCatHelmetFeatureModel.METEOR_CAT_HELMET, MeteorCatHelmetFeatureModel::getTexturedModelData);
+
         EntityRendererRegistry.register(OMMEntities.METEOR_KITTY_CAT, MeteorCatEntityRenderer::new);
 
     }

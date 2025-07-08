@@ -1,12 +1,15 @@
 {
-	"required": true,
-	"package": "me.emafire003.dev.ohmymeteors.mixin",
-	"compatibilityLevel": "JAVA_16",
-	"mixins": [
-		"CatCollarInvoker",
-		"WorldSpawnMeteorMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	}
+  "required": true,
+  "package": "me.emafire003.dev.ohmymeteors.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "mixins": [
+    "CatCollarInvoker",
+    "WorldSpawnMeteorMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "MeteorCatHelmetRendererMixin"
+  ]
 }
