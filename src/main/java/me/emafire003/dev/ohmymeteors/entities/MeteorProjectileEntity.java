@@ -44,7 +44,6 @@ import java.util.Optional;
  * such as creating an explosion and spawning the structure of blocks of the meteor thing*/
 public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     private static final TrackedData<Integer> SIZE = DataTracker.registerData(MeteorProjectileEntity.class, TrackedDataHandlerRegistry.INTEGER);
-    //TODO needs proper testing
     private static final ChunkTicketType<Vec3i> METEOR_CHUCK_TICKET = ChunkTicketType.create("meteor", Vec3i::compareTo, 5*20);
 
     /// Aka a meteor that is a result of the {@link #detonateScatter()} method
@@ -156,8 +155,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         if(this.getWorld() instanceof ServerWorld world){
             if(loadingChuckTicks > 0){
                 if(currentlyLoadedChunk == null || !currentlyLoadedChunk.equals(this.getChunkPos())){
-                    OhMyMeteors.LOGGER.info("loading chunk at " + this.getChunkPos());
-                    world.getChunkManager().addTicket(METEOR_CHUCK_TICKET,  this.getChunkPos(), 2, this.getBlockPos());
+                    world.getChunkManager().addTicket(METEOR_CHUCK_TICKET,  this.getChunkPos(), 3, this.getBlockPos());
                     currentlyLoadedChunk = this.getChunkPos();
                     loadingChuckTicks = 5*20;
                 }
@@ -170,20 +168,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             loadingChuckTicks = 5*20;
         }
     }
-    
-    
-    /* TODO maybe add accessors to avoid having to tick twice
-    private void superTick(){
-        if (!this.shot) {
-            this.emitGameEvent(GameEvent.PROJECTILE_SHOOT, this.getOwner());
-            this.shot = true;
-        }
 
-        if (!this.leftOwner) {
-            this.leftOwner = this.shouldLeaveOwner();
-        }
-    }*/
-    
+
     private Vec3d collisionPos = null;
 
     @Override
