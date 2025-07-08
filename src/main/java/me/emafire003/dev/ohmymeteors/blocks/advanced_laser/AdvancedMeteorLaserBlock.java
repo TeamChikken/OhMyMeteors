@@ -162,7 +162,6 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 //The horizontal lines at the top which point to the corner of the box
                 lowerPos = box.getMaxPos();
                 line.setForced(false);
-                //TODO these don't work at all anymore
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
