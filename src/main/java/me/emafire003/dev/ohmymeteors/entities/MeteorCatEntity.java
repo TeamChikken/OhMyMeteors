@@ -8,9 +8,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.CatEntity;
-import net.minecraft.entity.passive.CatVariant;
 import net.minecraft.entity.passive.PassiveEntity;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
@@ -42,12 +40,6 @@ public class MeteorCatEntity extends CatEntity {
         }
         return super.damage(world, source, amount);
     }
-
-    /*@Override
-    public RegistryEntry<CatVariant> getVariant() {
-        //TODO test out
-        return null;
-    }*/
 
     //TODO if to breed with cats, just needs to remove the "meteor" part
     //also should not need overriding
