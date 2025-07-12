@@ -7,12 +7,9 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.SlimeEntityRenderer;
-import net.minecraft.client.render.entity.state.EntityRenderState;
-import net.minecraft.client.render.entity.state.SlimeEntityRenderState;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
+
 
 public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProjectileEntity, MeteorProjectileRenderState> {
     protected MeteorProjectileEntityModel model;
@@ -44,6 +41,11 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
     @Override
     public MeteorProjectileRenderState createRenderState() {
         return new MeteorProjectileRenderState();
+    }
+
+    public void updateRenderState(MeteorProjectileEntity meteorEntity, MeteorProjectileRenderState slimeEntityRenderState, float f) {
+        super.updateRenderState(meteorEntity, slimeEntityRenderState, f);
+        slimeEntityRenderState.size = meteorEntity.getSize();
     }
 
     /*protected void scale(MeteorProjectileEntity entity, MatrixStack matrixStack, float f) {

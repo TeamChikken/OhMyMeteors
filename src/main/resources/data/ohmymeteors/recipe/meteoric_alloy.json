@@ -1,21 +1,22 @@
 {
   "type": "minecraft:crafting_shapeless",
+  "category": "misc",
   "ingredients": [
-    {
-      "item": "minecraft:iron_ingot"
-    },
-    {
-      "item": "minecraft:iron_ingot"
-    },
-    {
-      "item": "ohmymeteors:meteoric_chunk"
-    },
-    {
-      "item": "ohmymeteors:meteoric_chunk"
-    }
+    [
+      "ohmymeteors:meteoric_chunk"
+    ],
+    [
+      "ohmymeteors:meteoric_chunk"
+    ],
+    [
+      "minecraft:iron_ingot"
+    ],
+    [
+      "minecraft:iron_ingot"
+    ]
   ],
   "result": {
-    "count": 2,
-    "id": "ohmymeteors:meteoric_alloy"
+    "id": "ohmymeteors:meteoric_alloy",
+    "count": 2
   }
 }

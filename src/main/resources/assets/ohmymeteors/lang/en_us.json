@@ -10,6 +10,9 @@
   "item.ohmymeteors.focusing_lenses": "Focusing Lenses",
   "item.ohmymeteors.meteoric_alloy": "Meteoric Alloy",
   "item.ohmymeteors.meteor_cat_spawn_egg": "Meteor Cat Spawn Egg",
+  "item.ohmymeteors.basic_meteor_laser": "Basic Meteor Laser",
+  "item.ohmymeteors.advanced_meteor_laser": "Advanced Meteor Laser",
+  "item.ohmymeteors.meteoric_rock": "Meteoric Rock",
 
   "message.ohmymeteors.meteor_spawned": "A new meteor has spawned!",
   "message.ohmymeteors.meteor_destroyed": "A meteor has been destroyed!",
