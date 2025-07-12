@@ -20,7 +20,7 @@ public class MeteorProjectileEntityModel extends EntityModel<MeteorProjectileRen
 	public static TexturedModelData getTexturedModelData() {
 		ModelData modelData = new ModelData();
 		ModelPartData modelPartData = modelData.getRoot();
-		ModelPartData main = modelPartData.addChild("main", ModelPartBuilder.create().uv(0, 0).cuboid(-6.0F, -12.0F, -6.0F, 12.0F, 12.0F, 12.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 24.0F, 0.0F));
+		ModelPartData main = modelPartData.addChild("main", ModelPartBuilder.create().uv(0, 0).cuboid(-6.0F, -12.0F, -6.0F, 12.0F, 12.0F, 12.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 24.0F, 0.0F));
 
 		ModelPartData cube_r1 = main.addChild("cube_r1", ModelPartBuilder.create().uv(32, 0).cuboid(3.0F, -12.0F, -1.0F, 12.0F, 12.0F, 12.0F, new Dilation(0.0F)), ModelTransform.of(-9.0F, -5.0F, -8.0F, -0.7854F, 0.0F, 0.0F));
 

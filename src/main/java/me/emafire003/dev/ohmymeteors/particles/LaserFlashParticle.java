@@ -21,16 +21,15 @@ public class LaserFlashParticle extends SpriteBillboardParticle {
     }
 
     @Override
-    public void buildGeometry(VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
+    public void render(VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
         this.setAlpha(0.6F - (this.age + tickDelta - 1.0F) * 0.25F * 0.5F);
-        super.buildGeometry(vertexConsumer, camera, tickDelta);
+        super.render(vertexConsumer, camera, tickDelta);
     }
 
     @Override
     public float getSize(float tickDelta) {
         return 2.1F * MathHelper.sin((this.age + tickDelta - 1.0F) * 0.25F * (float) Math.PI);
     }
-
 
     @Environment(EnvType.CLIENT)
     public static class LaserFlashFactory implements ParticleFactory<SimpleParticleType> {

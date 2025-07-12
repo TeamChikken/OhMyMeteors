@@ -14,6 +14,9 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,9 @@ public class OhMyMeteors implements ModInitializer {
 	public static Path PATH = Path.of(FabricLoader.getInstance().getConfigDir() + "/" + MOD_ID + "/");
 
 	public static String PREFIX = "[Oh My, Meteors!] ";
+
+	public static final ChunkTicketType METEOR_CHUCK_TICKET = Registry.register(Registries.TICKET_TYPE, OhMyMeteors.MOD_ID+":meteor", new ChunkTicketType(5*20, false, ChunkTicketType.Use.LOADING_AND_SIMULATION));
+
 
 	public static Identifier getIdentifier(String path){
 		return Identifier.of(MOD_ID, path);
@@ -59,7 +65,5 @@ public class OhMyMeteors implements ModInitializer {
 			}
 		});
 	}
-
-	public static final boolean debugSpawningOff = false;
 
 }

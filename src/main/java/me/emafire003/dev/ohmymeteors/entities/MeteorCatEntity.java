@@ -16,7 +16,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-//TODO this crashes :D
 public class MeteorCatEntity extends CatEntity {
 
     public MeteorCatEntity(EntityType<? extends CatEntity> entityType, World world) {
@@ -46,13 +45,9 @@ public class MeteorCatEntity extends CatEntity {
 
     /*@Override
     public RegistryEntry<CatVariant> getVariant() {
+        //TODO test out
         return null;
-    }
-*/
-    @Override
-    public void setVariant(RegistryEntry<CatVariant> registryEntry) {
-
-    }
+    }*/
 
     //TODO if to breed with cats, just needs to remove the "meteor" part
     //also should not need overriding
@@ -64,7 +59,7 @@ public class MeteorCatEntity extends CatEntity {
 
 
             if (this.isTamed()) {
-                catEntity.setOwnerUuid(this.getOwnerUuid());
+                catEntity.setOwner(this.getOwner());
                 catEntity.setTamed(true, true);
                 if (this.random.nextBoolean()) {
                     ((CatCollarInvoker) catEntity).invokeSetCollarColor(this.getCollarColor());

@@ -31,7 +31,7 @@ public class OMMItems {
 
     public static final Item METEOR_CAT_SPAWN_EGG = registerItem(
             "meteor_cat_spawn_egg",
-            new SpawnEggItem(OMMEntities.METEOR_KITTY_CAT, 0x472750, 0x180A1E, new Item.Settings()
+            new SpawnEggItem(OMMEntities.METEOR_KITTY_CAT, new Item.Settings()
                     .registryKey(RegistryKey.of(RegistryKeys.ITEM, OhMyMeteors.getIdentifier("meteor_cat_spawn_egg")))),
                     ItemGroups.SPAWN_EGGS, Items.CAT_SPAWN_EGG
     );
