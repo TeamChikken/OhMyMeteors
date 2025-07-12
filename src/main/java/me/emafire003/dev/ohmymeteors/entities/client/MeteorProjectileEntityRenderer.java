@@ -7,11 +7,14 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.render.entity.SlimeEntityRenderer;
+import net.minecraft.client.render.entity.state.EntityRenderState;
+import net.minecraft.client.render.entity.state.SlimeEntityRenderState;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
-public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProjectileEntity> {
+public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProjectileEntity, MeteorProjectileRenderState> {
     protected MeteorProjectileEntityModel model;
 
     public MeteorProjectileEntityRenderer(EntityRendererFactory.Context ctx) {
@@ -19,40 +22,28 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
         this.model = new MeteorProjectileEntityModel(ctx.getPart(MeteorProjectileEntityModel.METEOR));
     }
 
+
     @Override
-    public void render(MeteorProjectileEntity entity, float yaw, float tickDelta, MatrixStack matrices,
-                       VertexConsumerProvider vertexConsumers, int light) {
-        /*
+    public void render(MeteorProjectileRenderState state, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
+        super.render(state, matrices, vertexConsumers, light);
         matrices.push();
-
-        if(!entity.isGrounded()) {
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(MathHelper.lerp(tickDelta, entity.prevYaw, entity.getYaw())));
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(entity.getRenderingRotation() * 5f));
-            matrices.translate(0, -1.0f, 0);
-        } else {
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(entity.groundedOffset.getY()));
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(entity.groundedOffset.getX()));
-            matrices.translate(0, -1.0f, 0);
-        }
-
-        VertexConsumer vertexconsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers,
-                this.model.getLayer(Identifier.of(TutorialMod.MOD_ID, "textures/entity/tomahawk/tomahawk.png")), false, false);
-        this.model.render(matrices, vertexconsumer, light, OverlayTexture.DEFAULT_UV);
-
-        matrices.pop();*/
-
-        matrices.push();
-        VertexConsumer vertexconsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers,
+        //TODO this does not work.
+        VertexConsumer vertexconsumer = ItemRenderer.getItemGlintConsumer(vertexConsumers,
                 this.model.getLayer(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
 
-        matrices.translate(0, -entity.getDimensions(entity.getPose()).height()/1.5, 0);
+        matrices.translate(0, -state.height/1.5, 0);
 
-        matrices.scale(entity.getSize(), entity.getSize(), entity.getSize());
+        matrices.scale(state.size, state.size, state.size);
 
         this.model.render(matrices, vertexconsumer, light, OverlayTexture.DEFAULT_UV);
 
         matrices.pop();
-        super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
+
+    }
+
+    @Override
+    public MeteorProjectileRenderState createRenderState() {
+        return new MeteorProjectileRenderState();
     }
 
     /*protected void scale(MeteorProjectileEntity entity, MatrixStack matrixStack, float f) {
@@ -65,8 +56,9 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
         matrixStack.scale(j * h, 1.0F / j * h, j * h);
     }*/
 
-    @Override
-    public Identifier getTexture(MeteorProjectileEntity entity) {
+
+    /*@Override
+    public Identifier getTexture(MeteorProjectileRenderState state) {
         return OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png");
-    }
+    }*/
 }

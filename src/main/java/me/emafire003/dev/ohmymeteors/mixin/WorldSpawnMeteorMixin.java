@@ -34,6 +34,10 @@ import java.util.function.Supplier;
 @Mixin(ServerWorld.class)
 public abstract class WorldSpawnMeteorMixin extends World implements StructureWorldAccess {
 
+    protected WorldSpawnMeteorMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, boolean isClient, boolean debugWorld, long seed, int maxChainedNeighborUpdates) {
+        super(properties, registryRef, registryManager, dimensionEntry, isClient, debugWorld, seed, maxChainedNeighborUpdates);
+    }
+
     @Shadow @Nullable public abstract ServerPlayerEntity getRandomAlivePlayer();
 
     @Shadow public abstract boolean spawnEntity(Entity entity);
@@ -101,7 +105,4 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
         }
     }
 
-    protected WorldSpawnMeteorMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
-        super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
-    }
 }

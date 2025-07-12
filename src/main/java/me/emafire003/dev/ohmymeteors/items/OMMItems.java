@@ -7,24 +7,32 @@ import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 
 public class OMMItems {
 
     public static final Item METEORIC_CHUNK = registerItem("meteoric_chunk",
-            new MeteoricChunk(new Item.Settings().maxCount(64)),
+            new MeteoricChunk(new Item.Settings().maxCount(64)
+                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, OhMyMeteors.getIdentifier("meteoric_chunk")))
+            ),
             ItemGroups.INGREDIENTS, Items.BLAZE_POWDER);
 
     public static final Item METEORIC_ALLOY = registerItem("meteoric_alloy",
-            new Item(new Item.Settings().maxCount(64)),
+            new Item(new Item.Settings().maxCount(64)
+                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, OhMyMeteors.getIdentifier("meteoric_alloy")))
+            ),
             ItemGroups.INGREDIENTS, METEORIC_CHUNK);
 
     public static final Item FOCUSING_LENSES = registerItem("focusing_lenses",
-            new Item(new Item.Settings().maxCount(16)),
+            new Item(new Item.Settings()
+                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, OhMyMeteors.getIdentifier("focusing_lenses")))
+                    .maxCount(16)),
             ItemGroups.INGREDIENTS, METEORIC_CHUNK);
 
     public static final Item METEOR_CAT_SPAWN_EGG = registerItem(
             "meteor_cat_spawn_egg",
-            new SpawnEggItem(OMMEntities.METEOR_KITTY_CAT, 0x472750, 0x180A1E, new Item.Settings()),
+            new SpawnEggItem(OMMEntities.METEOR_KITTY_CAT, 0x472750, 0x180A1E, new Item.Settings()
+                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, OhMyMeteors.getIdentifier("meteor_cat_spawn_egg")))),
                     ItemGroups.SPAWN_EGGS, Items.CAT_SPAWN_EGG
     );
 

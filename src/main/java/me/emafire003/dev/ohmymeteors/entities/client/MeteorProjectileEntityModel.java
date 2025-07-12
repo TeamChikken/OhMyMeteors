@@ -4,6 +4,7 @@ import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.entity.model.CatEntityModel;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -11,13 +12,13 @@ import net.minecraft.client.util.math.MatrixStack;
 // Made with Blockbench 4.12.2
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
-
-public class MeteorProjectileEntityModel extends EntityModel<MeteorProjectileEntity> {
+public class MeteorProjectileEntityModel extends EntityModel<MeteorProjectileRenderState> {
 	private final ModelPart main;
 	public static final EntityModelLayer METEOR = new EntityModelLayer(OhMyMeteors.getIdentifier("meteor_projectile"), "main");
 
 	public MeteorProjectileEntityModel(ModelPart root) {
-		this.main = root.getChild("main");
+        super(root);
+        this.main = root.getChild("main");
 	}
 
 	public static TexturedModelData getTexturedModelData() {
@@ -30,11 +31,16 @@ public class MeteorProjectileEntityModel extends EntityModel<MeteorProjectileEnt
 		ModelPartData cube_r2 = main.addChild("cube_r2", ModelPartBuilder.create().uv(0, 0).cuboid(3.0F, -12.0F, -1.0F, 12.0F, 12.0F, 12.0F, new Dilation(0.0F)), ModelTransform.of(-2.0F, 0.0F, -10.0F, 0.0F, -0.7854F, 0.0F));
 		return TexturedModelData.of(modelData, 16, 16);
 	}
+
 	@Override
-	public void setAngles(MeteorProjectileEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+	public void setAngles(MeteorProjectileRenderState state) {
+		super.setAngles(state);
 	}
+
+
+/*
 	@Override
-	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, int color) {
+	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, int color) {;
 		main.render(matrices, vertexConsumer, light, overlay, color);
-	}
+	}*/
 }

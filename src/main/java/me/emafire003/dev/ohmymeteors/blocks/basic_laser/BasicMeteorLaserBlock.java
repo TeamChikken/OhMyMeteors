@@ -21,9 +21,9 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -99,10 +99,8 @@ public class BasicMeteorLaserBlock extends BlockWithEntity implements BlockEntit
         return AWAKE;
     }
 
-
     @Override
-    protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        //Note: sneaking won't work since it disables this interaction
+    protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if(stack.isOf(OMMItems.FOCUSING_LENSES)){
             BlockState blockState = state.cycle(SHOW_AREA);
             if(blockState.get(SHOW_AREA)){
@@ -112,7 +110,6 @@ public class BasicMeteorLaserBlock extends BlockWithEntity implements BlockEntit
             }
             world.setBlockState(pos, blockState, Block.NOTIFY_LISTENERS);
         }
-
         return super.onUseWithItem(stack, state, world, pos, player, hand, hit);
     }
 

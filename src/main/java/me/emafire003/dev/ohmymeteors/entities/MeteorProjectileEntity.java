@@ -174,7 +174,36 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     @Override
     public void tick() {
         loadChunk();
+
         Entity entity = this.getOwner();
+        if (this.getWorld().isClient || (entity == null || !entity.isRemoved()) && this.getWorld().isChunkLoaded(this.getBlockPos())) {
+            HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit, this.getRaycastShapeType());
+            Vec3d vec3d;
+            if (hitResult.getType() != HitResult.Type.MISS) {
+                vec3d = hitResult.getPos();
+            } else {
+                vec3d = this.getPos().add(this.getVelocity());
+            }
+
+            ProjectileUtil.setRotationFromVelocity(this, 0.2F);
+            this.setPosition(vec3d);
+            this.tickBlockCollision();
+            super.tick();
+            if (this.isBurning()) {
+                this.setOnFireFor(1.0F);
+            }
+
+            if (hitResult.getType() != HitResult.Type.MISS && this.isAlive()) {
+                this.hitOrDeflect(hitResult);
+            }
+
+            //TODO might need to be just the position
+            particleAnimation(vec3d.x, vec3d.y + (double)0.5F, vec3d.z);
+        } else {
+            this.discard();
+        }
+
+        /*Entity entity = this.getOwner();
         if (this.getWorld().isClient || (entity == null || !entity.isRemoved()) && this.getWorld().isChunkLoaded(this.getBlockPos())) {
             super.tick();
             if (this.isBurning()) {
@@ -206,16 +235,12 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
             this.setVelocity(vec3d.add(vec3d.normalize().multiply(this.accelerationPower)).multiply(h));
 
-            /*ParticleEffect particleEffect = this.getParticleType();
-            if (particleEffect != null) {
-                this.getWorld().addParticle(particleEffect, d, e + 0.5, f, 0.0, 0.0, 0.0);
-            }*/
             particleAnimation(d, e, f);
 
             this.setPosition(d, e, f);
         } else {
             this.discard();
-        }
+        }*/
     }
 
     //pal vortex minecraft:flame ~ ~ ~ 1 0.01 0.8 0.1 5 3 10 false 3
