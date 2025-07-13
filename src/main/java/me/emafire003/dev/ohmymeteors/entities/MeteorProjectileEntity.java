@@ -15,6 +15,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.mob.SlimeEntity;
 import net.minecraft.entity.projectile.ExplosiveProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.fluid.FluidState;
@@ -22,6 +23,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.hit.BlockHitResult;
@@ -79,18 +82,16 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         return this.dataTracker.get(SIZE);
     }
 
-
-
     @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
-        nbt.putInt("Size", this.getSize() - 1);
+    protected void writeCustomData(WriteView view) {
+        super.writeCustomData(view);
+        view.putInt("Size", this.getSize() - 1);
     }
 
     @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        this.setSize(nbt.getInt("Size", 0) + 1);
-        super.readCustomDataFromNbt(nbt);
+    protected void readCustomData(ReadView view) {
+        this.setSize(view.getInt("Size", 0) + 1);
+        super.readCustomData(view);
     }
 
     @Override
