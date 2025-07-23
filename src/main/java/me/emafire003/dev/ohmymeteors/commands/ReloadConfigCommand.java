@@ -21,7 +21,6 @@ public class ReloadConfigCommand implements OMMCommand {
             e.printStackTrace();
             return 0;
         }
-
     }
 
     @Override
