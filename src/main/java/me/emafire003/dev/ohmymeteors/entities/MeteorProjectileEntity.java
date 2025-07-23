@@ -359,7 +359,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         AtomicBoolean hasSpecial = new AtomicBoolean(false);
         List<Identifier> structs = structures.filter(identifier -> {
             if (!hasSpecial.get()) { //saves on checks
-                OhMyMeteors.LOGGER.info("Checking if the id has a special: " + identifier);
                 //This allows me to see if this size has at least a special meteor
                 if (identifier.getPath().startsWith(sizeClass+"/special")) {
                     hasSpecial.set(true);
@@ -374,16 +373,12 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         //If there is at least a special meteor structure, and the chance is hit, the structs list should only have those
         if(hasSpecial.get()){
-            OhMyMeteors.LOGGER.error("Ok a special one has been found!");
             int i = random.nextBetween(1, Config.SPECIAL_METEORS_CHANCE);
-            OhMyMeteors.LOGGER.error("Number between 1 and " + Config.SPECIAL_METEORS_CHANCE + " aka " + i);
             if(i == 1){
                 List<Identifier> specials = structs.stream().filter(id -> id.getPath().startsWith(sizeClass+"/special")).toList();
                 structure_id = specials.get(this.getRandom().nextBetween(0,specials.size()-1));
             }
         }
-        OhMyMeteors.LOGGER.error("Spawning meteor: " + structure_id);
-        //TODO looks like it spawns two or something like that
         return structure_id;
     }
 
@@ -419,11 +414,16 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
     }
 
+    /// Since it likes to explode more times instead of just one, i'll put this here so it won't explode twice
+    private boolean exploded = false;
+
     /// This is the main method which does the meteor stuff on impact
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
+        if(exploded){
+            return;
+        }
         super.onBlockHit(blockHitResult);
-        this.discard(); //So it doesn't trigger again hitting the next block
         BlockState state = this.getWorld().getBlockState(blockHitResult.getBlockPos());
 
         //It also registers Air blocks as a collision so we need to avoid such cases
@@ -445,6 +445,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             }
             //this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), 10, World.ExplosionSourceType.NONE);
 
+            this.discard(); //So it doesn't trigger again hitting the next block
+            exploded = true;
             if(!this.getWorld().isClient()){
                 if(this.isScatterMeteor()){
                     if(Config.SCATTER_METEOR_STRUCTURE){
