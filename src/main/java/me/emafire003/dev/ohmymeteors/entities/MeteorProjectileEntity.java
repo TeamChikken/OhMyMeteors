@@ -27,6 +27,7 @@ import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
@@ -38,6 +39,8 @@ import net.minecraft.world.explosion.ExplosionBehavior;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.METEOR_CHUCK_TICKET;
 
@@ -304,6 +307,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     }
 
     /** Like {@link #detonateSimple()} but will also spawn the structure of the meteor*/
+    //TODO maybe later make a better calculation of like the direction the meteor is travelling in to make it better embed into the terrain
     public void detonateWithStructure(){
         detonateSimple();
         if(!this.getWorld().isClient()){
@@ -326,16 +330,12 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
             StructurePlacerAPI placer =
                     new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("small/small_meteor_0"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
+
             //between 2 and 5 (inclusive) the meteor is considered small
             if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
-                int r = this.getRandom().nextBetween(1,3);
-                if(r == 1){
-                    placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("small/small_meteor_0"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-                }else if(r==2){
-                    placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("small/small_meteor_1"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-                }else{
-                    placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("small/small_meteor_2"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-                }
+                placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
+                        getStructureToPlace("small"),
+                        this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
 
                 placer.loadStructure();
                 return;
@@ -344,71 +344,75 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             if(this.getSize() <= Config.MAX_MEDIUM_METEOR_SIZE){
                 m_pos_offset = new BlockPos(-2, -3, -3);
 
-                int r = this.getRandom().nextBetween(1,19);
-
-                if(r == 9){
-                    placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("medium/medium_meteor_99"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-                    placer.loadStructure();
-                    return;
-                }
-                r = this.getRandom().nextBetween(1,3);
-                if(r == 1){
-                    placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("medium/medium_meteor_0"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-                }else if(r==2){
-                    placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("medium/medium_meteor_1"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-                }else{
-                    placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("medium/medium_meteor_2"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-                }
+                placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
+                        getStructureToPlace("medium"),
+                        this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
 
                 placer.loadStructure();
+                return;
             }
 
             if(this.getSize() <= Config.MAX_BIG_METEOR_SIZE){
                 m_pos_offset = new BlockPos(-4, -6, -3);
 
-                int r = this.getRandom().nextBetween(1,10);
-
-                if(r == 9){
-                    placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("big/big_meteor_cat"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-                    placer.loadStructure();
-                    return;
-                }
-                r = this.getRandom().nextBetween(1,3);
-                if(r == 1){
-                    placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("big/big_meteor_0"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-                }else if(r==2){
-                    placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("big/big_meteor_1"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-                }else{
-                    placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("big/big_meteor_2"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-                }
+                placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
+                        getStructureToPlace("big"),
+                        this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
 
                 placer.loadStructure();
+                return;
             }
 
             //If it's not in the sizes above, then it's a huge one:
-            //TODO maybe later make a better calculation of like the direction the metor is travelling in to make it better embed into the terrain
             m_pos_offset = new BlockPos(-4, -10, -3);
 
-            int r = this.getRandom().nextBetween(1,3);
-
-            if(r == 1){
-                placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("huge/huge_meteor_0"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-            }else if(r==2){
-                placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("huge/huge_meteor_1"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-            }else{
-                placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("huge/huge_meteor_2"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-            }
+            placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
+                    getStructureToPlace("huge"),
+                    this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
 
             placer.loadStructure();
-
-
-
-            //TODO read the filenames of the files of the /structure/ folder thing and check the folders that have like small medium big ecc
-            // maybe in a future update
-            /*StructurePlacerAPI placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("proto_meteor"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, new BlockPos(0, 0, 0));
-            placer.loadStructure();*/
-
         }
+    }
+
+    /**
+     * Returns the ID of the structure that is going to be spawned based the size class
+     *
+     * @param sizeClass The size of the meteors that we want to spawn, can be "small" "medium" "big" "huge"
+     * */
+    public Identifier getStructureToPlace(String sizeClass){
+        Stream<Identifier> structures = ((ServerWorld) this.getWorld()).getStructureTemplateManager().streamTemplates().filter(
+                identifier -> identifier.getNamespace().equals(OhMyMeteors.MOD_ID)
+        );
+
+        AtomicBoolean hasSpecial = new AtomicBoolean(false);
+        List<Identifier> structs = structures.filter(identifier -> {
+            if (!hasSpecial.get()) { //saves on checks
+                OhMyMeteors.LOGGER.info("Checking if the id has a special: " + identifier);
+                //This allows me to see if this size has at least a special meteor
+                if (identifier.getPath().startsWith(sizeClass+"/special")) {
+                    hasSpecial.set(true);
+                    return true;
+                }
+            }
+
+            return identifier.getPath().startsWith(sizeClass);
+        }).toList();
+
+        Identifier structure_id = structs.get(this.getRandom().nextBetween(0,structs.size()-1));
+
+        //If there is at least a special meteor structure, and the chance is hit, the structs list should only have those
+        if(hasSpecial.get()){
+            OhMyMeteors.LOGGER.error("Ok a special one has been found!");
+            int i = random.nextBetween(1, Config.SPECIAL_METEORS_CHANCE);
+            OhMyMeteors.LOGGER.error("Number between 1 and " + Config.SPECIAL_METEORS_CHANCE + " aka " + i);
+            if(i == 1){
+                List<Identifier> specials = structs.stream().filter(id -> id.getPath().startsWith(sizeClass+"/special")).toList();
+                structure_id = specials.get(this.getRandom().nextBetween(0,specials.size()-1));
+            }
+        }
+        OhMyMeteors.LOGGER.error("Spawning meteor: " + structure_id);
+        //TODO looks like it spawns two or something like that
+        return structure_id;
     }
 
     /**This will detonate the meteor with an explosion like {@link #detonateSimple()}
@@ -447,6 +451,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
         super.onBlockHit(blockHitResult);
+        this.discard(); //So it doesn't trigger again hitting the next block
         BlockState state = this.getWorld().getBlockState(blockHitResult.getBlockPos());
 
         //It also registers Air blocks as a collision so we need to avoid such cases
@@ -468,20 +473,24 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             }
             //this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), 10, World.ExplosionSourceType.NONE);
 
-            if(this.isScatterMeteor()){
-                if(Config.SCATTER_METEOR_STRUCTURE){
+            if(!this.getWorld().isClient()){
+                if(this.isScatterMeteor()){
+                    if(Config.SCATTER_METEOR_STRUCTURE){
+                        this.detonateWithStructure();
+                        return;
+                    }else{
+                        this.detonateSimple();
+                        return;
+                    }
+                }
+
+                if(Config.METEOR_STRUCTURE){
                     this.detonateWithStructure();
                 }else{
                     this.detonateSimple();
                 }
-                return;
             }
 
-            if(Config.METEOR_STRUCTURE){
-                this.detonateWithStructure();
-            }else{
-                this.detonateSimple();
-            }
 
         }
     }

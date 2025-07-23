@@ -14,7 +14,7 @@ public class Config {
     public static SimpleConfig CONFIG;
     private static ConfigProvider configs;
 
-    private static final int ver = 1;
+    private static final int ver = 2;
     public static int VERSION;
 
     public static int NATURAL_METEOR_MIN_SIZE = 1; //as in the ones that spawn from the sky not the ones you can summon
@@ -66,6 +66,9 @@ public class Config {
     public static int MAX_BIG_METEOR_SIZE = 20;
 
     public static boolean USE_FORCED_PARTICLES = true;
+
+    //V2
+    public static int SPECIAL_METEORS_CHANCE = 10;
 
 
 
@@ -187,12 +190,12 @@ public class Config {
         
         configs.addKeyValuePair(new Pair<>("max_small_meteor_size", 4),"The maximum size of meteor that can be considered small, and will spawn a small meteor structure upon impact");
         configs.addKeyValuePair(new Pair<>("max_medium_meteor_size", 7),"The maximum size of meteor that can be considered medium, and will spawn a medium meteor structure upon impact");
-        configs.addKeyValuePair(new Pair<>("max_big_meteor_size", 7),"The maximum size of meteor that can be considered big, and will spawn a big meteor structure upon impact. Only these can spawn a meteor cat by default.");
+        configs.addKeyValuePair(new Pair<>("max_big_meteor_size", 20),"The maximum size of meteor that can be considered big, and will spawn a big meteor structure upon impact. Only these can spawn a meteor cat by default.");
+        //V2
+        configs.addKeyValuePair(new Pair<>("special_meteors_chance", 10), "The chance of spawning a special meteor structure in a certain size category (for example the meteor cat meteor) (works like the other chances, aka 1 in x probability)");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
         configs.addKeyValuePair(new Pair<>("use_forced_particles", true),"Should meteor and laser particles be forced? They will be rendered further away and look better, but if there are too many of them you may want to disable this for lag reasons. Note: some particles will never displays as forced, like the lasers target box");
-
-
 
     }
 
@@ -254,6 +257,9 @@ public class Config {
         MAX_BIG_METEOR_SIZE = CONFIG.getOrDefault("max_big_meteor_size", 20);
 
         USE_FORCED_PARTICLES = CONFIG.getOrDefault("use_forced_particles", true);
+
+        //V2
+        SPECIAL_METEORS_CHANCE = CONFIG.getOrDefault("special_meteors_chance", 10);
 
     }
 }
