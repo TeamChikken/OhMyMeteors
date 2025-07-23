@@ -426,11 +426,16 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
     }
 
+    /// Since it likes to explode more times instead of just one, i'll put this here so it won't explode twice
+    private boolean exploded = false;
+
     /// This is the main method which does the meteor stuff on impact
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
+        if(exploded){
+            return;
+        }
         super.onBlockHit(blockHitResult);
-        this.discard(); //So it doesn't trigger again hitting the next block
         BlockState state = this.getWorld().getBlockState(blockHitResult.getBlockPos());
 
         //It also registers Air blocks as a collision so we need to avoid such cases
@@ -453,6 +458,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             collisionPos = Vec3d.ofCenter(getBlockPos());
             //this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), 10, World.ExplosionSourceType.NONE);
 
+            this.discard(); //So it doesn't trigger again hitting the next block
+            exploded = true;
             if(!this.getWorld().isClient()){
                 if(this.isScatterMeteor()){
                     if(Config.SCATTER_METEOR_STRUCTURE){
