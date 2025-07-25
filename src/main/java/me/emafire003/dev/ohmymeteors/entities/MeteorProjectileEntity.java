@@ -21,6 +21,10 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tag.BlockTags;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
@@ -179,13 +183,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     }
 
 
-    /* TODO maybe add accessors to avoid having to tick twice
-    private void superTick(){
-        if (!this.shot) {
-            this.emitGameEvent(GameEvent.PROJECTILE_SHOOT, this.getOwner());
-            this.shot = true;
-        }
-
     private Vec3d collisionPos = null;
 
     @Override
@@ -282,6 +279,15 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         if(!this.getWorld().isClient()){
             ((ServerWorld)this.getWorld()).getPlayers().forEach(serverPlayerEntity -> {
+                //If it should play a sound for every player, do it, unless the player is close enough to the original one
+                if(Config.GLOBAL_EXPLOSION_SOUND && (serverPlayerEntity.getPos().distanceTo(this.getPos()) > 60)){
+                    serverPlayerEntity.playSoundToPlayer(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.WEATHER, 0.5f, 0.8f);
+                }else if(Config.AREA_EXPLOSION_SOUND){
+                    double dist = serverPlayerEntity.getPos().distanceTo(this.getPos());
+                    if(dist < Config.AREA_EXPLOSION_SOUND_RADIUS && dist > 60){
+                        serverPlayerEntity.playSoundToPlayer(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.WEATHER, 0.5f, 0.8f);
+                    }
+                }
                 ((ServerWorld)this.getWorld()).spawnParticles(serverPlayerEntity, ParticleTypes.EXPLOSION_EMITTER, true, this.getX(), this.getY(), this.getZ(), 1, 0.1, 0.1, 0.1, 0.1);
             });
         }

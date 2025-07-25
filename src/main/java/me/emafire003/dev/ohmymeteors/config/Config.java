@@ -69,6 +69,9 @@ public class Config {
 
     //V2
     public static int SPECIAL_METEORS_CHANCE = 10;
+    public static boolean GLOBAL_EXPLOSION_SOUND = false;
+    public static boolean AREA_EXPLOSION_SOUND = false; //TODO say it could be more resource intensive if a lot of players are online
+    public static int AREA_EXPLOSION_SOUND_RADIUS = 500; //in blocks
 
 
 
@@ -159,7 +162,9 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("announce_meteor_spawn", false),"Should players get a message in chat/hotbar when a meteor spawns?");
         configs.addKeyValuePair(new Pair<>("announce_meteor_destroyed", false),"Should players get a message in chat/hotbar when a meteor is destroyed?");
         configs.addKeyValuePair(new Pair<>("actionbar_announcements", true),"Should the above announcement be displayed above the hotbar in the actionbar or in chat?");
-
+        configs.addKeyValuePair(new Pair<>("global_explosion_sound", false),"Should the explosion sound of the meteor be heard by all players online?");
+        configs.addKeyValuePair(new Pair<>("area_explosion_sound", false),"Should the explosion sound of the meteor be heard by all players around a certain area from the impact point?");
+        configs.addKeyValuePair(new Pair<>("area_explosion_sound_radius", 500),"The radius in blocks of the area in which the sound of the meteor will be heard if the option above is true");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
@@ -260,6 +265,9 @@ public class Config {
 
         //V2
         SPECIAL_METEORS_CHANCE = CONFIG.getOrDefault("special_meteors_chance", 10);
+        GLOBAL_EXPLOSION_SOUND = CONFIG.getOrDefault("global_explosion_sound", false);
+        AREA_EXPLOSION_SOUND = CONFIG.getOrDefault("area_explosion_sound", false);
+        AREA_EXPLOSION_SOUND_RADIUS = CONFIG.getOrDefault("area_explosion_sound_radius", 500);
 
     }
 }
