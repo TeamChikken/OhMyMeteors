@@ -11,5 +11,6 @@ public class OMMProperties {
 
     public static void registerBlockProperties(){
         OhMyMeteors.LOGGER.debug("Registering OhMyMeteors block properties...");
+
     }
 }
