@@ -1,1 +1,11 @@
+(hey curios reader, none of this stuff is confirmed as something that will be in the mod. They are just ideas)
+
 Maybe add a tool to allow meteor tracking?
+
+Add more meteor types
+Add events like meteor showers, possibily linkking with other mods?
+Add custom fireplace particle thingies?
+Add API to add more meteors as addons (like a registry and then extending those objects like LightWithin lights)
+
+TODO add /omm config open command, and the same thing with ModMenu, opens the txt file along with a warning if u are on the server. Like maybe if on a server the mod menu will display a screen saying so
+Add better "embedding" of the meteors in the terrain. Like get where the structure should spawn and in which direction the meteor hit the block and translate the structure more inside of the terrain
