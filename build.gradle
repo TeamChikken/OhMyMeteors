@@ -22,6 +22,10 @@ repositories {
 			includeGroup "maven.modrinth"
 		}
 	}
+	maven {
+		name = "Terraformers"
+		url = "https://maven.terraformersmc.com/"
+	}
 }
 
 
@@ -40,6 +44,8 @@ dependencies {
 	//ParticleAnimationLib for cool particle effects
 	include(modImplementation "maven.modrinth:particleanimationlib:${project.pal_version}")
 
+	//Modmenu
+	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
 }
 
