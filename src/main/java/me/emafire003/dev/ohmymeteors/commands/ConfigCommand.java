@@ -4,6 +4,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -51,6 +52,7 @@ public class ConfigCommand implements OMMCommand {
     public LiteralCommandNode<ServerCommandSource> getNode(CommandRegistryAccess registryAccess) {
         return CommandManager
                 .literal("config")
+                .requires(PermissionsChecker.hasPerms(OhMyMeteors.MOD_ID+".commands.config", 2))
                 .then(
                         CommandManager.literal("reload").executes(this::reloadConfig)
                 ).then(
