@@ -21,6 +21,9 @@
 		],
 		"client": [
 			"me.emafire003.dev.ohmymeteors.OhMyMeteorsClient"
+		],
+		"modmenu": [
+			"me.emafire003.dev.ohmymeteors.compat.modmenu.ModMenuIntegration"
 		]
 	},
 	"mixins": [
