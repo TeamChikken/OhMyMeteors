@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.LOGGER;
@@ -15,6 +16,8 @@ public class Config {
     private static ConfigProvider configs;
 
     private static final int ver = 2;
+    public static Path FILEPATH;
+
     public static int VERSION;
 
     public static int NATURAL_METEOR_MIN_SIZE = 1; //as in the ones that spawn from the sky not the ones you can summon
