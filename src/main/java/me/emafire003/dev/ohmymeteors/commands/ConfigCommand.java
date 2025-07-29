@@ -20,9 +20,9 @@ public class ConfigCommand implements OMMCommand {
     private int openConfig(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         try{
             ServerCommandSource source = context.getSource();
-            //TODO test
             if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.SERVER)){
-                source.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.literal("Warning! The config file is located on the server, currently opening the your client's config! If you are an OP make sure to upload it on the server later!").formatted(Formatting.GOLD)));
+                source.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.literal("Warning! The config file is located on the server, go to your server's config folder and edit '").formatted(Formatting.GOLD).append(Text.literal(Config.FILEPATH.toFile().toString()).formatted(Formatting.LIGHT_PURPLE).append(Text.literal("'").formatted(Formatting.GOLD)))));
+                return 2;
             }
 
             Util.getOperatingSystem().open(Config.FILEPATH.toFile());
