@@ -26,6 +26,7 @@ repositories {
 		name = "Terraformers"
 		url = "https://maven.terraformersmc.com/"
 	}
+	mavenCentral()
 }
 
 
@@ -46,6 +47,9 @@ dependencies {
 
 	//Modmenu
 	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+
+    //Fabric permission api
+    modImplementation "me.lucko:fabric-permissions-api:${project.fabricperms_version}"
 
 }
 
