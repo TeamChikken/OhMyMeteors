@@ -17,6 +17,8 @@ Inspired by the old meteor mods and commissioned by SlayerTheChikken
 ## Feature list
 ### Meteor sizes
 Meteors can spawn in a variety of different sizes, the bigger the size the bigger the damage and the "structure" that will be left behind. You can adjust which size of meteors is able to spawn and how frequently the meteors spawn. 
+#### Customizable meteors
+You can add your own meteor structures using a datapack, like the example one! You can specify in which size category your structure can be spawned, and if it's special or not. (special ones have a lower chance of appearing). They are NBT structure files, like the ones from the Structure Block.
 ### Lasers blocks
 They are used to defend your base from the falling meteorites, by shooting a laser at the meteor and destroying it while midair
 
@@ -46,84 +48,99 @@ You can reload the config in game using `/omm reload`.
 If somehow the config gets corrupted or updates in a weird way, a copy of the corrupted file will be created to allow you to back it up, and a new resetted one will be generated and used as well.
 
 <details>
-  <summary>Config file as of first release</summary>
+  <summary>Config file as of 0.2.0 version</summary>
   
   ```yaml
-#The version of the config. DO NOT CHANGE IT :D | default= 1 | type= Integer
-version:1
+#The version of the config. DO NOT CHANGE IT :D | default= 2 | type= Integer
+version:2
 
-#Expressed in blocks, represents the min distance (as in a radius) from the origin of the meteor (like a player) in which the meteor wont' spawn in. (Remember that it has an angled trajectory so it could end up in that area regardless) | default= 2 | type= Integer
+  #Expressed in blocks, represents the min distance (as in a radius) from the origin of the meteor (like a player) in which the meteor wont' spawn in. (Remember that it has an angled trajectory so it could end up in that area regardless) | default= 2 | type= Integer
 min_meteor_spawn_distance:2
-#Expressed in blocks, represents the max distance (as in a radius) from the origin of the meteor (like a player) in which a meteor can spawn in. (Remember that it has an angled trajectory so it could end up in that area regardless) | default= 25 | type= Integer
+  #Expressed in blocks, represents the max distance (as in a radius) from the origin of the meteor (like a player) in which a meteor can spawn in. (Remember that it has an angled trajectory so it could end up in that area regardless) | default= 25 | type= Integer
 max_meteor_spawn_distance:25
-#The world height (y level) at which meteors spawn in | default= 300 | type= Integer
+  #The world height (y level) at which meteors spawn in | default= 300 | type= Integer
 meteor_spawn_height:300
-#Expressed as '1 in <x>' chances of spawning a meteor. For example, by default it has a chance of 1 in 20000 | default= 20000 | type= Integer
+  #Expressed as '1 in <x>' chances of spawning a meteor. For example, by default it has a chance of 1 in 20000 | default= 20000 | type= Integer
 meteor_spawn_chance:20000
-#Should the spawn rate be different during the night? | default= false | type= Boolean
+  #Should the spawn rate be different during the night? | default= false | type= Boolean
 modify_spawn_chance_at_night:false
-#Should huge meteors be able to spawn? They are meteors bigger than the maximum size of the big ones | default= true | type= Boolean
+  #Should huge meteors be able to spawn? They are meteors bigger than the maximum size of the big ones | default= true | type= Boolean
 spawn_huge_meteors:true
-#The chance for a spawned meteor to be of huge size. Expressed as in 1 in x chances. (on top of the 'normal' spawning chance) | default= 100 | type= Integer
+  #The chance for a spawned meteor to be of huge size. Expressed as in 1 in x chances. (on top of the 'normal' spawning chance) | default= 100 | type= Integer
 huge_meteor_chance:100
-#The size limit of how big a huge meteor can be | default= 35 | type= Integer
+  #The size limit of how big a huge meteor can be | default= 35 | type= Integer
 huge_meteor_size_limit:35
-#Should the spawn rate be different during the night? | default= false | type= Boolean
+  #Should the spawn rate be different during the night? | default= false | type= Boolean
 modify_spawn_chance_at_night:false
-#The chance for a meteor to spawn at night if enabled. Expressed as in 1 in x chances. | default= 10000 | type= Integer
+  #The chance for a meteor to spawn at night if enabled. Expressed as in 1 in x chances. | default= 10000 | type= Integer
 meteor_night_spawn_chance:10000
-#The smallest size a natural meteor can have when spawned in. Cannot go below 1 | default= 1 | type= Integer
+  #The smallest size a natural meteor can have when spawned in. Cannot go below 1 | default= 1 | type= Integer
 natural_meteor_min_size:1
-#The biggest size a natural meteor can have when spawned in. Cannot go above 50. | default= 10 | type= Integer
+  #The biggest size a natural meteor can have when spawned in. Cannot go above 50. | default= 10 | type= Integer
 natural_meteor_max_size:10
+  #A factor to ADD to the explosion power (by default, the power is equal to the meteor size), thus increasing the damage and radius of the explosion. | default= 0 | type= Integer
+explosion_power_modifier:0
 
-#Should meteors bypass leaves blocks instead of colliding with them midair? | default= true | type= Boolean
+  #Should meteors bypass leaves blocks instead of colliding with them midair? | default= true | type= Boolean
 should_bypass_leaves:true
-#Should meteors be (more or less) directed towards the nearest player? | default= false | type= Boolean
+  #Should the bypassed leaves be destroyed when the meteor passes through them? | default= true | type= Boolean
+should_destroy_leaves:true
+  #Should meteors be (more or less) directed towards the nearest player? | default= false | type= Boolean
 homing_meteors:false
-#Should players get a message in chat/hotbar when a meteor spawns? | default= false | type= Boolean
+  #Should players get a message in chat/hotbar when a meteor spawns? | default= false | type= Boolean
 announce_meteor_spawn:false
-#Should players get a message in chat/hotbar when a meteor is destroyed? | default= false | type= Boolean
+  #Should players get a message in chat/hotbar when a meteor is destroyed? | default= false | type= Boolean
 announce_meteor_destroyed:false
-#Should the above announcement be displayed above the hotbar in the actionbar or in chat? | default= true | type= Boolean
+  #Should the above announcement be displayed above the hotbar in the actionbar or in chat? | default= true | type= Boolean
 actionbar_announcements:true
+  #Should the explosion sound of the meteor be heard by all players online? | default= false | type= Boolean
+global_explosion_sound:false
+  #Should the explosion sound of the meteor be heard by all players around a certain area from the impact point? | default= false | type= Boolean
+area_explosion_sound:false
+  #The radius in blocks of the area in which the sound of the meteor will be heard if the option above is true | default= 500 | type= Integer
+area_explosion_sound_radius:500
 
-#Should there be a cooldown between a meteor spawning one meteor and then another? | default= true | type= Boolean
+  #Should there be a cooldown between a meteor spawning one meteor and then another? | default= true | type= Boolean
 should_cooldown_between_meteors:true
-#The minimum time interval (in seconds) between spawning a meteor and then another | default= 20 | type= Integer
+  #The minimum time interval (in seconds) between spawning a meteor and then another | default= 20 | type= Integer
 min_meteor_cooldown_time:20
-#Should meteors be able to destroy blocks on impact? | default= true | type= Boolean
+  #Should meteors be able to destroy blocks on impact? | default= true | type= Boolean
 meteor_griefing:true
-#Should the meteors that come out of a bigger meteor when it's broken be able to destroy blocks on impact? | default= true | type= Boolean
+  #Should the meteors that come out of a bigger meteor when it's broken be able to destroy blocks on impact? | default= true | type= Boolean
 scatter_meteor_griefing:true
-#Should meteors spawn the meteor structure after impact? | default= true | type= Boolean
+  #Should meteors spawn the meteor structure after impact? | default= true | type= Boolean
 meteor_structure:true
-#Should the meteors that come out of a bigger meteor when it's broken be able to destroy spawn structures on impact? | default= true | type= Boolean
+  #Should the meteors that come out of a bigger meteor when it's broken be able to destroy spawn structures on impact? | default= true | type= Boolean
 scatter_meteor_structure:true
 
-#The radius in blocks of the xz area covered by the Basic laser block, where meteors will be blown up | default= 32 | type= Integer
+  #The radius in blocks of the xz area covered by the Basic laser block, where meteors will be blown up | default= 32 | type= Integer
 basic_laser_area_radius:32
-#How many blocks up from the position of the basic laser should meteors be checked for? (note that the detection box is only 2 blocks thick, not the whole way) | default= 64 | type= Integer
+  #How many blocks up from the position of the basic laser should meteors be checked for? (note that the detection box is only 2 blocks thick, not the whole way) | default= 64 | type= Integer
 basic_laser_height:64
-#The radius in blocks of the xz area covered by the advanced laser block, where meteors will be blown up | default= 48 | type= Integer
+  #The radius in blocks of the xz area covered by the advanced laser block, where meteors will be blown up | default= 48 | type= Integer
 advanced_laser_area_radius:48
-#How many blocks up from the position of the advanced laser should meteors be checked for? (note that the detection box is only 2 blocks thick, not the whole way) | default= 64 | type= Integer
+  #How many blocks up from the position of the advanced laser should meteors be checked for? (note that the detection box is only 2 blocks thick, not the whole way) | default= 64 | type= Integer
 advanced_laser_height:64
-#Should the laser be in a cooldown where it can't fire, after it has just fired? | default= true | type= Boolean
+  #Should the laser be in a cooldown where it can't fire, after it has just fired? | default= true | type= Boolean
 should_basic_laser_cooldown:true
-#How many seconds should this cooldown last? | default= 3 | type= Integer
+  #How many seconds should this cooldown last? | default= 3 | type= Integer
 basic_laser_cooldown:3
-#Should the laser be in a cooldown where it can't fire, after it has just fired? | default= true | type= Boolean
+  #Should the laser be in a cooldown where it can't fire, after it has just fired? | default= true | type= Boolean
 should_advanced_laser_cooldown:true
-#How many seconds should this cooldown last? | default= 1 | type= Integer
+  #How many seconds should this cooldown last? | default= 1 | type= Integer
 advanced_laser_cooldown:1
 
-#The maximum size of meteor that can be considered small, and will spawn a small meteor structure upon impact | default= 4 | type= Integer
+  #The maximum size of meteor that can be considered small, and will spawn a small meteor structure upon impact | default= 4 | type= Integer
 max_small_meteor_size:4
-#The maximum size of meteor that can be considered medium, and will spawn a medium meteor structure upon impact | default= 7 | type= Integer
+  #The maximum size of meteor that can be considered medium, and will spawn a medium meteor structure upon impact | default= 7 | type= Integer
 max_medium_meteor_size:7
-#The maximum size of meteor that can be considered big, and will spawn a big meteor structure upon impact. Only these can spawn a meteor cat by default. | default= 7 | type= Integer
-max_big_meteor_size:7
+  #The maximum size of meteor that can be considered big, and will spawn a big meteor structure upon impact. Only these can spawn a meteor cat by default. | default= 20 | type= Integer
+max_big_meteor_size:20
+  #The chance of spawning a special meteor structure in a certain size category (for example the meteor cat meteor) (works like the other chances, aka 1 in x probability) | default= 10 | type= Integer
+special_meteors_chance:10
+
+  #Should meteor and laser particles be forced? They will be rendered further away and look better, but if there are too many of them you may want to disable this for lag reasons. Note: some particles will never displays as forced, like the lasers target box | default= true | type= Boolean
+use_forced_particles:true
   ```
   
 </details>
