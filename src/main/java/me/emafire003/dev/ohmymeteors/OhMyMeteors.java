@@ -2,6 +2,7 @@ package me.emafire003.dev.ohmymeteors;
 
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.blocks.OMMProperties;
+import me.emafire003.dev.ohmymeteors.compat.modmenu.ConfigScreen;
 import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
@@ -17,6 +18,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.world.ChunkTicketType;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,8 @@ public class OhMyMeteors implements ModInitializer {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
+		Config.FILEPATH = PATH.resolve(OhMyMeteors.MOD_ID + "_config.yml");
+
 		CommandRegistrationCallback.EVENT.register(OMMCommands::registerCommands);
 
 		OMMProperties.registerBlockProperties();
@@ -64,6 +68,44 @@ public class OhMyMeteors implements ModInitializer {
 				e.printStackTrace();
 			}
 		});
+	}
+
+	public static Screen createConfigScreen(Screen parent) {
+
+		return new ConfigScreen(parent);
+		/*
+        try {
+            Desktop.getDesktop().open(Config.FILEPATH.toFile());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return new NoticeScreen( () -> {
+			Config.reloadConfig();
+			MinecraftClient.getInstance().setScreen(parent);
+		}, Text.literal("Opening config screen"),
+                Text.literal("Opening the config file. Remember that if you are on a server you will need to manually edit the server's config, otherwise there won't be any effect!"));/*new ConfirmScreen((result) -> {
+			if (result) {
+				Util.getOperatingSystem().open(URI.create("https://modrinth.com/mod/yacl/versions"));
+			}
+			MinecraftClient.getInstance().setScreen(parent);
+		},
+				Text.literal("You need to install YACL"), Text.literal(
+						"To modify the config file with a GUI you need to install YACL. Click on yes to open the modrinth page to download it."
+		), ScreenTexts.YES, ScreenTexts.NO);*/
+
+
+		/*
+		if (!FabricLoader.getInstance().isModLoaded("yet_another_config_lib_v3")) {
+			return new ConfirmScreen((result) -> {
+				if (result) {
+					Util.getOperatingSystem().open(URI.create("https://modrinth.com/mod/yacl/versions"));
+				}
+				MinecraftClient.getInstance().setScreen(parent);
+			},
+					Text.literal("You need to install YACL"), Text.literal("To modify the config file with a GUI you need to install YACL. Click on yes to open the modrinth page to download it."), ScreenTexts.YES, ScreenTexts.NO);
+		} else {
+			return YaclScreenMaker.getScreen(parent);
+		}*/
 	}
 
 }
