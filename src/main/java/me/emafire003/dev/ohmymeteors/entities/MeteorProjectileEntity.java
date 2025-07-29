@@ -146,7 +146,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     private int chunksLoaded = 0;
 
     /**Gets called every tick and makes sure that when the meteor travels through a chunk it is loaded*/
-    //TODO this doesn't seem to be working as it should
     public void loadChunk(){
         //Safety feature so the meteor despawns if it gets too high, for example using commands and such
         if(this.getY() > Config.METEOR_SPAWN_HEIGHT+50){
