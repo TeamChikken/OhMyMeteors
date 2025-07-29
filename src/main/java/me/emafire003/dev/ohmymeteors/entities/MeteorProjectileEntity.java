@@ -363,7 +363,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         AtomicBoolean hasSpecial = new AtomicBoolean(false);
         List<Identifier> structs = structures.filter(identifier -> {
             if (!hasSpecial.get()) { //saves on checks
-                OhMyMeteors.LOGGER.info("Checking if the id has a special: " + identifier);
                 //This allows me to see if this size has at least a special meteor
                 if (identifier.getPath().startsWith(sizeClass+"/special")) {
                     hasSpecial.set(true);
@@ -374,20 +373,16 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             return identifier.getPath().startsWith(sizeClass);
         }).toList();
 
-        Identifier structure_id = structs.get(this.getRandom().nextBetween(0,structs.size()-1));
+        Identifier structure_id = structs.get(this.getWorld().getRandom().nextBetween(0,structs.size()-1));
 
         //If there is at least a special meteor structure, and the chance is hit, the structs list should only have those
         if(hasSpecial.get()){
-            OhMyMeteors.LOGGER.error("Ok a special one has been found!");
             int i = random.nextBetween(1, Config.SPECIAL_METEORS_CHANCE);
-            OhMyMeteors.LOGGER.error("Number between 1 and " + Config.SPECIAL_METEORS_CHANCE + " aka " + i);
             if(i == 1){
                 List<Identifier> specials = structs.stream().filter(id -> id.getPath().startsWith(sizeClass+"/special")).toList();
-                structure_id = specials.get(this.getRandom().nextBetween(0,specials.size()-1));
+                structure_id = specials.get(this.getWorld().getRandom().nextBetween(0,specials.size()-1));
             }
         }
-        OhMyMeteors.LOGGER.error("Spawning meteor: " + structure_id);
-        //TODO looks like it spawns two or something like that
         return structure_id;
     }
 
