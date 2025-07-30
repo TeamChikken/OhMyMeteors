@@ -27,6 +27,7 @@ repositories {
 		url = "https://maven.terraformersmc.com/"
 	}
 	mavenCentral()
+	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 
