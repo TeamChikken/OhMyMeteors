@@ -259,11 +259,9 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         if(isScatterMeteor()){
             if(Config.SCATTER_METEOR_GRIEFING){
 
-                this.getWorld().createExplosion(this, DamageSource.explosion(e), explosionBehavior, this.getX(), this.getY(), this.getZ(), this.getSize(), true, Explosion.DestructionType.DESTROY);
-                this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, World.ExplosionSourceType.TNT);
+                this.getWorld().createExplosion(this, DamageSource.explosion(e), explosionBehavior, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, Explosion.DestructionType.DESTROY);
             }else{
-                this.getWorld().createExplosion(this, DamageSource.explosion(e), safeExplosion, this.getX(), this.getY(), this.getZ(), this.getSize(), false, Explosion.DestructionType.DESTROY);
-                this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, World.ExplosionSourceType.TNT);
+                this.getWorld().createExplosion(this, DamageSource.explosion(e), safeExplosion, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, Explosion.DestructionType.DESTROY);
             }
             this.discard();
             return;
@@ -271,11 +269,9 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         if(Config.METEOR_GRIEFING){
             //TODO add custom  explosion source type
-            this.getWorld().createExplosion(this, DamageSource.explosion(e), explosionBehavior, this.getX(), this.getY(), this.getZ(), this.getSize(), true, Explosion.DestructionType.DESTROY);
-            this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, World.ExplosionSourceType.TNT);
+            this.getWorld().createExplosion(this, DamageSource.explosion(e), explosionBehavior, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, Explosion.DestructionType.DESTROY);
         }else{
-            this.getWorld().createExplosion(this, DamageSource.explosion(e), safeExplosion, this.getX(), this.getY(), this.getZ(), this.getSize(), false, Explosion.DestructionType.DESTROY);
-            this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, World.ExplosionSourceType.TNT);
+            this.getWorld().createExplosion(this, DamageSource.explosion(e), safeExplosion, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, Explosion.DestructionType.DESTROY);
         }
 
         if(!this.getWorld().isClient()){

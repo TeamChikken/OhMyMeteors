@@ -16,7 +16,6 @@ public class ConfigScreen extends Screen {
 
     @Override
     protected void init() {
-        OhMyMeteors.LOGGER.info("trying to open " + Config.FILEPATH.toUri());
         Util.getOperatingSystem().open(Config.FILEPATH.toUri());
         client.setScreen(parent);
     }
