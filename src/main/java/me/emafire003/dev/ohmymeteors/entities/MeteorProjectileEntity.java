@@ -68,6 +68,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         initialize();
     }
 
+
     @Override
     protected void initDataTracker(DataTracker.Builder builder) {
         super.initDataTracker(builder);
@@ -308,7 +309,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
                         serverPlayerEntity.playSoundToPlayer(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.WEATHER, 0.5f, 0.8f);
                     }
                 }
-                ((ServerWorld)this.getWorld()).spawnParticles(serverPlayerEntity, ParticleTypes.EXPLOSION_EMITTER, true, this.getX(), this.getY(), this.getZ(), 1, 0.1, 0.1, 0.1, 0.1);
+                ((ServerWorld)this.getWorld()).spawnParticles(serverPlayerEntity, ParticleTypes.EXPLOSION_EMITTER, Config.USE_FORCED_PARTICLES, Config.USE_FORCED_PARTICLES,  this.getX(), this.getY(), this.getZ(), 1, 0.1, 0.1, 0.1, 0.1);
             });
         }
 
