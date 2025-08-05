@@ -15,6 +15,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ExplosiveProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.fluid.FluidState;
@@ -25,8 +26,10 @@ import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -526,6 +529,41 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }
 
         return meteor;
+    }
+
+    /**Spawns a meteor around a random alive online player*/
+    public static void spawnMeteor(ServerWorld world){
+        PlayerEntity p = world.getRandomAlivePlayer();
+
+        if(p == null){
+            //for some reason it won't detect that there is player online sometimes
+            return;
+        }
+        MeteorProjectileEntity meteor = MeteorProjectileEntity.getDownwardsMeteor(p.getPos(), world.toServerWorld(),
+                Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS);
+
+        String message;
+
+        if(Config.SPAWN_HUGE_METEORS){
+            if(world.getRandom().nextBetween(0, Config.HUGE_METEOR_CHANCE) == 0){
+                meteor = MeteorProjectileEntity.getDownwardsMeteor(p.getPos(), world.toServerWorld(),
+                        Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT, Config.MAX_BIG_METEOR_SIZE, Config.HUGE_METEOR_SIZE_LIMIT, Config.HOMING_METEORS);
+
+                message = "message.ohmymeteors.meteor_spawned.huge";
+            } else {
+                //world mess is because it needs a final variable btw
+                message = "message.ohmymeteors.meteor_spawned";
+            }
+        } else {
+            message = "message.ohmymeteors.meteor_spawned";
+        }
+
+        if(Config.ANNOUNCE_METEOR_SPAWN){
+            world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+        }
+
+
+        world.spawnEntity(meteor);
     }
 
     public boolean isScatterMeteor() {
