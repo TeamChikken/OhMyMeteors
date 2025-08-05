@@ -1,6 +1,5 @@
 package me.emafire003.dev.ohmymeteors.compat.modmenu;
 
-import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;

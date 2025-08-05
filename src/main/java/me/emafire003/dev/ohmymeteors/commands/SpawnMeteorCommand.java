@@ -95,6 +95,27 @@ public class SpawnMeteorCommand implements OMMCommand {
         }
     }
 
+    /**Spawns a meteor exactly like the natural spawns. Gives an error if there are no players online*/
+    private int spawnNatural(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerCommandSource source = context.getSource();
+
+        try{
+
+           if(source.getWorld().getPlayers().isEmpty()){
+               source.sendFeedback( () -> Text.literal("Could not spawn a natural meteor since there are no players online!"),true);
+               return -1;
+           }
+
+           MeteorProjectileEntity.spawnMeteor(source.getWorld());
+
+            return 1;
+        }catch(Exception e){
+            e.printStackTrace();
+            source.sendFeedback( () -> Text.literal("Error: " + e),false);
+            return 0;
+        }
+    }
+
 
     public LiteralCommandNode<ServerCommandSource> getNode(CommandRegistryAccess registryAccess) {
         return CommandManager
@@ -103,6 +124,10 @@ public class SpawnMeteorCommand implements OMMCommand {
                 .then(
                         CommandManager.literal("random")
                                 .executes(this::spawnRandom)
+                )
+                .then(
+                        CommandManager.literal("natural")
+                                .executes(this::spawnNatural)
                 )
                 .then(
                         CommandManager.argument("size", IntegerArgumentType.integer(0, 50))
