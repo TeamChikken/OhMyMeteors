@@ -521,7 +521,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         meteor.setSize(world.getRandom().nextBetween(Math.max(0, min_size), Math.min(50, max_size)));
 
-        meteor.setVelocity((world.getRandom().nextFloat()/2)*invert_x, -1.0f+world.getRandom().nextFloat(), (world.getRandom().nextFloat()/2)*invert_y);
+        OhMyMeteors.LOGGER.info("The thing is: "+ -1.0f*(world.getRandom().nextFloat()+Config.DOWNWARDS_SPEED_MODIFIER));
+        meteor.setVelocity((world.getRandom().nextFloat()/2)*invert_x, -1.0f*(world.getRandom().nextFloat()+Config.DOWNWARDS_SPEED_MODIFIER), (world.getRandom().nextFloat()/2)*invert_y);
 
         if(homing){
             //TODO maybe just go with 1,1,1 as velocity multiplier
