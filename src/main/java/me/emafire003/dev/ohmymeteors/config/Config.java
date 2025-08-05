@@ -15,7 +15,7 @@ public class Config {
     public static SimpleConfig CONFIG;
     private static ConfigProvider configs;
 
-    private static final int ver = 2;
+    private static final int ver = 3;
     public static Path FILEPATH;
 
     public static int VERSION;
@@ -76,6 +76,9 @@ public class Config {
     public static boolean AREA_EXPLOSION_SOUND = false;
     public static int AREA_EXPLOSION_SOUND_RADIUS = 500; //in blocks
     public static int EXPLOSION_POWER_MODIFIER = 0;
+
+    //V3
+    public static double DOWNWARDS_SPEED_MODIFIER = 0;
 
 
 
@@ -157,6 +160,8 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("natural_meteor_max_size", 10),"The biggest size a natural meteor can have when spawned in. Cannot go above 50.");
         //V2
         configs.addKeyValuePair(new Pair<>("explosion_power_modifier", 0), "A factor to ADD to the explosion power (by default, the power is equal to the meteor size), thus increasing the damage and radius of the explosion. Also supports negative numbers");
+        //V3
+        configs.addKeyValuePair(new Pair<>("downwards_speed_modifier", 0), "A factor to ADD to the speed at which the meteor falls downwards. It is added to a randomly generated number between 1 and 0. Also supports negative numbers");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
@@ -277,6 +282,8 @@ public class Config {
         AREA_EXPLOSION_SOUND_RADIUS = CONFIG.getOrDefault("area_explosion_sound_radius", 500);
         EXPLOSION_POWER_MODIFIER = CONFIG.getOrDefault("explosion_power_modifier", 0);
 
+        //V3
+        DOWNWARDS_SPEED_MODIFIER = CONFIG.getOrDefault("downwards_speed_modifier", 0);
     }
 }
 

@@ -527,7 +527,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         meteor.setSize(world.getRandom().nextBetween(Math.max(0, min_size), Math.min(50, max_size)));
 
         //The multiply is necessary in 1.19.2 beacuse of the drag, which i can't apparently remove withou messing everything up
-        meteor.setVelocity(new Vec3d((world.getRandom().nextFloat()/2)*invert_x, -1.0f+world.getRandom().nextFloat(), (world.getRandom().nextFloat()/2)*invert_y).multiply(2));
+        meteor.setVelocity(new Vec3d((world.getRandom().nextFloat()/2)*invert_x, -1.0f*(world.getRandom().nextFloat()+Config.DOWNWARDS_SPEED_MODIFIER), (world.getRandom().nextFloat()/2)*invert_y).multiply(2));
 
         if(homing){
             //TODO maybe just go with 1,1,1 as velocity multiplier
