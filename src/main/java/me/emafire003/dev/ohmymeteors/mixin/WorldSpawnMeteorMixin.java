@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import static me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity.spawnMeteor;
+
 //(there would be a way to like list all of the loaded chunks but it seems a bit impractical when we can just target a random online player)
 @Mixin(ServerWorld.class)
 public abstract class WorldSpawnMeteorMixin extends World implements StructureWorldAccess {
@@ -68,38 +70,7 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
         }
 
         if(this.getRandom().nextBetween(0, chance) == 0){
-            PlayerEntity p = this.getRandomAlivePlayer();
-
-            if(p == null){
-                //for some reason it won't detect that there is player online sometimes
-                return;
-            }
-            MeteorProjectileEntity meteor = MeteorProjectileEntity.getDownwardsMeteor(p.getPos(), this.toServerWorld(),
-                    Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS);
-
-            String message;
-
-            if(Config.SPAWN_HUGE_METEORS){
-                if(this.getRandom().nextBetween(0, Config.HUGE_METEOR_CHANCE) == 0){
-                    meteor = MeteorProjectileEntity.getDownwardsMeteor(p.getPos(), this.toServerWorld(),
-                            Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT, Config.MAX_BIG_METEOR_SIZE, Config.HUGE_METEOR_SIZE_LIMIT, Config.HOMING_METEORS);
-
-                    message = "message.ohmymeteors.meteor_spawned.huge";
-                } else {
-                    //this mess is because it needs a final variable btw
-                    message = "message.ohmymeteors.meteor_spawned";
-                }
-            } else {
-                message = "message.ohmymeteors.meteor_spawned";
-            }
-
-            if(Config.ANNOUNCE_METEOR_SPAWN){
-                this.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
-            }
-
-
-            this.spawnEntity(meteor);
-
+            spawnMeteor(((ServerWorld) (Object) this));
             if(Config.SHOULD_COOLDOWN_BETWEEN_METEORS){
                 meteorCooldown = 20*Config.MIN_METEOR_COOLDOWN_TIME;
             }
