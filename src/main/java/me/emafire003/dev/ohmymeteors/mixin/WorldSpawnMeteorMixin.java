@@ -1,8 +1,6 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
-import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.config.Config;
-import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -10,8 +8,6 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.StructureWorldAccess;
@@ -27,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -57,6 +54,31 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
             return; //Hey. this return is important. I totally haven't discovered i forgot to put it here because like 200 meteors spawned in the span of a second in my face. Not at all.
         }
 
+        AtomicBoolean dimension_ok = new AtomicBoolean(false);
+        //TODO check if it's a problem performance wise?
+        PlayerEntity p = this.getRandomAlivePlayer();
+        if(p == null){
+            return;
+        }
+
+        //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
+        //and then stops checking
+        //todo this will check every time. If i add per-dimension chances it's ok.
+        Config.SPAWN_DIMENSIONS.forEach(dim -> {
+            if(dimension_ok.get()){{
+                return;
+            }}
+            if(dim.equals(p.getWorld().getDimensionEntry().getIdAsString())){
+                dimension_ok.set(true);
+            }
+        }
+        );
+
+        //If dimension_ok is still false, it means  the meteor can't spawn here so set it to true
+        if(!dimension_ok.get()){
+            return;
+        }
+
 
         int chance = Config.METEOR_SPAWN_CHANCE;
 
@@ -65,7 +87,7 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
         }
 
         if(this.getRandom().nextBetween(0, chance) == 0){
-            spawnMeteor(((ServerWorld) (Object) this));
+            spawnMeteor(((ServerWorld) (Object) this), p);
             if(Config.SHOULD_COOLDOWN_BETWEEN_METEORS){
                 meteorCooldown = 20*Config.MIN_METEOR_COOLDOWN_TIME;
             }

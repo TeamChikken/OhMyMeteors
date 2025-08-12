@@ -2,12 +2,14 @@ package me.emafire003.dev.ohmymeteors.config;
 
 import com.mojang.datafixers.util.Pair;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import net.minecraft.world.dimension.DimensionTypes;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.LOGGER;
 
@@ -79,6 +81,7 @@ public class Config {
 
     //V3
     public static double DOWNWARDS_SPEED_MODIFIER = 0;
+    public static List<String> SPAWN_DIMENSIONS = List.of(DimensionTypes.OVERWORLD_ID.toString(), DimensionTypes.THE_END_ID.toString());
 
 
 
@@ -214,6 +217,10 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
         configs.addKeyValuePair(new Pair<>("use_forced_particles", true),"Should meteor and laser particles be forced? They will be rendered further away and look better, but if there are too many of them you may want to disable this for lag reasons. Note: some particles will never displays as forced, like the lasers target box");
 
+        //V3
+        configs.addKeyValuePair(new Pair<>("spawn_dimensions", List.of(DimensionTypes.OVERWORLD_ID.toString(), DimensionTypes.THE_END_ID.toString())),"A list of the IDs of the dimensions in which meteors can naturally spawn in, vanilla or not.");
+        //TODO add an hashmap with the biome_id:chance for custom biomes chances. I don't know how it will be written on file tho. Maybe i could use a separate json file
+
     }
 
     public static void reloadConfig(){
@@ -284,6 +291,7 @@ public class Config {
 
         //V3
         DOWNWARDS_SPEED_MODIFIER = CONFIG.getOrDefault("downwards_speed_modifier", 0);
+        SPAWN_DIMENSIONS = CONFIG.getOrDefault("spawn_dimensions", List.of(DimensionTypes.OVERWORLD_ID.toString(), DimensionTypes.THE_END_ID.toString()));
     }
 }
 
