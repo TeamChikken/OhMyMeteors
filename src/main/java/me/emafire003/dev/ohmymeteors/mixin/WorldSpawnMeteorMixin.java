@@ -66,6 +66,8 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
             return;
         }
 
+        RegistryEntry<DimensionType> current_dim = p.getWorld().getDimensionEntry();
+
         //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
         //and then stops checking
         //todo this will check every time. If i add per-dimension chances it's ok.
@@ -73,7 +75,7 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
             if(dimension_ok.get()){{
                 return;
             }}
-            if(dim.equals(p.getWorld().getDimensionEntry().getIdAsString())){
+            if(dim.equals(current_dim.getIdAsString())){
                 dimension_ok.set(true);
             }
         }
@@ -87,9 +89,18 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
 
         int chance = Config.METEOR_SPAWN_CHANCE;
 
+        //If the meteor is in the map, it will override the chance thing
+        if(Config.DIMENSION_CHANCES.containsKey(current_dim.getIdAsString())){
+            chance = Config.DIMENSION_CHANCES.get(current_dim.getIdAsString());
+        }
+
         if(Config.MODIFY_SPAWN_CHANCE_AT_NIGHT && this.isNight()){
             chance = Config.METEOR_NIGHT_SPAWN_CHANCE;
+            if(Config.DIMENSION_NIGHT_CHANCES.containsKey(current_dim.getIdAsString())){
+                chance = Config.DIMENSION_NIGHT_CHANCES.get(current_dim.getIdAsString());
+            }
         }
+
 
         if(this.getRandom().nextBetween(0, chance) == 0){
             spawnMeteor(((ServerWorld) (Object) this), p);

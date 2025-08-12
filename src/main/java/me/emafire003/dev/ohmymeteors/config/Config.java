@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.LOGGER;
 
@@ -82,7 +83,26 @@ public class Config {
     //V3
     public static double DOWNWARDS_SPEED_MODIFIER = 0;
     public static List<String> SPAWN_DIMENSIONS = List.of(DimensionTypes.OVERWORLD_ID.toString(), DimensionTypes.THE_END_ID.toString());
+    public static Map<String, Integer> DIMENSION_CHANCES = Map.of(
+            DimensionTypes.OVERWORLD_ID.toString(), METEOR_SPAWN_CHANCE,
+            DimensionTypes.THE_END_ID.toString(), METEOR_SPAWN_CHANCE*10
+    );
+    public static Map<String, Integer> DIMENSION_NIGHT_CHANCES = Map.of(
+            DimensionTypes.OVERWORLD_ID.toString(), METEOR_NIGHT_SPAWN_CHANCE,
+            DimensionTypes.THE_END_ID.toString(), METEOR_NIGHT_SPAWN_CHANCE*10
+    );
 
+
+
+
+    private static Map<String, Integer> DIMENSION_CHANCES_default = Map.of(
+            DimensionTypes.OVERWORLD_ID.toString(), METEOR_SPAWN_CHANCE,
+            DimensionTypes.THE_END_ID.toString(), METEOR_SPAWN_CHANCE*10
+    );
+    private static Map<String, Integer> DIMENSION_NIGHT_CHANCES_default = Map.of(
+            DimensionTypes.OVERWORLD_ID.toString(), METEOR_NIGHT_SPAWN_CHANCE,
+            DimensionTypes.THE_END_ID.toString(), METEOR_NIGHT_SPAWN_CHANCE*10
+    );
 
 
     public static void handleVersionChange(){
@@ -219,6 +239,9 @@ public class Config {
 
         //V3
         configs.addKeyValuePair(new Pair<>("spawn_dimensions", List.of(DimensionTypes.OVERWORLD_ID.toString(), DimensionTypes.THE_END_ID.toString())),"A list of the IDs of the dimensions in which meteors can naturally spawn in, vanilla or not.");
+        configs.addKeyValuePair(new Pair<>("dimension_chances", DIMENSION_CHANCES_default), "A map consisting of dimension=chance of spawning. The spawn chance works as described above. The dimension must be present in the list above, otherwise meteors won't spawn at all");
+        configs.addKeyValuePair(new Pair<>("dimension_night_chances", DIMENSION_NIGHT_CHANCES_default), "The same as above but with a possibly different chance at night if enabled");
+
         //TODO add an hashmap with the biome_id:chance for custom biomes chances. I don't know how it will be written on file tho. Maybe i could use a separate json file
 
     }
@@ -292,6 +315,9 @@ public class Config {
         //V3
         DOWNWARDS_SPEED_MODIFIER = CONFIG.getOrDefault("downwards_speed_modifier", 0);
         SPAWN_DIMENSIONS = CONFIG.getOrDefault("spawn_dimensions", List.of(DimensionTypes.OVERWORLD_ID.toString(), DimensionTypes.THE_END_ID.toString()));
+        DIMENSION_CHANCES = CONFIG.getOrDefault("dimension_chances", DIMENSION_CHANCES_default);
+        DIMENSION_NIGHT_CHANCES = CONFIG.getOrDefault("dimension_night_chances", DIMENSION_NIGHT_CHANCES_default);
+
     }
 }
 
