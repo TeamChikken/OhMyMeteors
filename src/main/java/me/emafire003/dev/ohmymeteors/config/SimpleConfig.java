@@ -26,6 +26,7 @@ package me.emafire003.dev.ohmymeteors.config;
 import com.mojang.datafixers.util.Pair;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import org.apache.commons.io.FileDeleteStrategy;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,10 +34,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.LOGGER;
 
@@ -243,6 +241,39 @@ public class SimpleConfig {
         //Remove "[" and "]"
         val = val.substring(1, val.length() - 1);
         return Arrays.asList(val.split(", ", -1));
+    }
+
+    /**
+     * Returns string value from config corresponding to the given
+     * key, or the default string if the key is missing.
+     *
+     * @return  value corresponding to the given key, or the default value
+     */
+    public Map<String, Integer> getOrDefault( String key, Map<String, Integer> def ) {
+        String val = get(key);
+        if(val == null){
+            return def;
+        }
+
+        //An example/sample is: < dimension_chances:{minecraft:overworld=20000, minecraft:the_end=200000} >
+
+        //Remove "{" and "}"
+        val = val.substring(1, val.length() - 1);
+
+        //Now it's: < minecraft:overworld=20000, minecraft:the_end=200000 >
+
+        @NotNull String[] vals = val.split(", ", -1);
+
+        //Now each entry/value is < minecraft:overworld=20000 >
+
+        HashMap<String, Integer> map = new HashMap<>();
+
+        for(String entry : vals){
+            @NotNull String[] the_entry = entry.split("=");
+            map.put(the_entry[0], Integer.parseInt(the_entry[1]));
+        }
+
+        return map;
     }
 
     /**
