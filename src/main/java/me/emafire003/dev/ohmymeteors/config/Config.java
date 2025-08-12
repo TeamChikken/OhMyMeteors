@@ -95,11 +95,11 @@ public class Config {
 
 
 
-    private static Map<String, Integer> DIMENSION_CHANCES_default = Map.of(
+    private static final Map<String, Integer> DIMENSION_CHANCES_default = Map.of(
             DimensionTypes.OVERWORLD_ID.toString(), METEOR_SPAWN_CHANCE,
             DimensionTypes.THE_END_ID.toString(), METEOR_SPAWN_CHANCE*10
     );
-    private static Map<String, Integer> DIMENSION_NIGHT_CHANCES_default = Map.of(
+    private static final Map<String, Integer> DIMENSION_NIGHT_CHANCES_default = Map.of(
             DimensionTypes.OVERWORLD_ID.toString(), METEOR_NIGHT_SPAWN_CHANCE,
             DimensionTypes.THE_END_ID.toString(), METEOR_NIGHT_SPAWN_CHANCE*10
     );
