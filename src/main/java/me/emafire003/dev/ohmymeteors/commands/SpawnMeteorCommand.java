@@ -108,7 +108,7 @@ public class SpawnMeteorCommand implements OMMCommand {
                return -1;
            }
 
-           MeteorProjectileEntity.spawnMeteor(source.getWorld());
+           MeteorProjectileEntity.spawnMeteor(source.getWorld(), source.getWorld().getRandomAlivePlayer());
 
             return 1;
         }catch(Exception e){

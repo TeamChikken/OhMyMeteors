@@ -539,8 +539,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     }
 
     /**Spawns a meteor around a random alive online player*/
-    public static void spawnMeteor(ServerWorld world){
-        PlayerEntity p = world.getRandomAlivePlayer();
+    public static void spawnMeteor(ServerWorld world, PlayerEntity p){
 
         if(p == null){
             //for some reason it won't detect that there is player online sometimes
