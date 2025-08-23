@@ -7,7 +7,7 @@ license="GNU LGLP3"
 
 [[mods]]
 modId="ohmymeteors"
-version="${version}"
+version="0.3.0-1.21-neo"
 displayName="Oh My, Meteors!"
 authors="Emafire003, SlayerTheChikken"
 description='''A mod that introduces meteors that fall from the sky! Extremely configurable, a lot of meteor sizes with different types of impact and generated structures. And also a new kitty! Commissioned by SlayerTheChikken'''
