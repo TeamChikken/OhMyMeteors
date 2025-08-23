@@ -2,6 +2,7 @@ package me.emafire003.dev.ohmymeteors.config;
 
 import com.mojang.datafixers.util.Pair;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.dimension.DimensionTypes;
 import org.apache.commons.io.FileUtils;
 
@@ -92,17 +93,36 @@ public class Config {
             DimensionTypes.THE_END_ID.toString(), METEOR_NIGHT_SPAWN_CHANCE*10
     );
 
+    public static boolean BIOME_LIST_MODE = false;
+    public static List<String> BIOME_SPAWN_LIST = List.of(BiomeKeys.CHERRY_GROVE.getValue().toString(), BiomeKeys.SOUL_SAND_VALLEY.getValue().toString(), "modname:modbiome");
+    public static Map<String, Integer> BIOME_CHANCES = Map.of(
+            BiomeKeys.DESERT.getValue().toString(), METEOR_SPAWN_CHANCE+10,
+            "modname:modbiome", 2025
+    );
+    public static Map<String, Integer> BIOME_NIGHT_CHANCES = Map.of(
+            BiomeKeys.DESERT.getValue().toString(), METEOR_NIGHT_SPAWN_CHANCE+5,
+            "modname:modbiome", 2025
+    );
+
 
 
 
     private static final Map<String, Integer> DIMENSION_CHANCES_default = Map.of(
-            DimensionTypes.OVERWORLD_ID.toString(), METEOR_SPAWN_CHANCE,
             DimensionTypes.THE_END_ID.toString(), METEOR_SPAWN_CHANCE*10
     );
     private static final Map<String, Integer> DIMENSION_NIGHT_CHANCES_default = Map.of(
-            DimensionTypes.OVERWORLD_ID.toString(), METEOR_NIGHT_SPAWN_CHANCE,
             DimensionTypes.THE_END_ID.toString(), METEOR_NIGHT_SPAWN_CHANCE*10
     );
+
+    private static final Map<String, Integer> BIOME_CHANCES_default = Map.of(
+            BiomeKeys.DESERT.getValue().toString(), METEOR_SPAWN_CHANCE-10,
+            "modname:modbiome", 2025
+    );
+    private static final Map<String, Integer> BIOME_NIGHT_CHANCES_default = Map.of(
+            BiomeKeys.DESERT.getValue().toString(), METEOR_NIGHT_SPAWN_CHANCE-5,
+            "modname:modbiome", 2025
+    );
+    private static final List<String> BIOME_SPAWN_LIST_default =  List.of(BiomeKeys.CHERRY_GROVE.getValue().toString(), BiomeKeys.SOUL_SAND_VALLEY.getValue().toString(), "modname:modbiome");
 
 
     public static void handleVersionChange(){
@@ -237,10 +257,18 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
         configs.addKeyValuePair(new Pair<>("use_forced_particles", true),"Should meteor and laser particles be forced? They will be rendered further away and look better, but if there are too many of them you may want to disable this for lag reasons. Note: some particles will never displays as forced, like the lasers target box");
 
+        configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
+
         //V3
         configs.addKeyValuePair(new Pair<>("spawn_dimensions", List.of(DimensionTypes.OVERWORLD_ID.toString(), DimensionTypes.THE_END_ID.toString())),"A list of the IDs of the dimensions in which meteors can naturally spawn in, vanilla or not.");
-        configs.addKeyValuePair(new Pair<>("dimension_chances", DIMENSION_CHANCES_default), "A map consisting of dimension=chance of spawning. The spawn chance works as described above. The dimension must be present in the list above, otherwise meteors won't spawn at all");
+        configs.addKeyValuePair(new Pair<>("dimension_chances", DIMENSION_CHANCES_default), "A map consisting of dimension=chance of spawning. The dimension must be present in the list above, otherwise meteors won't spawn at all. This chance will ALWAYS ovveride the default if present. The spawn chance works as described above.");
         configs.addKeyValuePair(new Pair<>("dimension_night_chances", DIMENSION_NIGHT_CHANCES_default), "The same as above but with a possibly different chance at night if enabled");
+        configs.addKeyValuePair(new Pair<>("biome_list_mode", false),"If set to false will behave like a blacklist, aka meteors won't spawn in those biomes. If true will behave like a whitelist, meteors will spawn ONLY in those biomes.");
+        configs.addKeyValuePair(new Pair<>("biome_spawn_list", BIOME_SPAWN_LIST_default),"A black or whitelist of the biomes in which meteor will or will not spawn according to the setting above");
+
+        configs.addKeyValuePair(new Pair<>("biome_chances", BIOME_CHANCES_default), "A map consisting of biome=chance of spawning. The spawn chance works as described above. The meteors must be able to spawn in those biomes, otherwise they won't!");
+        configs.addKeyValuePair(new Pair<>("biome_night_chances", BIOME_NIGHT_CHANCES_default), "The same as above but with a possibly different chance at night if enabled");
+
 
         //TODO add an hashmap with the biome_id:chance for custom biomes chances. I don't know how it will be written on file tho. Maybe i could use a separate json file
 
@@ -317,7 +345,10 @@ public class Config {
         SPAWN_DIMENSIONS = CONFIG.getOrDefault("spawn_dimensions", List.of(DimensionTypes.OVERWORLD_ID.toString(), DimensionTypes.THE_END_ID.toString()));
         DIMENSION_CHANCES = CONFIG.getOrDefault("dimension_chances", DIMENSION_CHANCES_default);
         DIMENSION_NIGHT_CHANCES = CONFIG.getOrDefault("dimension_night_chances", DIMENSION_NIGHT_CHANCES_default);
-
+        BIOME_LIST_MODE = CONFIG.getOrDefault("biome_list_mode", false);
+        BIOME_SPAWN_LIST = CONFIG.getOrDefault("biome_spawn_list", BIOME_SPAWN_LIST_default);
+        BIOME_CHANCES = CONFIG.getOrDefault("biome_chances", BIOME_CHANCES_default);
+        BIOME_NIGHT_CHANCES = CONFIG.getOrDefault("biome_night_chances", BIOME_NIGHT_CHANCES_default);
     }
 }
 
