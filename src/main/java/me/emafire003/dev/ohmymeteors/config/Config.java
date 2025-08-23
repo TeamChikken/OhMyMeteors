@@ -268,10 +268,6 @@ public class Config {
 
         configs.addKeyValuePair(new Pair<>("biome_chances", BIOME_CHANCES_default), "A map consisting of biome=chance of spawning. The spawn chance works as described above. The meteors must be able to spawn in those biomes, otherwise they won't!");
         configs.addKeyValuePair(new Pair<>("biome_night_chances", BIOME_NIGHT_CHANCES_default), "The same as above but with a possibly different chance at night if enabled");
-
-
-        //TODO add an hashmap with the biome_id:chance for custom biomes chances. I don't know how it will be written on file tho. Maybe i could use a separate json file
-
     }
 
     public static void reloadConfig(){
