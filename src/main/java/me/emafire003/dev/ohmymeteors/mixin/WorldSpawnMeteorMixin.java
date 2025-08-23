@@ -1,5 +1,6 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
+import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -84,22 +85,22 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
         int chance = Config.METEOR_SPAWN_CHANCE;
 
         //If the current dimension is in the map, it will override the chance thing
-        if(Config.DIMENSION_CHANCES.containsKey(current_dim.getIdAsString())){
-            chance = Config.DIMENSION_CHANCES.get(current_dim.getIdAsString());
+        if(Config.DIMENSION_CHANCES.containsKey(current_dim.getKey().get().getValue().toString())){
+            chance = Config.DIMENSION_CHANCES.get(current_dim.getKey().get().getValue().toString());
         }
 
         //If the biome is in the map the chance gets overridden again
-        if(Config.BIOME_CHANCES.containsKey(current_biome.getIdAsString())){
-            chance = Config.BIOME_CHANCES.get(current_biome.getIdAsString());
+        if(Config.BIOME_CHANCES.containsKey(current_biome.getKey().get().getValue().toString())){
+            chance = Config.BIOME_CHANCES.get(current_biome.getKey().get().getValue().toString());
         }
 
         if(Config.MODIFY_SPAWN_CHANCE_AT_NIGHT && this.isNight()){
             chance = Config.METEOR_NIGHT_SPAWN_CHANCE;
-            if(Config.DIMENSION_NIGHT_CHANCES.containsKey(current_dim.getIdAsString())){
-                chance = Config.DIMENSION_NIGHT_CHANCES.get(current_dim.getIdAsString());
+            if(Config.DIMENSION_NIGHT_CHANCES.containsKey(current_dim.getKey().get().getValue().toString())){
+                chance = Config.DIMENSION_NIGHT_CHANCES.get(current_dim.getKey().get().getValue().toString());
             }
-            if(Config.BIOME_NIGHT_CHANCES.containsKey(current_biome.getIdAsString())){
-                chance = Config.BIOME_NIGHT_CHANCES.get(current_biome.getIdAsString());
+            if(Config.BIOME_NIGHT_CHANCES.containsKey(current_biome.getKey().get().getValue().toString())){
+                chance = Config.BIOME_NIGHT_CHANCES.get(current_biome.getKey().get().getValue().toString());
             }
         }
 
@@ -110,27 +111,13 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
             }
         }
     }
-
-    protected WorldSpawnMeteorMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
-        super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
-    }
+    
 
     @Unique
     public boolean checkDimension(RegistryEntry<DimensionType> current_dim){
         //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
         //and then stops checking
-        AtomicBoolean dimension_ok = new AtomicBoolean(false);
-        Config.SPAWN_DIMENSIONS.forEach(dim -> {
-                    if(dimension_ok.get()){{
-                        return;
-                    }}
-                    if(dim.equals(current_dim.getIdAsString())){
-                        dimension_ok.set(true);
-                    }
-                }
-        );
-
-        return dimension_ok.get();
+        return Config.SPAWN_DIMENSIONS.contains(current_dim.getKey().get().getValue().toString());
     }
 
     @Unique
@@ -141,9 +128,9 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
         //If true means whitelist aka it HAS to be present
         //if false means in MUST NOT be present
         if(Config.BIOME_LIST_MODE){
-            return Config.BIOME_SPAWN_LIST.contains(current_biome.getIdAsString());
+            return Config.BIOME_SPAWN_LIST.contains(current_biome.getKey().get().getValue().toString());
         }else{
-            return !Config.BIOME_SPAWN_LIST.contains(current_biome.getIdAsString());
+            return !Config.BIOME_SPAWN_LIST.contains(current_biome.getKey().get().getValue().toString());
         }
     }
 }
