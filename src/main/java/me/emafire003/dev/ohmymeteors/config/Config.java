@@ -94,7 +94,7 @@ public class Config {
     );
 
     public static boolean BIOME_LIST_MODE = false;
-    public static List<String> BIOME_SPAWN_LIST = List.of(BiomeKeys.CHERRY_GROVE.getValue().toString(), BiomeKeys.SOUL_SAND_VALLEY.getValue().toString(), "modname:modbiome");
+    public static List<String> BIOME_SPAWN_LIST = List.of(BiomeKeys.BADLANDS.getValue().toString(), BiomeKeys.SOUL_SAND_VALLEY.getValue().toString(), "modname:modbiome");
     public static Map<String, Integer> BIOME_CHANCES = Map.of(
             BiomeKeys.DESERT.getValue().toString(), METEOR_SPAWN_CHANCE+10,
             "modname:modbiome", 2025
@@ -122,7 +122,7 @@ public class Config {
             BiomeKeys.DESERT.getValue().toString(), METEOR_NIGHT_SPAWN_CHANCE-5,
             "modname:modbiome", 2025
     );
-    private static final List<String> BIOME_SPAWN_LIST_default =  List.of(BiomeKeys.CHERRY_GROVE.getValue().toString(), BiomeKeys.SOUL_SAND_VALLEY.getValue().toString(), "modname:modbiome");
+    private static final List<String> BIOME_SPAWN_LIST_default =  List.of(BiomeKeys.BADLANDS.getValue().toString(), BiomeKeys.SOUL_SAND_VALLEY.getValue().toString(), "modname:modbiome");
 
 
     public static void handleVersionChange(){

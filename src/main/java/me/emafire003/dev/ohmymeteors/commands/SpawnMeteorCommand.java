@@ -104,7 +104,7 @@ public class SpawnMeteorCommand implements OMMCommand {
         try{
 
            if(source.getWorld().getPlayers().isEmpty()){
-               source.sendFeedback( () -> Text.literal("Could not spawn a natural meteor since there are no players online!"),true);
+               source.sendFeedback( Text.literal("Could not spawn a natural meteor since there are no players online!"),true);
                return -1;
            }
 
@@ -113,7 +113,7 @@ public class SpawnMeteorCommand implements OMMCommand {
             return 1;
         }catch(Exception e){
             e.printStackTrace();
-            source.sendFeedback( () -> Text.literal("Error: " + e),false);
+            source.sendFeedback( Text.literal("Error: " + e),false);
             return 0;
         }
     }
