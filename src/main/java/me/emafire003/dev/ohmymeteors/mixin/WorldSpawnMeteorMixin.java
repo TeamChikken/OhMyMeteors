@@ -113,26 +113,12 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
         }
     }
 
-    protected WorldSpawnMeteorMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
-        super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
-    }
 
     @Unique
     public boolean checkDimension(RegistryEntry<DimensionType> current_dim){
         //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
         //and then stops checking
-        AtomicBoolean dimension_ok = new AtomicBoolean(false);
-        Config.SPAWN_DIMENSIONS.forEach(dim -> {
-                    if(dimension_ok.get()){{
-                        return;
-                    }}
-                    if(dim.equals(current_dim.getIdAsString())){
-                        dimension_ok.set(true);
-                    }
-                }
-        );
-
-        return dimension_ok.get();
+        return Config.SPAWN_DIMENSIONS.contains(current_dim.getIdAsString());
     }
 
     @Unique
