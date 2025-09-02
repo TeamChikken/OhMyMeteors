@@ -208,8 +208,8 @@ public class Config {
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
-        configs.addKeyValuePair(new Pair<>("should_bypass_leaves", true),"Should meteors bypass leaves blocks instead of colliding with them midair?");
-        configs.addKeyValuePair(new Pair<>("should_destroy_leaves", true),"Should the bypassed leaves be destroyed when the meteor passes through them?");
+        configs.addKeyValuePair(new Pair<>("should_bypass_leaves", true),"This option has no effect as of version 0.4.0. Please use the 'ohmymeteors:meteor_bypasses' tag instead.");
+        configs.addKeyValuePair(new Pair<>("should_destroy_leaves", true),"This option has no effect as of version 0.4.0. Please use the 'ohmymeteors:meteor_bypasses_and_destroy' tag instead");
 
         configs.addKeyValuePair(new Pair<>("homing_meteors", false),"Should meteors be (more or less) directed towards the nearest player?");
 
