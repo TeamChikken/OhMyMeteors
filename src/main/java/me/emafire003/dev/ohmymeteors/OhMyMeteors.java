@@ -14,6 +14,11 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.Block;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +56,7 @@ public class OhMyMeteors implements ModInitializer {
 		OMMSounds.registerSounds();
 		OMMItems.registerItems();
 		OMMParticles.registerParticles();
+		registerTags();
 
 		//loads the config file on server startup
 		ServerLifecycleEvents.SERVER_STARTED.register( minecraftServer -> {
@@ -61,6 +67,16 @@ public class OhMyMeteors implements ModInitializer {
 				e.printStackTrace();
 			}
 		});
+	}
+
+	public static final TagKey<Block> METEOR_BYPASSES = TagKey.of(RegistryKeys.BLOCK, getIdentifier("meteor_bypasses"));
+	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.of(RegistryKeys.BLOCK, getIdentifier("meteor_bypasses_and_destroy"));
+
+	@SuppressWarnings("unused")
+	public static void registerTags(){
+		RegistryEntryList.Named<Block> METEOR_BYPASSES_TAG = Registries.BLOCK.getOrCreateEntryList(METEOR_BYPASSES);
+		RegistryEntryList.Named<Block> METEOR_BYPASSES_AND_DESTROY_TAG = Registries.BLOCK.getOrCreateEntryList(METEOR_BYPASSES_AND_DESTROY);
+
 	}
 
 }
