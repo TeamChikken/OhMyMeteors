@@ -298,6 +298,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     /** Like {@link #detonateSimple()} but will also spawn the structure of the meteor*/
     //TODO maybe later make a better calculation of like the direction the meteor is travelling in to make it better embed into the terrain
     public void detonateWithStructure(){
+        //this.getWorld().getServer().sendMessage(Text.literal("the movement direction is: " + this.getMovementDirection() + "\n The velocity is: " + this.getVelocity()));
         detonateSimple();
         if(!this.getWorld().isClient()){
 
@@ -314,16 +315,19 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
                 return;
             }
 
-            BlockPos m_pos_offset = new BlockPos(-1, -2, -1);
+            BlockPos m_pos_offset = BlockPos.ofFloored(this.getVelocity()).add(-1, 0, -1);//new BlockPos(-1, -2, -1);
             //Checks for at most 5 blocks of Air below where the meteor should spawn, which could be a result of the explosion
 
             StructurePlacerAPI placer =
                     new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("small/small_meteor_0"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
 
-            //between 2 and 5 (inclusive) the meteor is considered small
             if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
+                Identifier tobeplaced = getStructureToPlace("small");
+                m_pos_offset = getOffset(new BlockPos(-1, 0, -1), tobeplaced);
+
+
                 placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
-                        getStructureToPlace("small"),
+                        tobeplaced,
                         this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
 
                 placer.loadStructure();
@@ -331,10 +335,38 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             }
 
             if(this.getSize() <= Config.MAX_MEDIUM_METEOR_SIZE){
-                m_pos_offset = new BlockPos(-2, -3, -3);
+                Identifier tobeplaced = getStructureToPlace("medium");
+                m_pos_offset = getOffset(new BlockPos(-2, 0, -2), tobeplaced);
+                /*Vec3d size_factors = Vec3d.of(StructurePlacerAPI.getTemplatePreview((ServerWorld) this.getWorld(), tobeplaced).get().getSize());
+                //size_factors = size_factors.multiply(0.2, -0.2, 0.2);
+                //size_factors = new Vec3d(size_factors.getZ(), size_factors.getY(), size_factors.getX());
+
+                m_pos_offset = BlockPos.ofFloored(this.getVelocity())
+                        //.add(-2, -2, -2); //TODO this works!
+                        //.add(-2, (int) - (size_factors.getY()/3), -2); this is meh
+                        .add(-2, 0, -2);
+
+                if(this.getPitch() < 27){
+                    OhMyMeteors.LOGGER.debug("meteor fell diagonally, embedding laterally!");
+                    //TODO maybe i should take into account the terrain type
+                    m_pos_offset = m_pos_offset.add(((int) this.getVelocity().getX()*2), 0,  ((int) this.getVelocity().getZ()*2));
+                }else{
+                    BlockPos nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
+                    BlockState state = this.getWorld().getBlockState(nonair_pos);
+                    int dist_to_floor = 0;
+                    while(state.isAir()){
+                        nonair_pos = nonair_pos.down();
+                        state = this.getWorld().getBlockState(nonair_pos);
+                        dist_to_floor++;
+                    }
+                    //get the distance to floor, get the height and stuff and the place half of it underground?
+
+                    m_pos_offset = m_pos_offset.add(0, (int) (- dist_to_floor/*+(size_factors.getY()/2) /*), 0);
+
+                }*/
 
                 placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
-                        getStructureToPlace("medium"),
+                        tobeplaced,
                         this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
 
                 placer.loadStructure();
@@ -342,10 +374,13 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             }
 
             if(this.getSize() <= Config.MAX_BIG_METEOR_SIZE){
-                m_pos_offset = new BlockPos(-4, -6, -3);
+                Identifier tobeplaced = getStructureToPlace("big");
+                m_pos_offset = getOffset(new BlockPos(-3, 0, -3), tobeplaced);
+
+                //m_pos_offset = new BlockPos(-4, -6, -3);
 
                 placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
-                        getStructureToPlace("big"),
+                        tobeplaced,
                         this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
 
                 placer.loadStructure();
@@ -353,14 +388,45 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             }
 
             //If it's not in the sizes above, then it's a huge one:
-            m_pos_offset = new BlockPos(-4, -10, -3);
+
+            Identifier tobeplaced = getStructureToPlace("huge");
+            m_pos_offset = getOffset(new BlockPos(-4, 0, -4), tobeplaced);
+            //m_pos_offset = new BlockPos(-4, -10, -3);
 
             placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
-                    getStructureToPlace("huge"),
+                    tobeplaced,
                     this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
 
             placer.loadStructure();
         }
+    }
+
+    private BlockPos getOffset(BlockPos m_pos_offset, Identifier tobeplaced){
+        Vec3d size_factors = Vec3d.of(StructurePlacerAPI.getTemplatePreview((ServerWorld) this.getWorld(), tobeplaced).get().getSize());
+        //size_factors = size_factors.multiply(0.2, -0.2, 0.2);
+        //size_factors = new Vec3d(size_factors.getZ(), size_factors.getY(), size_factors.getX());
+
+        m_pos_offset = BlockPos.ofFloored(this.getVelocity()).add(m_pos_offset);
+
+        if(this.getPitch() < 27){
+            OhMyMeteors.LOGGER.debug("meteor fell diagonally, embedding laterally!");
+            //TODO maybe i should take into account the terrain type
+            m_pos_offset = m_pos_offset.add(((int) this.getVelocity().getX()*2), 0,  ((int) this.getVelocity().getZ()*2));
+        }else{
+            BlockPos nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
+            BlockState state = this.getWorld().getBlockState(nonair_pos);
+            int dist_to_floor = 0;
+            while(state.isAir()){
+                nonair_pos = nonair_pos.down();
+                state = this.getWorld().getBlockState(nonair_pos);
+                dist_to_floor++;
+            }
+            //get the distance to floor, get the height and stuff and the place half of it underground?
+
+            m_pos_offset = m_pos_offset.add(0, (int) (- dist_to_floor/*+(size_factors.getY()/2)*/), 0);
+
+        }
+        return m_pos_offset;
     }
 
     /**
@@ -440,6 +506,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         if(exploded){
             return;
         }
+        //TODO make sure it is like 1/3 of its size inside a block maybe
         super.onBlockHit(blockHitResult);
         BlockState state = this.getWorld().getBlockState(blockHitResult.getBlockPos());
 
