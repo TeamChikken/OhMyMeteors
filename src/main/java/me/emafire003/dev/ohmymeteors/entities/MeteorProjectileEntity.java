@@ -337,33 +337,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             if(this.getSize() <= Config.MAX_MEDIUM_METEOR_SIZE){
                 Identifier tobeplaced = getStructureToPlace("medium");
                 m_pos_offset = getOffset(new BlockPos(-2, 0, -2), tobeplaced);
-                /*Vec3d size_factors = Vec3d.of(StructurePlacerAPI.getTemplatePreview((ServerWorld) this.getWorld(), tobeplaced).get().getSize());
-                //size_factors = size_factors.multiply(0.2, -0.2, 0.2);
-                //size_factors = new Vec3d(size_factors.getZ(), size_factors.getY(), size_factors.getX());
 
-                m_pos_offset = BlockPos.ofFloored(this.getVelocity())
-                        //.add(-2, -2, -2); //TODO this works!
-                        //.add(-2, (int) - (size_factors.getY()/3), -2); this is meh
-                        .add(-2, 0, -2);
-
-                if(this.getPitch() < 27){
-                    OhMyMeteors.LOGGER.debug("meteor fell diagonally, embedding laterally!");
-                    //TODO maybe i should take into account the terrain type
-                    m_pos_offset = m_pos_offset.add(((int) this.getVelocity().getX()*2), 0,  ((int) this.getVelocity().getZ()*2));
-                }else{
-                    BlockPos nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
-                    BlockState state = this.getWorld().getBlockState(nonair_pos);
-                    int dist_to_floor = 0;
-                    while(state.isAir()){
-                        nonair_pos = nonair_pos.down();
-                        state = this.getWorld().getBlockState(nonair_pos);
-                        dist_to_floor++;
-                    }
-                    //get the distance to floor, get the height and stuff and the place half of it underground?
-
-                    m_pos_offset = m_pos_offset.add(0, (int) (- dist_to_floor/*+(size_factors.getY()/2) /*), 0);
-
-                }*/
 
                 placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
                         tobeplaced,
@@ -401,6 +375,14 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }
     }
 
+    /** Returms the offset of the meteor structure, aka how much it's going to be embedded in the terrain.
+     * it's based on its size and the distance from the terrain that would be left from the imapct point, and
+     * the direction of the meteor
+     *
+     * @param m_pos_offset The staring offset
+     * @param tobeplaced the id of the meteor that is going to be placed
+     * @return the blockpos offset
+     */
     private BlockPos getOffset(BlockPos m_pos_offset, Identifier tobeplaced){
         Vec3d size_factors = Vec3d.of(StructurePlacerAPI.getTemplatePreview((ServerWorld) this.getWorld(), tobeplaced).get().getSize());
         //size_factors = size_factors.multiply(0.2, -0.2, 0.2);
@@ -408,12 +390,20 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         m_pos_offset = BlockPos.ofFloored(this.getVelocity()).add(m_pos_offset);
 
-        if(this.getPitch() < 27){
+        if(this.getPitch() < 27 && !(tobeplaced.getPath().startsWith("big") || tobeplaced.getPath().startsWith("huge"))){
             OhMyMeteors.LOGGER.debug("meteor fell diagonally, embedding laterally!");
-            //TODO maybe i should take into account the terrain type
             m_pos_offset = m_pos_offset.add(((int) this.getVelocity().getX()*2), 0,  ((int) this.getVelocity().getZ()*2));
         }else{
             BlockPos nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
+            if(tobeplaced.getPath().startsWith("big")){
+                nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/10, 0);
+                if(this.getPitch() < 27){
+                    nonair_pos.add((int) (this.getVelocity().getX()*5), 0, (int) (this.getVelocity().getZ()*5));
+                }
+            }
+            if(tobeplaced.getPath().startsWith("huge")){
+                nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/37, 0);
+            }
             BlockState state = this.getWorld().getBlockState(nonair_pos);
             int dist_to_floor = 0;
             while(state.isAir()){
