@@ -438,7 +438,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             }
             //get the distance to floor, get the height and stuff and the place half of it underground?
 
-            m_pos_offset = m_pos_offset.add(0, (int) (- dist_to_floor/*+(size_factors.getY()/2)*/), 0);
+            /*+(size_factors.getY()/2)*/
+            m_pos_offset = m_pos_offset.add(0, - dist_to_floor, 0);
 
         }
         return m_pos_offset;
@@ -527,14 +528,13 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         //It also registers Air blocks as a collision so we need to avoid such cases
         if(!state.isAir()){
-            //If bypass leaves is false skip directly to the other code
-            //TODO maybe this should work like a tag instead of being just leaves
-            if(Config.SHOULD_BYPASS_LEAVES && state.isIn(BlockTags.LEAVES)){
+            //Checks if the block should be bypassed or not
+            if(state.isIn(OhMyMeteors.METEOR_BYPASSES)){
                 //Early return so the rest of the code doesn't run if the meteor hits a leaves block and the config option is there
-                if(Config.SHOULD_DESTROY_LEAVES){
+                if(state.isIn(OhMyMeteors.METEOR_BYPASSES_AND_DESTROY)){
                     Box box = this.getBoundingBox();
                     BlockPos.stream(box).forEach((blockPos -> {
-                        if(this.getWorld().getBlockState(blockPos).isIn(BlockTags.LEAVES)){
+                        if(this.getWorld().getBlockState(blockPos).isIn(OhMyMeteors.METEOR_BYPASSES_AND_DESTROY)){
                             this.getWorld().setBlockState(blockPos, Blocks.AIR.getDefaultState());
                             this.getWorld().addParticleClient(ParticleTypes.EXPLOSION, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0, 0,0 );
                         }

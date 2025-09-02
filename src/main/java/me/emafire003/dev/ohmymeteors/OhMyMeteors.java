@@ -57,6 +57,7 @@ public class OhMyMeteors implements ModInitializer {
 		OMMSounds.registerSounds();
 		OMMItems.registerItems();
 		OMMParticles.registerParticles();
+		registerTags();
 
 		//loads the config file on server startup
 		ServerLifecycleEvents.SERVER_STARTED.register( minecraftServer -> {
@@ -67,6 +68,16 @@ public class OhMyMeteors implements ModInitializer {
 				e.printStackTrace();
 			}
 		});
+	}
+
+	public static final TagKey<Block> METEOR_BYPASSES = TagKey.of(RegistryKeys.BLOCK, getIdentifier("meteor_bypasses"));
+	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.of(RegistryKeys.BLOCK, getIdentifier("meteor_bypasses_and_destroy"));
+
+	@SuppressWarnings("unused")
+	public static void registerTags(){
+		RegistryEntryList.Named<Block> METEOR_BYPASSES_TAG = Registries.BLOCK.getOrCreateEntryList(METEOR_BYPASSES);
+		RegistryEntryList.Named<Block> METEOR_BYPASSES_AND_DESTROY_TAG = Registries.BLOCK.getOrCreateEntryList(METEOR_BYPASSES_AND_DESTROY);
+
 	}
 
 }
