@@ -1,4 +1,24 @@
-//Credit to explodee, license: https://github.com/KnownSH/Explodee?tab=License-1-ov-file
+//Credit to Explodee mod, Author: KnownSH https://github.com/KnownSH/Explodee
+//The code is based around their mixin of the Explosion class
+//MIT-0 License
+/*
+MIT No Attribution
+
+Copyright 2025 KnownSH
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this
+software and associated documentation files (the "Software"), to deal in the Software
+without restriction, including without limitation the rights to use, copy, modify,
+merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 
 package me.emafire003.dev.ohmymeteors.util;
 
@@ -6,7 +26,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -146,7 +165,7 @@ public class SphereExplosion extends Explosion {
     }
 
     private ExplosionBehavior chooseBehavior(@Nullable Entity entity) {
-        return (ExplosionBehavior)(entity == null ? DEFAULT_BEHAVIOR : new EntityExplosionBehavior(entity));
+        return (entity == null ? DEFAULT_BEHAVIOR : new EntityExplosionBehavior(entity));
     }
 
     protected double thetaRef;
@@ -166,14 +185,11 @@ public class SphereExplosion extends Explosion {
 
     @Override
     public void collectBlocksAndDamageEntities() {
-        OhMyMeteors.LOGGER.warn("Is this getting called?");
         this.world.emitGameEvent(this.entity, GameEvent.EXPLODE, new Vec3d(this.x, this.y, this.z));
-        Set<BlockPos> set = Sets.<BlockPos>newHashSet();
-        int i = 16;
+        Set<BlockPos> set = Sets.newHashSet();
 
         for (int j = 15; j < 16; j++) {
             for (int k = 15; k < 16; k++) {
-                //TODO here is the forced limit of 100 as power. Could increase
                 for (int l = 0; l < (int) Math.max(power * power, MAX_POWER); l++) {
                     double d = calcDakaXdirection(l);
                     double e = Math.sin(phiRef) * Math.sin(thetaRef);
