@@ -2,6 +2,7 @@ package me.emafire003.dev.ohmymeteors;
 
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.blocks.OMMProperties;
+import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
@@ -56,6 +57,9 @@ public class OhMyMeteors implements ModInitializer {
 		OMMItems.registerItems();
 		OMMParticles.registerParticles();
 		registerTags();
+		if(FabricLoader.getInstance().isModLoaded("flan")){
+			FlanCompat.registerFlan();
+		}
 
 		//loads the config file on server startup
 		ServerLifecycleEvents.SERVER_STARTED.register( minecraftServer -> {

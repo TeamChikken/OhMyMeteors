@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.ExplosionBehavior;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("unused")
 public class ExplosionUtils {
 
     public static SphereExplosion createExplosion(World world, @Nullable Entity entity, double x, double y, double z, float power, World.ExplosionSourceType explosionSourceType) {
