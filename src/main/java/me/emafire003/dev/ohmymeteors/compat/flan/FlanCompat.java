@@ -2,9 +2,7 @@ package me.emafire003.dev.ohmymeteors.compat.flan;
 
 import io.github.flemmli97.flan.Flan;
 import io.github.flemmli97.flan.api.ClaimHandler;
-import io.github.flemmli97.flan.fabric.FlanFabric;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 

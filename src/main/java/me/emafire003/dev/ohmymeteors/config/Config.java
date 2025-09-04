@@ -103,8 +103,10 @@ public class Config {
             BiomeKeys.DESERT.getValue().toString(), METEOR_NIGHT_SPAWN_CHANCE+5,
             "modname:modbiome", 2025
     );
+
     //V4
     public static boolean USE_BETTER_EXPLOSIONS = true;
+    public static int METEOR_RENDER_DISTANCE = 200;
 
 
     private static final Map<String, Integer> DIMENSION_CHANCES_default = Map.of(
@@ -270,7 +272,10 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("biome_night_chances", BIOME_NIGHT_CHANCES_default), "The same as above but with a possibly different chance at night if enabled");
 
         //V4
+        configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
+
         configs.addKeyValuePair(new Pair<>("use_better_explosion", true),"If true will use a spherical explosion instead of the vanilla cubical one. These look nicer at higher explosion power/ranges, but after power 100 become quite laggy.");
+        configs.addKeyValuePair(new Pair<>("meteor_render_distance", 200),"How far should meteors be rendered. WARNING: YOU NEED TO RESTART YOUR SERVER AND CLIENT IF YOU CHANGE THIS VALUE in order for it to take effect. It is multiplied by the 'entity render' distance of the server");
 
 
     }
@@ -353,6 +358,7 @@ public class Config {
 
         //V4
         USE_BETTER_EXPLOSIONS = CONFIG.getOrDefault("use_better_explosions", true);
+        METEOR_RENDER_DISTANCE = CONFIG.getOrDefault("meteor_render_distance", 200);
     }
 }
 
