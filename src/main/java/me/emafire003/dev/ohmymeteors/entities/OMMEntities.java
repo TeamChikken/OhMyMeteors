@@ -1,6 +1,7 @@
 package me.emafire003.dev.ohmymeteors.entities;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.config.Config;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -12,6 +13,7 @@ public class OMMEntities {
     public static final EntityType<MeteorProjectileEntity> METEOR_PROJECTILE_ENTITY = Registry.register(Registries.ENTITY_TYPE,
             OhMyMeteors.getIdentifier("meteor_projectile"),
             EntityType.Builder.<MeteorProjectileEntity>create(MeteorProjectileEntity::new, SpawnGroup.MISC)
+                    .maxTrackingRange(getMeteorTrackingDistance())
                     .dimensions(0.9F, 0.9F).build());
 
 
@@ -19,6 +21,11 @@ public class OMMEntities {
             OhMyMeteors.getIdentifier("meteor_cat"),
             EntityType.Builder.<MeteorCatEntity>create(MeteorCatEntity::new, SpawnGroup.MISC)
                     .dimensions(0.9F, 0.9F).build());
+
+    public static int getMeteorTrackingDistance(){
+        Config.reloadConfig();
+        return Config.METEOR_RENDER_DISTANCE;
+    }
 
     public static void registerEntities(){
         FabricDefaultAttributeRegistry.register(METEOR_KITTY_CAT, MeteorCatEntity.createCatAttributes());
