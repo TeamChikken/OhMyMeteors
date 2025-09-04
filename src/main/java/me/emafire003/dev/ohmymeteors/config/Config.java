@@ -19,7 +19,7 @@ public class Config {
     public static SimpleConfig CONFIG;
     private static ConfigProvider configs;
 
-    private static final int ver = 3;
+    private static final int ver = 4;
     public static Path FILEPATH;
 
     public static int VERSION;
@@ -103,8 +103,9 @@ public class Config {
             BiomeKeys.DESERT.getValue().toString(), METEOR_NIGHT_SPAWN_CHANCE+5,
             "modname:modbiome", 2025
     );
-
-
+    //V4
+    public static boolean USE_BETTER_EXPLOSIONS = true;
+    public static int USE_VANILLA_EXPLOSIONS_UNTIL = -1;
 
 
     private static final Map<String, Integer> DIMENSION_CHANCES_default = Map.of(
@@ -268,6 +269,11 @@ public class Config {
 
         configs.addKeyValuePair(new Pair<>("biome_chances", BIOME_CHANCES_default), "A map consisting of biome=chance of spawning. The spawn chance works as described above. The meteors must be able to spawn in those biomes, otherwise they won't!");
         configs.addKeyValuePair(new Pair<>("biome_night_chances", BIOME_NIGHT_CHANCES_default), "The same as above but with a possibly different chance at night if enabled");
+
+        //V4
+        configs.addKeyValuePair(new Pair<>("use_better_explosion", true),"If true will use a spherical explosion instead of the vanilla cubical one. These look nicer at higher explosion power/ranges, but after power 100 become quite laggy.");
+
+
     }
 
     public static void reloadConfig(){
@@ -345,6 +351,9 @@ public class Config {
         BIOME_SPAWN_LIST = CONFIG.getOrDefault("biome_spawn_list", BIOME_SPAWN_LIST_default);
         BIOME_CHANCES = CONFIG.getOrDefault("biome_chances", BIOME_CHANCES_default);
         BIOME_NIGHT_CHANCES = CONFIG.getOrDefault("biome_night_chances", BIOME_NIGHT_CHANCES_default);
+
+        //V4
+        USE_BETTER_EXPLOSIONS = CONFIG.getOrDefault("use_better_explosions", true);
     }
 }
 
