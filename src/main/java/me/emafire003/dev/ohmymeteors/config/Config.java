@@ -105,7 +105,6 @@ public class Config {
     );
     //V4
     public static boolean USE_BETTER_EXPLOSIONS = true;
-    public static int USE_VANILLA_EXPLOSIONS_UNTIL = -1;
 
 
     private static final Map<String, Integer> DIMENSION_CHANCES_default = Map.of(

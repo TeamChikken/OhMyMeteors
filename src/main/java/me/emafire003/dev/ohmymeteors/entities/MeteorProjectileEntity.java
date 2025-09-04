@@ -3,10 +3,13 @@ package me.emafire003.dev.ohmymeteors.entities;
 import com.google.common.annotations.VisibleForTesting;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
+import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
+import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.events.MeteorSpawnEvent;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.ExplosionUtils;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -437,6 +440,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         );
 
         AtomicBoolean hasSpecial = new AtomicBoolean(false);
+
         List<Identifier> structs = structures.filter(identifier -> {
             if (!hasSpecial.get()) { //saves on checks
                 //This allows me to see if this size has at least a special meteor
@@ -450,10 +454,18 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }).toList();
 
         Identifier structure_id = structs.get(this.getRandom().nextBetween(0,structs.size()-1));
+        //This is to prevent special structures from spawning "before" they should
+        //TODO make sure it's not too much of a performance issue
+        while(structure_id.getPath().startsWith(sizeClass+"/special")){
+            structure_id = structs.get(this.getRandom().nextBetween(0,structs.size()-1));
+        }
+
+        OhMyMeteors.LOGGER.info("The inital id is: " + structure_id);
 
         //If there is at least a special meteor structure, and the chance is hit, the structs list should only have those
         if(hasSpecial.get()){
-            int i = random.nextBetween(1, Config.SPECIAL_METEORS_CHANCE);
+            int i = random.nextBetween(0, Config.SPECIAL_METEORS_CHANCE);
+            OhMyMeteors.LOGGER.info("i is: " + i);
             if(i == 1){
                 List<Identifier> specials = structs.stream().filter(id -> id.getPath().startsWith(sizeClass+"/special")).toList();
                 structure_id = specials.get(this.getRandom().nextBetween(0,specials.size()-1));
@@ -464,7 +476,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
     /**This will detonate the meteor with an explosion like {@link #detonateSimple()}
      * but will also spawn other meteors based on the size of this meteor.
-     *
+     * <p>
      * Meteors will be smaller and be oriented randomly from that point on, but will still go down.
      * */
     public void detonateScatter(){
@@ -509,6 +521,23 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         //It also registers Air blocks as a collision so we need to avoid such cases
         if(!state.isAir()){
+
+            if(FabricLoader.getInstance().isModLoaded("flan") && !this.getWorld().isClient()){
+                if(!FlanCompat.canSpawnHere(null, blockHitResult.getBlockPos())){
+                    this.discard();
+                    OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by a Flan claim, it has been discarded!");
+                    return;
+                }
+            }
+
+            if(FabricLoader.getInstance().isModLoaded("yawp") && !this.getWorld().isClient()){
+                if(!YawpCompat.canSpawnHere((ServerWorld) this.getWorld(), blockHitResult.getBlockPos())){
+                    this.discard();
+                    OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by YetAnotherWorldProtector 'EXPLOSION_ENTITY' flag, it has been discarded!");
+                    return;
+                }
+            }
+
             //Checks if the block should be bypassed or not
             if(state.isIn(OhMyMeteors.METEOR_BYPASSES)){
                 //Early return so the rest of the code doesn't run if the meteor hits a leaves block and the config option is there
