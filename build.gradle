@@ -26,6 +26,16 @@ repositories {
 		name = "Terraformers"
 		url = "https://maven.terraformersmc.com/"
 	}
+	exclusiveContent {
+		forRepository {
+			maven {
+				url "https://cursemaven.com"
+			}
+		}
+		filter {
+			includeGroup "curse.maven"
+		}
+	}
 	mavenCentral()
 	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
@@ -51,6 +61,17 @@ dependencies {
 
     //Fabric permission api
     modImplementation "me.lucko:fabric-permissions-api:${project.fabricperms_version}"
+
+	//Flan
+	modImplementation("maven.modrinth:flan:${project.flan_version}"){
+		transitive = false
+	}
+
+	//Yet another world protector (world protection)
+	//modImplementation("maven.modrinth:yawp:${project.yawp_version}")
+	modImplementation("curse.maven:yawp-663276:${project.yawp_version}"){
+		transitive = false
+	}
 
 }
 
