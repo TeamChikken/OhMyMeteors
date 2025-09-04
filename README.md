@@ -140,3 +140,7 @@ Will reload the config file
 
 ## License
 MIT
+
+## Credits
+SlayerTheChikken for some assets and the idea of the mod
+Explodee mod (by KnownSH) for the code of the spherical explosions https://github.com/KnownSH/Explodee
