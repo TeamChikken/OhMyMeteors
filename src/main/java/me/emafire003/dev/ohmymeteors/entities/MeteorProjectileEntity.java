@@ -684,4 +684,14 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     public void setScatterMeteor(boolean scatterMeteor) {
         isScatterMeteor = scatterMeteor;
     }
+
+    @Override
+    public boolean shouldRender(double distance) {
+        return true;
+    }
+
+    @Override
+    public boolean shouldRender(double cameraX, double cameraY, double cameraZ) {
+        return true;
+    }
 }
