@@ -274,7 +274,7 @@ public class Config {
         //V4
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
-        configs.addKeyValuePair(new Pair<>("use_better_explosion", true),"If true will use a spherical explosion instead of the vanilla cubical one. These look nicer at higher explosion power/ranges, but after power 100 become quite laggy.");
+        configs.addKeyValuePair(new Pair<>("use_better_explosions", true),"If true will use a spherical explosion instead of the vanilla cubical one. These look nicer at higher explosion power/ranges, but after power 100 become quite laggy.");
         configs.addKeyValuePair(new Pair<>("meteor_render_distance", 200),"How far should meteors be rendered. WARNING: YOU NEED TO RESTART YOUR SERVER AND CLIENT IF YOU CHANGE THIS VALUE in order for it to take effect. It is multiplied by the 'entity render' distance of the server");
 
 
