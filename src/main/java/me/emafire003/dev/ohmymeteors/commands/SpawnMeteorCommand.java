@@ -6,12 +6,21 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
+import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
+import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.dimension.DimensionType;
 
 public class SpawnMeteorCommand implements OMMCommand {
 
@@ -97,6 +106,34 @@ public class SpawnMeteorCommand implements OMMCommand {
         }
     }
 
+    private boolean spawnChecks(ServerPlayerEntity p){
+        if(FabricLoader.getInstance().isModLoaded("flan")){
+            if(!FlanCompat.canSpawnHere(p, p.getBlockPos())){
+                return false;
+            }
+        }
+
+        if(FabricLoader.getInstance().isModLoaded("yawp")){
+            //Checks the player pos and the place where the meteor would spawn
+            if(!(YawpCompat.canSpawnHere(p.getServerWorld(), p.getBlockPos()) || YawpCompat.canSpawnHere(p.getServerWorld(), new BlockPos(p.getBlockPos().getX(), Config.METEOR_SPAWN_HEIGHT, p.getBlockPos().getZ())))){
+                return false;
+            }
+        }
+
+        RegistryEntry<DimensionType> current_dim = p.getWorld().getDimensionEntry();
+
+        if(!MeteorProjectileEntity.canSpawnInDimension(current_dim)){
+            return false;
+        }
+
+        RegistryEntry<Biome> current_biome = p.getWorld().getBiome(p.getBlockPos());
+
+        if(!MeteorProjectileEntity.canSpawnInBiome(current_biome)){
+            return false;
+        }
+        return true;
+    }
+
     /**Spawns a meteor exactly like the natural spawns. Gives an error if there are no players online*/
     private int spawnNatural(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
@@ -108,7 +145,14 @@ public class SpawnMeteorCommand implements OMMCommand {
                return -1;
            }
 
-           MeteorProjectileEntity.spawnMeteor(source.getWorld(), source.getWorld().getRandomAlivePlayer());
+
+           ServerPlayerEntity p = source.getWorld().getRandomAlivePlayer();
+           if(spawnChecks(p)){
+               MeteorProjectileEntity.spawnMeteor(source.getWorld(), p);
+           }else{
+               source.sendError(Text.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
+               return 0;
+           }
 
             return 1;
         }catch(Exception e){
