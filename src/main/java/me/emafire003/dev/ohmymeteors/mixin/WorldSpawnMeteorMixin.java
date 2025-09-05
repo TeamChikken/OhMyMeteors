@@ -3,6 +3,7 @@ package me.emafire003.dev.ohmymeteors.mixin;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
+import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -80,13 +81,13 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
 
         RegistryEntry<DimensionType> current_dim = p.getWorld().getDimensionEntry();
 
-        if(!checkDimension(current_dim)){
+        if(!MeteorProjectileEntity.canSpawnInDimension(current_dim)){
             return;
         }
 
         RegistryEntry<Biome> current_biome = p.getWorld().getBiome(p.getBlockPos());
 
-        if(!checkBiome(current_biome)){
+        if(!MeteorProjectileEntity.canSpawnInBiome(current_biome)){
             return;
         }
 
@@ -124,37 +125,5 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
 
     protected WorldSpawnMeteorMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
-    }
-
-    @Unique
-    public boolean checkDimension(RegistryEntry<DimensionType> current_dim){
-        //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
-        //and then stops checking
-        AtomicBoolean dimension_ok = new AtomicBoolean(false);
-        Config.SPAWN_DIMENSIONS.forEach(dim -> {
-                    if(dimension_ok.get()){{
-                        return;
-                    }}
-                    if(dim.equals(current_dim.getIdAsString())){
-                        dimension_ok.set(true);
-                    }
-                }
-        );
-
-        return dimension_ok.get();
-    }
-
-    @Unique
-    public boolean checkBiome(RegistryEntry<Biome> current_biome){
-        //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
-        //and then stops checking
-
-        //If true means whitelist aka it HAS to be present
-        //if false means in MUST NOT be present
-        if(Config.BIOME_LIST_MODE){
-            return Config.BIOME_SPAWN_LIST.contains(current_biome.getIdAsString());
-        }else{
-            return !Config.BIOME_SPAWN_LIST.contains(current_biome.getIdAsString());
-        }
     }
 }
