@@ -44,7 +44,6 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.explosion.Explosion;
 import net.minecraft.world.explosion.ExplosionBehavior;
-import org.spongepowered.asm.mixin.Unique;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -309,7 +308,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     }
 
     /** Like {@link #detonateSimple()} but will also spawn the structure of the meteor*/
-    //TODO maybe later make a better calculation of like the direction the meteor is travelling in to make it better embed into the terrain
     public void detonateWithStructure(){
         //this.getWorld().getServer().sendMessage(Text.literal("the movement direction is: " + this.getMovementDirection() + "\n The velocity is: " + this.getVelocity()));
         detonateSimple();
@@ -512,6 +510,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
     /// Since it likes to explode more times instead of just one, i'll put this here so it won't explode twice
     private boolean exploded = false;
+    private int travelledBlocks = 0;
+    private Vec3d explosionPos = null;
 
     /// This is the main method which does the meteor stuff on impact
     @Override
@@ -525,7 +525,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         //It also registers Air blocks as a collision so we need to avoid such cases
         if(!state.isAir()){
-
             if(FabricLoader.getInstance().isModLoaded("flan") && !this.getWorld().isClient()){
                 if(!FlanCompat.canSpawnHere(null, blockHitResult.getBlockPos())){
                     this.discard();
@@ -557,6 +556,17 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
                 return;
             }
             //this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), 10, World.ExplosionSourceType.NONE);
+
+            //this section makes the meteor entity appear as if it's going into the terrain, which is nicer instead of exploding as soon as the hitbox gets a block especially at high dimensions
+            if(explosionPos == null){
+                explosionPos = this.getPos();
+            }
+            travelledBlocks++;
+            if(this.getSize()/2 > travelledBlocks){
+                return;
+            }
+
+            this.setPos(explosionPos.x, explosionPos.y, explosionPos.z);
 
             this.discard(); //So it doesn't trigger again hitting the next block
             exploded = true;
