@@ -248,6 +248,17 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }
     }
 
+    /** The sphere explposion is a little weaker than the vanilla one, so adjustment may be needed to have a niceer effect*/
+    private int sphereExplosionAdjuster(){
+        int adjust = 0;
+        if(this.getSize() > 3){
+            adjust = 2;
+        }
+        if(this.getSize() > 10){
+            adjust = 3;
+        }
+        return adjust;
+    }
 
     /** Makes this entity explode without creating any structures on impact
      * and then discards this entity*/
@@ -264,15 +275,16 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         if(isScatterMeteor()){
             if(Config.SCATTER_METEOR_GRIEFING){
                 if(Config.USE_BETTER_EXPLOSIONS){
-                    ExplosionUtils.createExplosion(this.getWorld(), this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, World.ExplosionSourceType.TNT);
+                    ExplosionUtils.createExplosion(this.getWorld(), this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), true, World.ExplosionSourceType.TNT);
                 }else{
                     this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, World.ExplosionSourceType.TNT);
                 }
             }else{
                 if(Config.USE_BETTER_EXPLOSIONS){
-                    ExplosionUtils.createExplosion(this.getWorld(), this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, World.ExplosionSourceType.TNT);
+                    ExplosionUtils.createExplosion(this.getWorld(), this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), false, World.ExplosionSourceType.TNT);
+                }else{
+                    this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, World.ExplosionSourceType.TNT);
                 }
-                this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, World.ExplosionSourceType.TNT);
             }
             this.discard();
             return;
@@ -280,7 +292,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         if(Config.METEOR_GRIEFING){
             if(Config.USE_BETTER_EXPLOSIONS){
-                ExplosionUtils.createExplosion(this.getWorld(), this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, World.ExplosionSourceType.TNT);
+                ExplosionUtils.createExplosion(this.getWorld(), this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), true, World.ExplosionSourceType.TNT);
             }else {
                 this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, World.ExplosionSourceType.TNT);
             }
@@ -292,11 +304,11 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             ((ServerWorld)this.getWorld()).getPlayers().forEach(serverPlayerEntity -> {
                 //If it should play a sound for every player, do it, unless the player is close enough to the original one
                 if(Config.GLOBAL_EXPLOSION_SOUND && (serverPlayerEntity.getPos().distanceTo(this.getPos()) > 60)){
-                    serverPlayerEntity.playSoundToPlayer(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.WEATHER, 0.5f, 0.8f);
+                    serverPlayerEntity.playSoundToPlayer(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.BLOCKS, 0.5f, 0.8f);
                 }else if(Config.AREA_EXPLOSION_SOUND){
                     double dist = serverPlayerEntity.getPos().distanceTo(this.getPos());
                     if(dist < Config.AREA_EXPLOSION_SOUND_RADIUS && dist > 60){
-                        serverPlayerEntity.playSoundToPlayer(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.WEATHER, 0.5f, 0.8f);
+                        serverPlayerEntity.playSoundToPlayer(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.BLOCKS, 0.5f, 0.8f);
                     }
                 }
                 ((ServerWorld)this.getWorld()).spawnParticles(serverPlayerEntity, ParticleTypes.EXPLOSION_EMITTER, true, this.getX(), this.getY(), this.getZ(), 1, 0.1, 0.1, 0.1, 0.1);
@@ -334,7 +346,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
             if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
                 Identifier tobeplaced = getStructureToPlace("small");
-                m_pos_offset = getOffset(new BlockPos(-1, 0, -1), tobeplaced);
+                m_pos_offset = getOffset(new BlockPos(-1, -1, -1), tobeplaced);
 
 
                 placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
@@ -417,7 +429,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             }
             BlockState state = this.getWorld().getBlockState(nonair_pos);
             int dist_to_floor = 0;
-            while(state.isAir()){
+            while(state.isAir() || state.isOf(Blocks.FIRE)){
                 nonair_pos = nonair_pos.down();
                 state = this.getWorld().getBlockState(nonair_pos);
                 dist_to_floor++;
@@ -462,12 +474,9 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             structure_id = structs.get(this.getRandom().nextBetween(0,structs.size()-1));
         }
 
-        OhMyMeteors.LOGGER.info("The inital id is: " + structure_id);
-
         //If there is at least a special meteor structure, and the chance is hit, the structs list should only have those
         if(hasSpecial.get()){
             int i = random.nextBetween(0, Config.SPECIAL_METEORS_CHANCE);
-            OhMyMeteors.LOGGER.info("i is: " + i);
             if(i == 1){
                 List<Identifier> specials = structs.stream().filter(id -> id.getPath().startsWith(sizeClass+"/special")).toList();
                 structure_id = specials.get(this.getRandom().nextBetween(0,specials.size()-1));

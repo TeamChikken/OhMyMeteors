@@ -1,5 +1,6 @@
 package me.emafire003.dev.ohmymeteors.util;
 
+import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.particle.ParticleEffect;

@@ -26,6 +26,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import me.emafire003.dev.ohmymeteors.config.Config;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -41,6 +42,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -308,6 +310,15 @@ public class SphereExplosion extends Explosion {
                             (1.0F + (this.world.random.nextFloat() - this.world.random.nextFloat()) * 0.2F) * 0.7F,
                             false
                     );
+        }else{
+            world.playSound(
+                    null, // Player - if non-null, will play sound for every nearby player *except* the specified player
+                    BlockPos.ofFloored(x,y,z), // The position of where the sound will come from
+                    this.soundEvent.value(), // The sound that will play, in this case, the sound the anvil plays when it lands.
+                    SoundCategory.BLOCKS, // This determines which of the volume sliders affect this sound
+                    4f, //Volume multiplier, 1 is normal, 0.5 is half volume, etc
+                    (1.0F + (this.world.random.nextFloat() - this.world.random.nextFloat()) * 0.2F) * 0.7F
+            );
         }
 
         boolean bl = this.shouldDestroy();
