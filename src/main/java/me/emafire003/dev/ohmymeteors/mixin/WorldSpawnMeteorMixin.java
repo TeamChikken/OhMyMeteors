@@ -4,6 +4,7 @@ import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
+import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -86,13 +87,13 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
 
         RegistryEntry<DimensionType> current_dim = p.getWorld().getDimensionEntry();
 
-        if(!checkDimension(current_dim)){
+        if(!MeteorProjectileEntity.canSpawnInDimension(current_dim)){
             return;
         }
 
         RegistryEntry<Biome> current_biome = p.getWorld().getBiome(p.getBlockPos());
 
-        if(!checkBiome(current_biome)){
+        if(!MeteorProjectileEntity.canSpawnInBiome(current_biome)){
             return;
         }
 

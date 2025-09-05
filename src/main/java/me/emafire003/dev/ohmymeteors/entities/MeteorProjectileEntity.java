@@ -25,6 +25,7 @@ import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -39,8 +40,11 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.explosion.Explosion;
 import net.minecraft.world.explosion.ExplosionBehavior;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -665,6 +669,46 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
 
         world.spawnEntity(meteor);
+    }
+
+    /**Checks if the meteor can spawn in the given dimension
+     *
+     * @param current_dim The dimension on which to perform the check
+     * @return true if the meteor can spawn in there, false otherwise
+     * */
+    public static boolean canSpawnInDimension(RegistryEntry<DimensionType> current_dim){
+        //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
+        //and then stops checking
+        AtomicBoolean dimension_ok = new AtomicBoolean(false);
+        Config.SPAWN_DIMENSIONS.forEach(dim -> {
+                    if(dimension_ok.get()){{
+                        return;
+                    }}
+                    if(dim.equals(current_dim.getIdAsString())){
+                        dimension_ok.set(true);
+                    }
+                }
+        );
+
+        return dimension_ok.get();
+    }
+
+    /**Checks if the meteor can spawn in the given biome
+     *
+     * @param current_biome The biome on which to perform the check
+     * @return true if the meteor can spawn in there, false otherwise
+     * */
+    public static boolean canSpawnInBiome(RegistryEntry<Biome> current_biome){
+        //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
+        //and then stops checking
+
+        //If true means whitelist aka it HAS to be present
+        //if false means in MUST NOT be present
+        if(Config.BIOME_LIST_MODE){
+            return Config.BIOME_SPAWN_LIST.contains(current_biome.getIdAsString());
+        }else{
+            return !Config.BIOME_SPAWN_LIST.contains(current_biome.getIdAsString());
+        }
     }
 
     public boolean isScatterMeteor() {
