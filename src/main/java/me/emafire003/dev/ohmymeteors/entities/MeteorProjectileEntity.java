@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.METEOR_STRUCTURES;
 
@@ -325,7 +324,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         this.discard();
     }
 
-    //TODO add a way to remove the default meteors with a datapack.
     /** Like {@link #detonateSimple()} but will also spawn the structure of the meteor*/
     public void detonateWithStructure(){
         //this.getWorld().getServer().sendMessage(Text.literal("the movement direction is: " + this.getMovementDirection() + "\n The velocity is: " + this.getVelocity()));
@@ -470,7 +468,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }
 
         //In case there was a problem and the only meteor spawnable is that one
-        if(METEOR_STRUCTURES.size() == 1 && METEOR_STRUCTURES.getFirst().getPath().equals("small/small_meteor_0")){
+        if(METEOR_STRUCTURES.size() == 1 && METEOR_STRUCTURES.getFirst().getPath().equals("error")){
             return METEOR_STRUCTURES.getFirst();
         }
 
