@@ -65,15 +65,16 @@ public class OhMyMeteors implements ModInitializer {
 		}
 
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((minecraftServer, lifecycledResourceManager, b) -> {
+			//yes reloads for each dimension
+			//TODO maybe just pick one? Datapacks aren't per-dimension right? But multivers and stuff exists so idk
 			minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
-			OhMyMeteors.LOGGER.info("Reloading datapack \n\n\n\n\n\n\n aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 		});
 
 		//loads the config file on server startup
 		ServerLifecycleEvents.SERVER_STARTED.register( minecraftServer -> {
 			try{
 				Config.reloadConfig();
-				minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
+				//minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
 			}catch (Exception e){
 				LOGGER.error("There was an error while loading the config files!");
 				e.printStackTrace();
@@ -97,6 +98,9 @@ public class OhMyMeteors implements ModInitializer {
 		 METEOR_STRUCTURES = new ArrayList<>(world.getStructureTemplateManager().streamTemplates().filter(
 				identifier -> identifier.getNamespace().equals(OhMyMeteors.MOD_ID)
 		).toList());
+
+		 METEOR_STRUCTURES.remove(getIdentifier("error"));
+		 OhMyMeteors.LOGGER.info("The list start post error remove: " + METEOR_STRUCTURES);
 
 
 
@@ -135,12 +139,13 @@ public class OhMyMeteors implements ModInitializer {
 				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("small/small_meteor_1"));
 				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("small/small_meteor_2"));
 				METEOR_STRUCTURES.remove(id);
+
 			}
 		});
 
 		if(METEOR_STRUCTURES.isEmpty()){
-			METEOR_STRUCTURES.add(OhMyMeteors.getIdentifier("small/small_meteor_0"));
-			OhMyMeteors.LOGGER.error("ERROR! No meteor structures available, you have just removed every default structure! A small meteor structure is all that is going to spawn currently.  Please insert at least one of your custom structures, and reload!");
+			METEOR_STRUCTURES.add(OhMyMeteors.getIdentifier("error"));
+			OhMyMeteors.LOGGER.error("ERROR! No meteor structures available, you have just removed every default structure! An error meteor structure is all that is going to spawn currently.  Please insert at least one of your custom structures, and reload!");
 		}
 	}
 
