@@ -20,11 +20,14 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OhMyMeteors implements ModInitializer {
 	// This logger is used to write text to the console and the log file.
@@ -61,10 +64,16 @@ public class OhMyMeteors implements ModInitializer {
 			FlanCompat.registerFlan();
 		}
 
+		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((minecraftServer, lifecycledResourceManager, b) -> {
+			minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
+			OhMyMeteors.LOGGER.info("Reloading datapack \n\n\n\n\n\n\n aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+		});
+
 		//loads the config file on server startup
 		ServerLifecycleEvents.SERVER_STARTED.register( minecraftServer -> {
 			try{
 				Config.reloadConfig();
+				minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
 			}catch (Exception e){
 				LOGGER.error("There was an error while loading the config files!");
 				e.printStackTrace();
@@ -80,6 +89,59 @@ public class OhMyMeteors implements ModInitializer {
 		RegistryEntryList.Named<Block> METEOR_BYPASSES_TAG = Registries.BLOCK.getOrCreateEntryList(METEOR_BYPASSES);
 		RegistryEntryList.Named<Block> METEOR_BYPASSES_AND_DESTROY_TAG = Registries.BLOCK.getOrCreateEntryList(METEOR_BYPASSES_AND_DESTROY);
 
+	}
+
+	public static List<Identifier> METEOR_STRUCTURES = new ArrayList<>();
+
+	public static void reInitStructures(ServerWorld world){
+		 METEOR_STRUCTURES = new ArrayList<>(world.getStructureTemplateManager().streamTemplates().filter(
+				identifier -> identifier.getNamespace().equals(OhMyMeteors.MOD_ID)
+		).toList());
+
+
+
+		//this allows to have "ignore_<structure>" to "remove" a default structure with a datapack
+		//or "ingnoreall" to have it remove all the structures
+		List<Identifier> structures_copy = new ArrayList<>(METEOR_STRUCTURES);
+
+		//the stream is to avoid concurrent modification exception
+		structures_copy.forEach(id -> {
+			if(id.getPath().contains("ignore_")){
+				//If in the root folder, adjust the thingy
+				if(id.getPath().startsWith("ignore_")){
+					METEOR_STRUCTURES.remove(Identifier.of(id.getNamespace(),
+							id.getPath().replaceAll("ignore_", "").split("_")[0]+"/"+id.getPath().replaceAll("ignore_", "")));
+					METEOR_STRUCTURES.remove(id);
+				}else{
+					//Removes the targeted structure
+					METEOR_STRUCTURES.remove(Identifier.of(id.getNamespace(), id.getPath().replaceAll("ignore_", "")));
+					METEOR_STRUCTURES.remove(id);//Since this ignore_structure also needs to be removed
+				}
+
+			}
+			if(id.getPath().contains("ignoredefault")){
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("big/special/big_meteor_cat"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("big/big_meteor_0"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("big/big_meteor_1"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("big/big_meteor_2"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("huge/huge_meteor_0"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("huge/huge_meteor_1"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("huge/huge_meteor_2"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("medium/medium_meteor_0"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("medium/medium_meteor_1"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("medium/medium_meteor_2"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("medium/special/medium_meteor_99"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("small/small_meteor_0"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("small/small_meteor_1"));
+				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("small/small_meteor_2"));
+				METEOR_STRUCTURES.remove(id);
+			}
+		});
+
+		if(METEOR_STRUCTURES.isEmpty()){
+			METEOR_STRUCTURES.add(OhMyMeteors.getIdentifier("small/small_meteor_0"));
+			OhMyMeteors.LOGGER.error("ERROR! No meteor structures available, you have just removed every default structure! A small meteor structure is all that is going to spawn currently.  Please insert at least one of your custom structures, and reload!");
+		}
 	}
 
 }
