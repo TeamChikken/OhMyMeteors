@@ -51,6 +51,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import static me.emafire003.dev.ohmymeteors.OhMyMeteors.METEOR_STRUCTURES;
+
 
 /**
  * The projectile entity that gets spawned as a meteor.
@@ -323,6 +325,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         this.discard();
     }
 
+    //TODO add a way to remove the default meteors with a datapack.
     /** Like {@link #detonateSimple()} but will also spawn the structure of the meteor*/
     public void detonateWithStructure(){
         //this.getWorld().getServer().sendMessage(Text.literal("the movement direction is: " + this.getMovementDirection() + "\n The velocity is: " + this.getVelocity()));
@@ -363,7 +366,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
             if(this.getSize() <= Config.MAX_MEDIUM_METEOR_SIZE){
                 Identifier tobeplaced = getStructureToPlace("medium");
-                m_pos_offset = getOffset(new BlockPos(-2, 0, -2), tobeplaced);
+                m_pos_offset = getOffset(new BlockPos(-2, +1, -2), tobeplaced);
 
 
                 placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
@@ -417,33 +420,40 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         m_pos_offset = BlockPos.ofFloored(this.getVelocity()).add(m_pos_offset);
 
-        if(this.getPitch() < 27 && !(tobeplaced.getPath().startsWith("big") || tobeplaced.getPath().startsWith("huge"))){
-            OhMyMeteors.LOGGER.debug("meteor fell diagonally, embedding laterally!");
+        /*if(false && this.getPitch() < 25 && !(tobeplaced.getPath().startsWith("big") || tobeplaced.getPath().startsWith("huge"))){
+            OhMyMeteors.LOGGER.error("Meteor fell diagonally, embedding laterally, the pitch is: " + this.getPitch());
             m_pos_offset = m_pos_offset.add(((int) this.getVelocity().getX()*2), 0,  ((int) this.getVelocity().getZ()*2));
         }else{
-            BlockPos nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
-            if(tobeplaced.getPath().startsWith("big")){
-                nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/10, 0);
-                if(this.getPitch() < 27){
-                    nonair_pos.add((int) (this.getVelocity().getX()*5), 0, (int) (this.getVelocity().getZ()*5));
-                }
-            }
-            if(tobeplaced.getPath().startsWith("huge")){
-                nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/37, 0);
-            }
-            BlockState state = this.getWorld().getBlockState(nonair_pos);
-            int dist_to_floor = 0;
-            while(state.isAir() || state.isOf(Blocks.FIRE)){
-                nonair_pos = nonair_pos.down();
-                state = this.getWorld().getBlockState(nonair_pos);
-                dist_to_floor++;
-            }
-            //get the distance to floor, get the height and stuff and the place half of it underground?
 
-            /*+(size_factors.getY()/2)*/
-            m_pos_offset = m_pos_offset.add(0, - dist_to_floor, 0);
-
+        }*/
+        BlockPos nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
+        if(tobeplaced.getPath().startsWith("big")){
+            nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/10, 0);
+            if(this.getPitch() < 27){
+                nonair_pos.add((int) (this.getVelocity().getX()*5), 0, (int) (this.getVelocity().getZ()*5));
+            }
         }
+
+        if(tobeplaced.getPath().startsWith("medium")){
+            if(this.getPitch() < 27){
+                nonair_pos.add((int) (this.getVelocity().getX()*2), 0, (int) (this.getVelocity().getZ()*2));
+            }
+        }
+        if(tobeplaced.getPath().startsWith("huge")){
+            nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/37, 0);
+        }
+        BlockState state = this.getWorld().getBlockState(nonair_pos);
+        int dist_to_floor = 0;
+        while(state.isAir() || state.isOf(Blocks.FIRE)){
+            nonair_pos = nonair_pos.down();
+            state = this.getWorld().getBlockState(nonair_pos);
+            dist_to_floor++;
+        }
+
+        //get the distance to floor, get the height and stuff and the place half of it underground?
+
+        /*+(size_factors.getY()/2)*/
+        m_pos_offset = m_pos_offset.add(0, - dist_to_floor, 0);
         return m_pos_offset;
     }
 
@@ -453,13 +463,23 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
      * @param sizeClass The size of the meteors that we want to spawn, can be "small" "medium" "big" "huge"
      * */
     public Identifier getStructureToPlace(String sizeClass){
-        Stream<Identifier> structures = ((ServerWorld) this.getWorld()).getStructureTemplateManager().streamTemplates().filter(
-                identifier -> identifier.getNamespace().equals(OhMyMeteors.MOD_ID)
-        );
-
         AtomicBoolean hasSpecial = new AtomicBoolean(false);
 
-        List<Identifier> structs = structures.filter(identifier -> {
+        if(METEOR_STRUCTURES.isEmpty() && !this.getWorld().isClient()){
+            OhMyMeteors.reInitStructures((ServerWorld) this.getWorld());
+        }
+
+        //In case there was a problem and the only meteor spawnable is that one
+        if(METEOR_STRUCTURES.size() == 1 && METEOR_STRUCTURES.getFirst().getPath().equals("small/small_meteor_0")){
+            return METEOR_STRUCTURES.getFirst();
+        }
+
+        List<Identifier> structs = METEOR_STRUCTURES.stream().filter(identifier -> {
+
+            if(!identifier.getPath().startsWith(sizeClass)){
+                return false;
+            }
+
             if (!hasSpecial.get()) { //saves on checks
                 //This allows me to see if this size has at least a special meteor
                 if (identifier.getPath().startsWith(sizeClass+"/special")) {
@@ -468,7 +488,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
                 }
             }
 
-            return identifier.getPath().startsWith(sizeClass);
+            return true;
         }).toList();
 
         Identifier structure_id = structs.get(this.getWorld().getRandom().nextBetween(0,structs.size()-1));
