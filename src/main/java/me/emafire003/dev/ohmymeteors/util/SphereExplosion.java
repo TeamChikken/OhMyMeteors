@@ -26,7 +26,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import me.emafire003.dev.ohmymeteors.config.Config;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -42,7 +41,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -80,7 +78,7 @@ public class SphereExplosion extends Explosion {
     protected final ParticleEffect emitterParticle;
     protected final RegistryEntry<SoundEvent> soundEvent;
     protected final ObjectArrayList<BlockPos> affectedBlocks = new ObjectArrayList<>();
-    protected final Map<PlayerEntity, Vec3d> affectedPlayers = Maps.<PlayerEntity, Vec3d>newHashMap();
+    protected final Map<PlayerEntity, Vec3d> affectedPlayers = Maps.newHashMap();
     
 
     public SphereExplosion(
@@ -335,7 +333,7 @@ public class SphereExplosion extends Explosion {
 
         if (bl) {
             this.world.getProfiler().push("explosion_blocks");
-            List<Pair<ItemStack, BlockPos>> list = new ArrayList();
+            List<Pair<ItemStack, BlockPos>> list = new ArrayList<>();
             Util.shuffle(this.affectedBlocks, this.world.random);
 
             for (BlockPos blockPos : this.affectedBlocks) {
