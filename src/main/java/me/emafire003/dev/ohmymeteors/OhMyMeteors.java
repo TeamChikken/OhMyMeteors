@@ -67,7 +67,7 @@ public class OhMyMeteors implements ModInitializer {
 
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((minecraftServer, lifecycledResourceManager, b) -> {
 			//yes reloads for each dimension
-			//TODO maybe just pick one? Datapacks aren't per-dimension right? But multivers and stuff exists so idk
+			//TODO maybe just pick one? Datapacks aren't per-dimension right? But multiverse and stuff exists so idk
 			minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
 		});
 
@@ -101,9 +101,6 @@ public class OhMyMeteors implements ModInitializer {
 		).toList());
 
 		 METEOR_STRUCTURES.remove(getIdentifier("error"));
-		 OhMyMeteors.LOGGER.info("The list start post error remove: " + METEOR_STRUCTURES);
-
-
 
 		//this allows to have "ignore_<structure>" to "remove" a default structure with a datapack
 		//or "ingnoreall" to have it remove all the structures
