@@ -334,11 +334,11 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             if(this.getSize() < 2){
                 int r = this.getWorld().getRandom().nextBetween(1,3);
                 if(r == 1){
-                    this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), OMMBlocks.METEORIC_ROCK.getDefaultState());
+                    this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()).down(), OMMBlocks.METEORIC_ROCK.getDefaultState());
                 }else if(r == 2){
-                    this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), Blocks.SMOOTH_BASALT.getDefaultState());
+                    this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()).down(), Blocks.SMOOTH_BASALT.getDefaultState());
                 }else{
-                    this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), Blocks.BLACKSTONE.getDefaultState());
+                    this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()).down(), Blocks.BLACKSTONE.getDefaultState());
                 }
                 return;
             }
@@ -351,8 +351,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
             if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
                 Identifier tobeplaced = getStructureToPlace("small");
-                m_pos_offset = getOffset(new BlockPos(-1, -1, -1), tobeplaced);
-
+                m_pos_offset = getOffset(new BlockPos(-1, +1, -1), tobeplaced);
 
                 placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
                         tobeplaced,
@@ -467,9 +466,11 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             OhMyMeteors.reInitStructures((ServerWorld) this.getWorld());
         }
 
+        OhMyMeteors.LOGGER.warn("the meteor structs is: " + METEOR_STRUCTURES);
+
         //In case there was a problem and the only meteor spawnable is that one
-        if(METEOR_STRUCTURES.size() == 1 && METEOR_STRUCTURES.getFirst().getPath().equals("error")){
-            return METEOR_STRUCTURES.getFirst();
+        if(METEOR_STRUCTURES.size() == 1 && METEOR_STRUCTURES.get(0).getPath().equals("error")){
+            return METEOR_STRUCTURES.get(0);
         }
 
         List<Identifier> structs = METEOR_STRUCTURES.stream().filter(identifier -> {
@@ -721,7 +722,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
                     if(dimension_ok.get()){{
                         return;
                     }}
-                    if(dim.equals(current_dim.getIdAsString())){
+                    if(dim.equals(current_dim.getKey().get().getValue().toString())){
                         dimension_ok.set(true);
                     }
                 }
@@ -742,9 +743,9 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         //If true means whitelist aka it HAS to be present
         //if false means in MUST NOT be present
         if(Config.BIOME_LIST_MODE){
-            return Config.BIOME_SPAWN_LIST.contains(current_biome.getIdAsString());
+            return Config.BIOME_SPAWN_LIST.contains(current_biome.getKey().get().getValue().toString());
         }else{
-            return !Config.BIOME_SPAWN_LIST.contains(current_biome.getIdAsString());
+            return !Config.BIOME_SPAWN_LIST.contains(current_biome.getKey().get().getValue().toString());
         }
     }
 
