@@ -1,0 +1,24 @@
+{
+  "entity.ohmymeteors.meteor_projectile": "Метеор",
+  "entity.ohmymeteors.meteor_cat": "Метеоритний кіт",
+
+  "block.ohmymeteors.basic_meteor_laser": "Звичайний метеоритний лазер",
+  "block.ohmymeteors.advanced_meteor_laser": "Покращений метеоритний лазер",
+  "block.ohmymeteors.meteoric_rock": "Метеоритна порода",
+
+  "item.ohmymeteors.meteoric_chunk": "Метеоритний шматок",
+  "item.ohmymeteors.focusing_lenses": "Лінза фокусування",
+  "item.ohmymeteors.meteoric_alloy": "Метеоритний сплав",
+  "item.ohmymeteors.meteor_cat_spawn_egg": "Яйце виклику метеоритного кота",
+
+  "message.ohmymeteors.meteor_spawned": "В атмосферу входить новий метеор!",
+  "message.ohmymeteors.meteor_destroyed": "Метеор знищено!",
+  "message.ohmymeteors.meteor_spawned.huge": "УВАГА! В атмосферу входить новий ВЕЛИКИЙ метеор!",
+  "message.ohmymeteors.meteor_destroyed.huge": "ВЕЛИКИЙ метеор знищено!",
+
+  "audio.ohmymeteors.laser_fire": "Метеоритний лазер спалює!",
+  "audio.ohmymeteors.laser_area_on": "Показ зони цілі лазера!",
+  "audio.ohmymeteors.laser_area_off": "Зупинення показу зони цілі лазера!",
+  
+  "modmenu.descriptionTranslation.ohmymeteors": "Мод, який представляє метеори, які падають з неба! Надзвичайно налаштовувана, велика кількість розміру метеоритів з різними типами ударів і генерованих структур. А також новий котик! На замовлення SlayerTheChikken"
+}
