@@ -18,5 +18,7 @@
 
   "audio.ohmymeteors.laser_fire": "Laser per meteore attivato!",
   "audio.ohmymeteors.laser_area_on": "Mostrando l'area di azione del laser!",
-  "audio.ohmymeteors.laser_area_off": "Smesso di mostrare l'area di azione del laser!"
+  "audio.ohmymeteors.laser_area_off": "Area di azione del laser non più mostrata!",
+
+  "modmenu.descriptionTranslation.ohmymeteors": "Mod che introduce meteore che cadono dal cielo! Ampiamente configurabile, con svariate dimensioni diverse per le meteore e tipi di strutture generate all'impatto. Ed anche un nuovo micio! Commissionata da SlayerTheChikken"
 }
