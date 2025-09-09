@@ -408,6 +408,11 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
      * @return the blockpos offset
      */
     private BlockPos getOffset(BlockPos m_pos_offset, Identifier tobeplaced){
+        //If it's an error structure it should be as visible as possible
+        if(tobeplaced.getPath().startsWith("error")){
+            return m_pos_offset.add(0, 5, 0);
+        }
+
         Vec3d size_factors = Vec3d.of(StructurePlacerAPI.getTemplatePreview((ServerWorld) this.getWorld(), tobeplaced).get().getSize());
         //size_factors = size_factors.multiply(0.2, -0.2, 0.2);
         //size_factors = new Vec3d(size_factors.getZ(), size_factors.getY(), size_factors.getX());
