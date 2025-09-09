@@ -466,8 +466,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             OhMyMeteors.reInitStructures((ServerWorld) this.getWorld());
         }
 
-        OhMyMeteors.LOGGER.warn("the meteor structs is: " + METEOR_STRUCTURES);
-
         //In case there was a problem and the only meteor spawnable is that one
         if(METEOR_STRUCTURES.size() == 1 && METEOR_STRUCTURES.get(0).getPath().equals("error")){
             return METEOR_STRUCTURES.get(0);
