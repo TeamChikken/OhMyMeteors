@@ -14,6 +14,9 @@ Would like them not to explode anything? Done! And a lot of other settings!
 
 Inspired by the old meteor mods and commissioned by SlayerTheChikken
 
+Version 0.1.0 showcase by BoodlyNeck:
+https://www.youtube.com/watch?v=LWCvP63pooQ&t=204s
+
 ## Feature list
 ### Meteor sizes
 Meteors can spawn in a variety of different sizes, the bigger the size the bigger the damage and the "structure" that will be left behind. You can adjust which size of meteors is able to spawn and how frequently the meteors spawn. 
@@ -33,6 +36,8 @@ Then we have the **Focusing Lenses**, which are used in the crafting of the two 
 
 ### Meteor structures
 The ones that spawn when a meteor explodes. They are located in the folder /data/ohmymeteors/structure(*s* if below mc1.21) and you can customized them using a datapack. They are the same files that you get out of the Structure Block in vanilla. 
+
+![cool-ezgif com-optimize(1)](https://github.com/user-attachments/assets/75bb0a16-ded6-465c-82d6-ee43506ce3f0)
 
 ![Meteorimpact-ezgif com-optimize](https://github.com/user-attachments/assets/e65a71bf-1d3a-40b6-b039-9f4a46ab1238)
 
