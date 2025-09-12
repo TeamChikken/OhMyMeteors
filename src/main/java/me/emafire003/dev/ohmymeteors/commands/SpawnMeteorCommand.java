@@ -113,7 +113,7 @@ public class SpawnMeteorCommand implements OMMCommand {
 
         if(FabricLoader.getInstance().isModLoaded("yawp")){
             //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere(p.getServerWorld(), p.getBlockPos()) || YawpCompat.canSpawnHere(p.getServerWorld(), new BlockPos(p.getBlockPos().getX(), Config.METEOR_SPAWN_HEIGHT, p.getBlockPos().getZ())))){
+            if(!(YawpCompat.canSpawnHere(p.getWorld(), p.getBlockPos()) || YawpCompat.canSpawnHere(p.getWorld(), new BlockPos(p.getBlockPos().getX(), Config.METEOR_SPAWN_HEIGHT, p.getBlockPos().getZ())))){
                 return false;
             }
         }

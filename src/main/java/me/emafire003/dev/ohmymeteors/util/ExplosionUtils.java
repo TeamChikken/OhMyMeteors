@@ -2,25 +2,32 @@ package me.emafire003.dev.ohmymeteors.util;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
 import net.minecraft.world.explosion.ExplosionBehavior;
+import net.minecraft.world.explosion.ExplosionImpl;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class ExplosionUtils {
 
-    public static SphereExplosion createExplosion(World world, @Nullable Entity entity, double x, double y, double z, float power, World.ExplosionSourceType explosionSourceType) {
-        return createExplosion(
+    public static void createExplosion(ServerWorld world, @Nullable Entity entity, double x, double y, double z, float power, World.ExplosionSourceType explosionSourceType) {
+        createExplosion(
                 world,
                 entity,
-                SphereExplosion.createDamageSource(world, entity),
+                Explosion.createDamageSource(world, entity),
                 null,
                 x,
                 y,
@@ -34,18 +41,13 @@ public class ExplosionUtils {
         );
     }
 
-    /**
-     * Creates an explosion.
-     *
-     * @see #createExplosion(World, Entity, DamageSource, ExplosionBehavior, double, double, double, float, boolean, World.ExplosionSourceType)
-     */
-    public static SphereExplosion createExplosion(
-            World world, @Nullable Entity entity, double x, double y, double z, float power, boolean createFire, World.ExplosionSourceType explosionSourceType
+    public static void createExplosion(ServerWorld world,
+            @Nullable Entity entity, double x, double y, double z, float power, boolean createFire, World.ExplosionSourceType explosionSourceType
     ) {
-        return createExplosion(
+        createExplosion(
                 world,
                 entity,
-                SphereExplosion.createDamageSource(world, entity),
+                Explosion.createDamageSource(world, entity),
                 null,
                 x,
                 y,
@@ -59,13 +61,8 @@ public class ExplosionUtils {
         );
     }
 
-    /**
-     * Creates an explosion.
-     *
-     * @see #createExplosion(World, Entity, DamageSource, ExplosionBehavior, double, double, double, float, boolean, World.ExplosionSourceType)
-     */
-    public static SphereExplosion createExplosion(
-            World world,
+    public static void createExplosion(
+            ServerWorld world,
             @Nullable Entity entity,
             @Nullable DamageSource damageSource,
             @Nullable ExplosionBehavior behavior,
@@ -74,7 +71,7 @@ public class ExplosionUtils {
             boolean createFire,
             World.ExplosionSourceType explosionSourceType
     ) {
-        return createExplosion(
+        createExplosion(
                 world,
                 entity,
                 damageSource,
@@ -91,8 +88,8 @@ public class ExplosionUtils {
         );
     }
 
-    public static SphereExplosion createExplosion(
-            World world,
+    public static void createExplosion(
+            ServerWorld world,
             @Nullable Entity entity,
             @Nullable DamageSource damageSource,
             @Nullable ExplosionBehavior behavior,
@@ -103,7 +100,7 @@ public class ExplosionUtils {
             boolean createFire,
             World.ExplosionSourceType explosionSourceType
     ) {
-        return createExplosion(
+        createExplosion(
                 world,
                 entity,
                 damageSource,
@@ -119,17 +116,9 @@ public class ExplosionUtils {
                 SoundEvents.ENTITY_GENERIC_EXPLODE
         );
     }
-
-    /**
-     * Creates an explosion.
-     *
-     * @param createFire whether the explosion should create fire
-     * @param entity the entity that exploded (like TNT) or {@code null} to indicate no entity exploded
-     * @param damageSource the custom damage source, or {@code null} to use the default
-     * @param behavior the explosion behavior, or {@code null} to use the default
-     */
-    public static SphereExplosion createExplosion(
-            World world,
+    
+    public static void createExplosion(
+            ServerWorld world,
             @Nullable Entity entity,
             @Nullable DamageSource damageSource,
             @Nullable ExplosionBehavior behavior,
@@ -139,45 +128,34 @@ public class ExplosionUtils {
             float power,
             boolean createFire,
             World.ExplosionSourceType explosionSourceType,
-            ParticleEffect particle,
-            ParticleEffect emitterParticle,
+            ParticleEffect smallParticle,
+            ParticleEffect largeParticle,
             RegistryEntry<SoundEvent> soundEvent
     ) {
-        return createExplosion(world, entity, damageSource, behavior, x, y, z, power, createFire, explosionSourceType, true, particle, emitterParticle, soundEvent);
-    }
-
-    public static SphereExplosion createExplosion(
-            World world,
-            @Nullable Entity entity,
-            @Nullable DamageSource damageSource,
-            @Nullable ExplosionBehavior behavior,
-            double x,
-            double y,
-            double z,
-            float power,
-            boolean createFire,
-            World.ExplosionSourceType explosionSourceType,
-            boolean particles,
-            ParticleEffect particle,
-            ParticleEffect emitterParticle,
-            RegistryEntry<SoundEvent> soundEvent
-    ) {
-        SphereExplosion.DestructionType destructionType = switch (explosionSourceType) {
-            case NONE -> SphereExplosion.DestructionType.KEEP;
-            case BLOCK -> getDestructionType(GameRules.BLOCK_EXPLOSION_DROP_DECAY, world);
+        Explosion.DestructionType destructionType = switch (explosionSourceType) {
+            case NONE -> Explosion.DestructionType.KEEP;
+            case BLOCK -> getDestructionType(world, GameRules.BLOCK_EXPLOSION_DROP_DECAY);
             case MOB -> world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)
-                    ? getDestructionType(GameRules.MOB_EXPLOSION_DROP_DECAY, world)
-                    : SphereExplosion.DestructionType.KEEP;
-            case TNT -> getDestructionType(GameRules.TNT_EXPLOSION_DROP_DECAY, world);
-            case TRIGGER -> SphereExplosion.DestructionType.TRIGGER_BLOCK;
+                    ? getDestructionType(world, GameRules.MOB_EXPLOSION_DROP_DECAY)
+                    : Explosion.DestructionType.KEEP;
+            case TNT -> getDestructionType(world, GameRules.TNT_EXPLOSION_DROP_DECAY);
+            case TRIGGER -> Explosion.DestructionType.TRIGGER_BLOCK;
         };
-        SphereExplosion explosion = new SphereExplosion(world, entity, damageSource, behavior, x, y, z, power, createFire, destructionType, particle, emitterParticle, soundEvent);
-        explosion.collectBlocksAndDamageEntities();
-        explosion.affectWorld(particles);
-        return explosion;
+        Vec3d vec3d = new Vec3d(x, y, z);
+        SphereExplosion explosionImpl = new SphereExplosion(world, entity, damageSource, behavior, vec3d, power, createFire, destructionType);
+        explosionImpl.explode();
+        ParticleEffect particleEffect = explosionImpl.isSmall() ? smallParticle : largeParticle;
+
+        for (ServerPlayerEntity serverPlayerEntity : world.getPlayers()) {
+            if (serverPlayerEntity.squaredDistanceTo(vec3d) < 4096.0) {
+                Optional<Vec3d> optional = Optional.ofNullable((Vec3d)explosionImpl.getKnockbackByPlayer().get(serverPlayerEntity));
+                serverPlayerEntity.networkHandler.sendPacket(new ExplosionS2CPacket(vec3d, optional, particleEffect, soundEvent));
+            }
+        }
     }
 
-    private static SphereExplosion.DestructionType getDestructionType(GameRules.Key<GameRules.BooleanRule> gameRuleKey, World world) {
-        return world.getGameRules().getBoolean(gameRuleKey) ? SphereExplosion.DestructionType.DESTROY_WITH_DECAY : SphereExplosion.DestructionType.DESTROY;
+    private static Explosion.DestructionType getDestructionType(ServerWorld world, GameRules.Key<GameRules.BooleanRule> decayRule) {
+        return world.getGameRules().getBoolean(decayRule) ? Explosion.DestructionType.DESTROY_WITH_DECAY : Explosion.DestructionType.DESTROY;
     }
+
 }

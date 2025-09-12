@@ -8,6 +8,7 @@ import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.events.MeteorSpawnEvent;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.ExplosionUtils;
+import me.emafire003.dev.ohmymeteors.util.OMMTags;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
@@ -19,14 +20,12 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.mob.SlimeEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ExplosiveProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
@@ -301,36 +300,36 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
                 return Optional.of(Blocks.BEDROCK.getBlastResistance());
             }
         };
-
-        if(isScatterMeteor()){
-            if(Config.SCATTER_METEOR_GRIEFING){
-                if(Config.USE_BETTER_EXPLOSIONS){
-                    ExplosionUtils.createExplosion(this.getWorld(), this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), true, World.ExplosionSourceType.TNT);
+        if(!this.getWorld().isClient()){
+            if(isScatterMeteor()){
+                if(Config.SCATTER_METEOR_GRIEFING){
+                    if(Config.USE_BETTER_EXPLOSIONS){
+                        ExplosionUtils.createExplosion(((ServerWorld) this.getWorld()), this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), true, World.ExplosionSourceType.TNT);
+                    }else{
+                        this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, World.ExplosionSourceType.TNT);
+                    }
                 }else{
+                    if(Config.USE_BETTER_EXPLOSIONS){
+                        ExplosionUtils.createExplosion(((ServerWorld) this.getWorld()), this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), false, World.ExplosionSourceType.TNT);
+                    }else{
+                        this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, World.ExplosionSourceType.TNT);
+                    }
+                }
+                this.discard();
+                return;
+            }
+
+            if(Config.METEOR_GRIEFING){
+                if(Config.USE_BETTER_EXPLOSIONS){
+                    ExplosionUtils.createExplosion(((ServerWorld) this.getWorld()), this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), true, World.ExplosionSourceType.TNT);
+                }else {
                     this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, World.ExplosionSourceType.TNT);
                 }
             }else{
-                if(Config.USE_BETTER_EXPLOSIONS){
-                    ExplosionUtils.createExplosion(this.getWorld(), this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), false, World.ExplosionSourceType.TNT);
-                }else{
-                    this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, World.ExplosionSourceType.TNT);
-                }
+                this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, World.ExplosionSourceType.TNT);
             }
-            this.discard();
-            return;
-        }
 
-        if(Config.METEOR_GRIEFING){
-            if(Config.USE_BETTER_EXPLOSIONS){
-                ExplosionUtils.createExplosion(this.getWorld(), this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), true, World.ExplosionSourceType.TNT);
-            }else {
-                this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, World.ExplosionSourceType.TNT);
-            }
-        }else{
-            this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, World.ExplosionSourceType.TNT);
-        }
 
-        if(!this.getWorld().isClient()){
             ((ServerWorld)this.getWorld()).getPlayers().forEach(serverPlayerEntity -> {
                 //If it should play a sound for every player, do it, unless the player is close enough to the original one
                 if(Config.GLOBAL_EXPLOSION_SOUND && (serverPlayerEntity.getPos().distanceTo(this.getPos()) > 60)){
@@ -603,12 +602,12 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             }
 
             //Checks if the block should be bypassed or not
-            if(state.isIn(OhMyMeteors.METEOR_BYPASSES)){
+            if(state.isIn(OMMTags.METEOR_BYPASSES)){
                 //Early return so the rest of the code doesn't run if the meteor hits a leaves block and the config option is there
-                if(state.isIn(OhMyMeteors.METEOR_BYPASSES_AND_DESTROY)){
+                if(state.isIn(OMMTags.METEOR_BYPASSES_AND_DESTROY)){
                     Box box = this.getBoundingBox();
                     BlockPos.stream(box).forEach((blockPos -> {
-                        if(this.getWorld().getBlockState(blockPos).isIn(OhMyMeteors.METEOR_BYPASSES_AND_DESTROY)){
+                        if(this.getWorld().getBlockState(blockPos).isIn(OMMTags.METEOR_BYPASSES_AND_DESTROY)){
                             this.getWorld().setBlockState(blockPos, Blocks.AIR.getDefaultState());
                             this.getWorld().addParticleClient(ParticleTypes.EXPLOSION, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0, 0,0 );
                         }
