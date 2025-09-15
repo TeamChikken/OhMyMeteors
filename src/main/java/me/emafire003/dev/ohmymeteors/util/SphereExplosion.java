@@ -261,6 +261,15 @@ public class SphereExplosion extends Explosion {
                             (1.0F + (this.world.random.nextFloat() - this.world.random.nextFloat()) * 0.2F) * 0.7F,
                             false
                     );
+        } else{
+            world.playSound(
+                    null, // Player - if non-null, will play sound for every nearby player *except* the specified player
+                    new BlockPos(x,y,z), // The position of where the sound will come from
+                    SoundEvents.ENTITY_GENERIC_EXPLODE, // The sound that will play, in this case, the sound the anvil plays when it lands.
+                    SoundCategory.BLOCKS, // This determines which of the volume sliders affect this sound
+                    4f, //Volume multiplier, 1 is normal, 0.5 is half volume, etc
+                    (1.0F + (this.world.random.nextFloat() - this.world.random.nextFloat()) * 0.2F) * 0.7F
+            );
         }
 
         boolean bl = this.destructionType != Explosion.DestructionType.NONE;
