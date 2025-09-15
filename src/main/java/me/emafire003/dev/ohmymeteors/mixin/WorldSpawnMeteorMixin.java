@@ -1,16 +1,10 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
-import me.emafire003.dev.ohmymeteors.OhMyMeteors;
-import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
-import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryKey;
@@ -70,18 +64,6 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
         }
 
         /// As for spawning, region overrides biome overrides dimension
-        if(FabricLoader.getInstance().isModLoaded("flan")){
-            if(!FlanCompat.canSpawnHere(p, p.getBlockPos())){
-                return;
-            }
-        }
-
-        if(FabricLoader.getInstance().isModLoaded("yawp")){
-            //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere(((ServerWorld) (Object) this), p.getBlockPos()) || YawpCompat.canSpawnHere(((ServerWorld) (Object) this), new BlockPos(p.getBlockPos().getX(), Config.METEOR_SPAWN_HEIGHT, p.getBlockPos().getZ())))){
-                return;
-            }
-        }
 
         RegistryEntry<DimensionType> current_dim = p.getWorld().getDimensionEntry();
 

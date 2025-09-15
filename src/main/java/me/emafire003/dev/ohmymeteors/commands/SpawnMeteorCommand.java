@@ -6,19 +6,14 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
-import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
-import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
-import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
-import me.emafire003.dev.ohmymeteors.config.Config;
+import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -107,18 +102,6 @@ public class SpawnMeteorCommand implements OMMCommand {
     }
 
     private boolean spawnChecks(ServerPlayerEntity p){
-        if(FabricLoader.getInstance().isModLoaded("flan")){
-            if(!FlanCompat.canSpawnHere(p, p.getBlockPos())){
-                return false;
-            }
-        }
-
-        if(FabricLoader.getInstance().isModLoaded("yawp")){
-            //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere(p.getServerWorld(), p.getBlockPos()) || YawpCompat.canSpawnHere(p.getServerWorld(), new BlockPos(p.getBlockPos().getX(), Config.METEOR_SPAWN_HEIGHT, p.getBlockPos().getZ())))){
-                return false;
-            }
-        }
 
         RegistryEntry<DimensionType> current_dim = p.getWorld().getDimensionEntry();
 

@@ -2,7 +2,6 @@ package me.emafire003.dev.ohmymeteors;
 
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.blocks.OMMProperties;
-import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
@@ -16,12 +15,10 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,10 +56,6 @@ public class OhMyMeteors implements ModInitializer {
 		OMMSounds.registerSounds();
 		OMMItems.registerItems();
 		OMMParticles.registerParticles();
-		registerTags();
-		if(FabricLoader.getInstance().isModLoaded("flan")){
-			FlanCompat.registerFlan();
-		}
 
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((minecraftServer, lifecycledResourceManager, b) -> {
 			//yes reloads for each dimension
@@ -82,15 +75,10 @@ public class OhMyMeteors implements ModInitializer {
 		});
 	}
 
-	public static final TagKey<Block> METEOR_BYPASSES = TagKey.of(RegistryKeys.BLOCK, getIdentifier("meteor_bypasses"));
-	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.of(RegistryKeys.BLOCK, getIdentifier("meteor_bypasses_and_destroy"));
 
-	@SuppressWarnings("unused")
-	public static void registerTags(){
-		RegistryEntryList.Named<Block> METEOR_BYPASSES_TAG = Registries.BLOCK.getOrCreateEntryList(METEOR_BYPASSES);
-		RegistryEntryList.Named<Block> METEOR_BYPASSES_AND_DESTROY_TAG = Registries.BLOCK.getOrCreateEntryList(METEOR_BYPASSES_AND_DESTROY);
+	public static final TagKey<Block> METEOR_BYPASSES = TagKey.of(Registry.BLOCK_KEY, getIdentifier("meteor_bypasses"));
+	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.of(Registry.BLOCK_KEY, getIdentifier("meteor_bypasses_and_destroy"));
 
-	}
 
 	public static List<Identifier> METEOR_STRUCTURES = new ArrayList<>();
 

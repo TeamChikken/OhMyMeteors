@@ -40,7 +40,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.loot.context.LootContextParameterSet;
+import net.minecraft.loot.context.LootContext;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
@@ -83,8 +83,12 @@ public class SphereExplosion extends Explosion {
     protected final Map<PlayerEntity, Vec3d> affectedPlayers = Maps.newHashMap();
 
 
+    public SphereExplosion(World world, @Nullable Entity entity, double x, double y, double z, float power) {
+        this(world, entity, x, y, z, power, false, Explosion.DestructionType.DESTROY);
+    }
+
     public SphereExplosion(World world, @Nullable Entity entity, double x, double y, double z, float power, List<BlockPos> affectedBlocks) {
-        this(world, entity, x, y, z, power, false, Explosion.DestructionType.DESTROY_WITH_DECAY, affectedBlocks);
+        this(world, entity, x, y, z, power, false, Explosion.DestructionType.DESTROY, affectedBlocks);
     }
 
     public SphereExplosion(
@@ -108,7 +112,6 @@ public class SphereExplosion extends Explosion {
         this(world, entity, null, null, x, y, z, power, createFire, destructionType);
     }
 
-
     public SphereExplosion(
             World world,
             @Nullable Entity entity,
@@ -130,15 +133,12 @@ public class SphereExplosion extends Explosion {
         this.z = z;
         this.createFire = createFire;
         this.destructionType = destructionType;
-        this.damageSource = damageSource == null ? world.getDamageSources().explosion(this) : damageSource;
+        this.damageSource = damageSource == null ? DamageSource.explosion(this) : damageSource;
         this.behavior = behavior == null ? this.chooseBehavior(entity) : behavior;
-        /*this.particle = particle;
-        this.emitterParticle = emitterParticle;
-        this.soundEvent = soundEvent;*/
     }
 
     private ExplosionBehavior chooseBehavior(@Nullable Entity entity) {
-        return (entity == null ? DEFAULT_BEHAVIOR : new EntityExplosionBehavior(entity));
+        return (ExplosionBehavior)(entity == null ? DEFAULT_BEHAVIOR : new EntityExplosionBehavior(entity));
     }
 
     protected double thetaRef;
@@ -177,7 +177,7 @@ public class SphereExplosion extends Explosion {
                     double o = this.z;
 
                     for (float p = 0.3F; h > 0.0F; h -= 0.22500001F) {
-                        BlockPos blockPos = BlockPos.ofFloored(m, n, o);
+                        BlockPos blockPos = new BlockPos(m, n, o);
                         BlockState blockState = this.world.getBlockState(blockPos);
                         FluidState fluidState = this.world.getFluidState(blockPos);
                         if (!this.world.isInBuildLimit(blockPos)) {
@@ -248,22 +248,6 @@ public class SphereExplosion extends Explosion {
         }
     }
 
-    public static void tryMergeStack(List<Pair<ItemStack, BlockPos>> stacks, ItemStack stack, BlockPos pos) {
-        for (int i = 0; i < stacks.size(); i++) {
-            Pair<ItemStack, BlockPos> pair = (Pair<ItemStack, BlockPos>)stacks.get(i);
-            ItemStack itemStack = pair.getFirst();
-            if (ItemEntity.canMerge(itemStack, stack)) {
-                stacks.set(i, Pair.of(ItemEntity.merge(itemStack, stack, 16), pair.getSecond()));
-                if (stack.isEmpty()) {
-                    return;
-                }
-            }
-        }
-
-        stacks.add(Pair.of(stack, pos));
-    }
-
-    @Override
     public void affectWorld(boolean particles) {
         if (this.world.isClient) {
             this.world
@@ -277,19 +261,9 @@ public class SphereExplosion extends Explosion {
                             (1.0F + (this.world.random.nextFloat() - this.world.random.nextFloat()) * 0.2F) * 0.7F,
                             false
                     );
-        }else{
-            world.playSound(
-                    null, // Player - if non-null, will play sound for every nearby player *except* the specified player
-                    BlockPos.ofFloored(x,y,z), // The position of where the sound will come from
-                    SoundEvents.ENTITY_GENERIC_EXPLODE, // The sound that will play, in this case, the sound the anvil plays when it lands.
-                    SoundCategory.BLOCKS, // This determines which of the volume sliders affect this sound
-                    4f, //Volume multiplier, 1 is normal, 0.5 is half volume, etc
-                    (1.0F + (this.world.random.nextFloat() - this.world.random.nextFloat()) * 0.2F) * 0.7F
-            );
         }
 
-
-        boolean bl = this.shouldDestroy();
+        boolean bl = this.destructionType != Explosion.DestructionType.NONE;
         if (particles) {
             if (!(this.power < 2.0F) && bl) {
                 this.world.addParticle(ParticleTypes.EXPLOSION_EMITTER, this.x, this.y, this.z, 1.0, 0.0, 0.0);
@@ -311,13 +285,14 @@ public class SphereExplosion extends Explosion {
                     this.world.getProfiler().push("explosion_blocks");
                     if (block.shouldDropItemsOnExplosion(this) && this.world instanceof ServerWorld serverWorld) {
                         BlockEntity blockEntity = blockState.hasBlockEntity() ? this.world.getBlockEntity(blockPos) : null;
-                        LootContextParameterSet.Builder builder = new LootContextParameterSet.Builder(serverWorld)
-                                .add(LootContextParameters.ORIGIN, Vec3d.ofCenter(blockPos))
-                                .add(LootContextParameters.TOOL, ItemStack.EMPTY)
-                                .addOptional(LootContextParameters.BLOCK_ENTITY, blockEntity)
-                                .addOptional(LootContextParameters.THIS_ENTITY, this.entity);
-                        if (this.destructionType == Explosion.DestructionType.DESTROY_WITH_DECAY) {
-                            builder.add(LootContextParameters.EXPLOSION_RADIUS, this.power);
+                        LootContext.Builder builder = new LootContext.Builder(serverWorld)
+                                .random(this.world.random)
+                                .parameter(LootContextParameters.ORIGIN, Vec3d.ofCenter(blockPos))
+                                .parameter(LootContextParameters.TOOL, ItemStack.EMPTY)
+                                .optionalParameter(LootContextParameters.BLOCK_ENTITY, blockEntity)
+                                .optionalParameter(LootContextParameters.THIS_ENTITY, this.entity);
+                        if (this.destructionType == Explosion.DestructionType.DESTROY) {
+                            builder.parameter(LootContextParameters.EXPLOSION_RADIUS, this.power);
                         }
 
                         blockState.onStacksDropped(serverWorld, blockPos, ItemStack.EMPTY, bl2);
@@ -345,4 +320,23 @@ public class SphereExplosion extends Explosion {
             }
         }
     }
+
+    private static void tryMergeStack(ObjectArrayList<Pair<ItemStack, BlockPos>> stacks, ItemStack stack, BlockPos pos) {
+        int i = stacks.size();
+
+        for (int j = 0; j < i; j++) {
+            Pair<ItemStack, BlockPos> pair = stacks.get(j);
+            ItemStack itemStack = pair.getFirst();
+            if (ItemEntity.canMerge(itemStack, stack)) {
+                ItemStack itemStack2 = ItemEntity.merge(itemStack, stack, 16);
+                stacks.set(j, Pair.of(itemStack2, pair.getSecond()));
+                if (stack.isEmpty()) {
+                    return;
+                }
+            }
+        }
+
+        stacks.add(Pair.of(stack, pos));
+    }
+
 }

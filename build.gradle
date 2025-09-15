@@ -62,17 +62,6 @@ dependencies {
     //Fabric permission api
     modImplementation "me.lucko:fabric-permissions-api:${project.fabricperms_version}"
 
-	//Flan
-	modImplementation("maven.modrinth:flan:${project.flan_version}"){
-		transitive = false
-	}
-
-	//Yet another world protector (world protection)
-	//modImplementation("maven.modrinth:yawp:${project.yawp_version}")
-	modImplementation("curse.maven:yawp-663276:${project.yawp_version}"){
-		transitive = false
-	}
-
 }
 
 processResources {
