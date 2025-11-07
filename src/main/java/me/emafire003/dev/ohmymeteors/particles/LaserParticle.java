@@ -3,13 +3,27 @@ package me.emafire003.dev.ohmymeteors.particles;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.particle.*;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.SimpleParticleType;
+import net.minecraft.util.math.random.Random;
 
-public class LaserParticle extends SpriteBillboardParticle {
+public class LaserParticle extends BillboardParticle {
     
-    LaserParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-        super(clientWorld, d, e, f, g, h, i);
+    LaserParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i, Sprite sprite) {
+        super(clientWorld, d, e, f, g, h, i, sprite);
+        float j = this.random.nextFloat() * 0.1F + 0.2F;
+        this.red = j;
+        this.green = j;
+        this.blue = j;
+        this.setBoundingBoxSpacing(0.02F, 0.02F);
+        this.scale = this.scale * (this.random.nextFloat() * 0.6F + 0.5F);
+        this.velocityX *= 0.02F;
+        this.velocityY *= 0.02F;
+        this.velocityZ *= 0.02F;
+        this.maxAge = (int)(20.0 / (Math.random() * 0.8 + 0.2));
+    }/*(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i, Sprite sprite) {
+        super(clientWorld, d, e,f,g, h, i, sprite);
         float j = this.random.nextFloat() * 0.1F + 0.2F;
         this.red = j;
         this.green = j;
@@ -20,12 +34,17 @@ public class LaserParticle extends SpriteBillboardParticle {
         this.velocityY *= 0.02F;
         this.velocityZ *= 0.02F;
         this.maxAge = 1*20; //aka 1 second
-    }
+    }*/
 
     @Override
+    public BillboardParticle.RenderType getRenderType() {
+        return RenderType.PARTICLE_ATLAS_TRANSLUCENT;
+    }
+
+   /* @Override
     public ParticleTextureSheet getType() {
         return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
-    }
+    }*/
 
     @Override
     public void move(double dx, double dy, double dz) {
@@ -66,7 +85,7 @@ public class LaserParticle extends SpriteBillboardParticle {
         }
     }*/
 
-    @Environment(EnvType.CLIENT)
+/*    @Environment(EnvType.CLIENT)
     public static class EggCrackFactory implements ParticleFactory<SimpleParticleType> {
         private final SpriteProvider spriteProvider;
 
@@ -77,6 +96,23 @@ public class LaserParticle extends SpriteBillboardParticle {
         public Particle createParticle(SimpleParticleType simpleParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
             LaserParticle suspendParticle = new LaserParticle(clientWorld, d, e, f, g, h, i);
             suspendParticle.setSprite(this.spriteProvider);
+            suspendParticle.setColor(1.0F, 1.0F, 1.0F);
+            return suspendParticle;
+        }
+    }*/
+
+    @Environment(EnvType.CLIENT)
+    public static class EggCrackFactory implements ParticleFactory<SimpleParticleType> {
+        private final SpriteProvider spriteProvider;
+
+        public EggCrackFactory(SpriteProvider spriteProvider) {
+            this.spriteProvider = spriteProvider;
+        }
+
+        public Particle createParticle(
+                SimpleParticleType simpleParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i, Random random
+        ) {
+            LaserParticle suspendParticle = new LaserParticle(clientWorld, d, e, f, g, h, i, this.spriteProvider.getSprite(random));
             suspendParticle.setColor(1.0F, 1.0F, 1.0F);
             return suspendParticle;
         }

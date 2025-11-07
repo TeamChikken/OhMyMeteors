@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.10-SNAPSHOT'
+	id 'fabric-loom' version '1.12-SNAPSHOT'
 	id 'maven-publish'
 }
 version = project.mod_version
@@ -56,10 +56,10 @@ dependencies {
 	include(modImplementation "maven.modrinth:particleanimationlib:${project.pal_version}")
 
 	//Modmenu
-	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+	modCompileOnly("com.terraformersmc:modmenu:${project.modmenu_version}")
 
-    //Fabric permission api
-    modImplementation "me.lucko:fabric-permissions-api:${project.fabricperms_version}"
+	//Fabric permission api
+	modImplementation "me.lucko:fabric-permissions-api:${project.fabricperms_version}"
 
 	//Flan
 	modCompileOnly("maven.modrinth:flan:${project.flan_version}"){

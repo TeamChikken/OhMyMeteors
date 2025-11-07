@@ -41,7 +41,7 @@ public class SpawnMeteorCommand implements OMMCommand {
                     source.getPlayer().getZ()+source.getPlayer().getRandom().nextBetween(0, 50)*source.getPlayer().getRandom().nextBetween(-1, 1)
             );
 
-            source.sendMessage(Text.literal("Spawning meteor at " + meteorProjectile.getPos()));
+            source.sendMessage(Text.literal("Spawning meteor at " + meteorProjectile.getEntityPos()));
 
             meteorProjectile.setSize(source.getPlayer().getRandom().nextBetween(0, 20));
             source.getWorld().spawnEntity(meteorProjectile);
@@ -113,18 +113,18 @@ public class SpawnMeteorCommand implements OMMCommand {
 
         if(FabricLoader.getInstance().isModLoaded("yawp")){
             //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere(p.getWorld(), p.getBlockPos()) || YawpCompat.canSpawnHere(p.getWorld(), new BlockPos(p.getBlockPos().getX(), Config.METEOR_SPAWN_HEIGHT, p.getBlockPos().getZ())))){
+            if(!(YawpCompat.canSpawnHere(p.getEntityWorld(), p.getBlockPos()) || YawpCompat.canSpawnHere(p.getEntityWorld(), new BlockPos(p.getBlockPos().getX(), Config.METEOR_SPAWN_HEIGHT, p.getBlockPos().getZ())))){
                 return false;
             }
         }
 
-        RegistryEntry<DimensionType> current_dim = p.getWorld().getDimensionEntry();
+        RegistryEntry<DimensionType> current_dim = p.getEntityWorld().getDimensionEntry();
 
         if(!MeteorProjectileEntity.canSpawnInDimension(current_dim)){
             return false;
         }
 
-        RegistryEntry<Biome> current_biome = p.getWorld().getBiome(p.getBlockPos());
+        RegistryEntry<Biome> current_biome = p.getEntityWorld().getBiome(p.getBlockPos());
 
         if(!MeteorProjectileEntity.canSpawnInBiome(current_biome)){
             return false;

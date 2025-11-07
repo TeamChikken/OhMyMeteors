@@ -65,7 +65,7 @@ public class SphereExplosion implements Explosion {
     private final float power;
     private final DamageSource damageSource;
     private final ExplosionBehavior behavior;
-    private final Map<PlayerEntity, Vec3d> knockbackByPlayer = new HashMap();
+    private final Map<PlayerEntity, Vec3d> knockbackByPlayer = new HashMap<>();
 
     public SphereExplosion(
             ServerWorld world,
@@ -109,7 +109,7 @@ public class SphereExplosion implements Explosion {
                         double o = MathHelper.lerp(l, box.minY, box.maxY);
                         double p = MathHelper.lerp(m, box.minZ, box.maxZ);
                         Vec3d vec3d = new Vec3d(n + g, o, p + h);
-                        if (entity.getWorld().raycast(new RaycastContext(vec3d, pos, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, entity)).getType()
+                        if (entity.getEntityWorld().raycast(new RaycastContext(vec3d, pos, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, entity)).getType()
                                 == HitResult.Type.MISS) {
                             i++;
                         }
@@ -255,21 +255,6 @@ public class SphereExplosion implements Explosion {
         }
     }
 
-    public void explode() {
-        this.world.emitGameEvent(this.entity, GameEvent.EXPLODE, this.pos);
-        List<BlockPos> list = this.getBlocksToDestroy();
-        this.damageEntities();
-        if (this.shouldDestroyBlocks()) {
-            Profiler profiler = Profilers.get();
-            profiler.push("explosion_blocks");
-            this.destroyBlocks(list);
-            profiler.pop();
-        }
-
-        if (this.createFire) {
-            this.createFire(list);
-        }
-    }
 
     private static void addDroppedItem(List<DroppedItem> droppedItemsOut, ItemStack item, BlockPos pos) {
         for (DroppedItem droppedItem : droppedItemsOut) {
@@ -366,5 +351,23 @@ public class SphereExplosion implements Explosion {
         thetaRef = theta;
         phiRef = phi;
         return Math.sin(phi) * Math.cos(theta);
+    }
+
+    public int explode() {
+        this.world.emitGameEvent(this.entity, GameEvent.EXPLODE, this.pos);
+        List<BlockPos> list = this.getBlocksToDestroy();
+        this.damageEntities();
+        if (this.shouldDestroyBlocks()) {
+            Profiler profiler = Profilers.get();
+            profiler.push("explosion_blocks");
+            this.destroyBlocks(list);
+            profiler.pop();
+        }
+
+        if (this.createFire) {
+            this.createFire(list);
+        }
+
+        return list.size();
     }
 }

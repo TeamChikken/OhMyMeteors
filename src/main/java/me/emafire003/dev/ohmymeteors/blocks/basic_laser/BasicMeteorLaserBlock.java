@@ -16,6 +16,7 @@ import net.minecraft.block.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.particle.TintedParticleEffect;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.StateManager;
@@ -84,7 +85,7 @@ public class BasicMeteorLaserBlock extends BlockWithEntity implements BlockEntit
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return !world.isClient && world.getDimension().hasSkyLight() ? validateTicker(type, OMMBlocks.BASIC_METEOR_LASER_BLOCK_ENTITY, BasicMeteorLaserBlock::tick) : null;
+        return !world.isClient() && world.getDimension().hasSkyLight() ? validateTicker(type, OMMBlocks.BASIC_METEOR_LASER_BLOCK_ENTITY, BasicMeteorLaserBlock::tick) : null;
     }
 
         /**
@@ -227,13 +228,16 @@ public class BasicMeteorLaserBlock extends BlockWithEntity implements BlockEntit
                     meteorProjectileEntity.detonateSimple();
                 }
 
-                serverWorld.spawnParticles(OMMParticles.LASER_FLASH_PARTICLE, pos.up().up().getX(), pos.up().up().getY(), pos.up().up().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
+
+
+                //46ED5F -- 4648287
+                serverWorld.spawnParticles(TintedParticleEffect.create(ParticleTypes.FLASH, 4648287), pos.up().up().getX(), pos.up().up().getY(), pos.up().up().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
 
                 LineEffect lineEffect = LineEffect
                         .builder(serverWorld, OMMParticles.LASER_PARTICLE, pos.toCenterPos().add(0, 0.5, 0))
-                        .targetPos(meteorProjectileEntity.getPos())
+                        .targetPos(meteorProjectileEntity.getEntityPos())
                         .forced(Config.USE_FORCED_PARTICLES)
-                        .particles((int) (pos.toCenterPos().distanceTo(meteorProjectileEntity.getPos())*3))
+                        .particles((int) (pos.toCenterPos().distanceTo(meteorProjectileEntity.getEntityPos())*3))
                         .build();
                 putInCooldown(blockEntity);
                 lineEffect.runFor(1, (effect, t) -> {

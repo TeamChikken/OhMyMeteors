@@ -4,8 +4,6 @@ import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
-import net.minecraft.client.render.entity.SlimeEntityRenderer;
-import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -13,10 +11,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
@@ -85,13 +80,13 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
             }
         }
 
-        RegistryEntry<DimensionType> current_dim = p.getWorld().getDimensionEntry();
+        RegistryEntry<DimensionType> current_dim = p.getEntityWorld().getDimensionEntry();
 
         if(!MeteorProjectileEntity.canSpawnInDimension(current_dim)){
             return;
         }
 
-        RegistryEntry<Biome> current_biome = p.getWorld().getBiome(p.getBlockPos());
+        RegistryEntry<Biome> current_biome = p.getEntityWorld().getBiome(p.getBlockPos());
 
         if(!MeteorProjectileEntity.canSpawnInBiome(current_biome)){
             return;

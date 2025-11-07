@@ -16,13 +16,8 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.Block;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -43,7 +38,8 @@ public class OhMyMeteors implements ModInitializer {
 
 	public static String PREFIX = "[Oh My, Meteors!] ";
 
-	public static final ChunkTicketType METEOR_CHUCK_TICKET = Registry.register(Registries.TICKET_TYPE, OhMyMeteors.MOD_ID+":meteor", new ChunkTicketType(5*20, false, ChunkTicketType.Use.LOADING_AND_SIMULATION));
+	//Dunno, 14 is the enderpearl thingy sooo
+	public static final ChunkTicketType METEOR_CHUCK_TICKET = Registry.register(Registries.TICKET_TYPE, OhMyMeteors.MOD_ID+":meteor", new ChunkTicketType(5*20, 14));
 
 
 	public static Identifier getIdentifier(String path){

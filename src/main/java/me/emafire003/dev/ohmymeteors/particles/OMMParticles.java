@@ -10,14 +10,14 @@ public class OMMParticles {
 
     public static final SimpleParticleType LASER_PARTICLE = FabricParticleTypes.simple();
     public static final SimpleParticleType LASER_PARTICLE_SMALL = FabricParticleTypes.simple();
-    public static final SimpleParticleType LASER_FLASH_PARTICLE = FabricParticleTypes.simple();
+    //public static final SimpleParticleType LASER_FLASH_PARTICLE = FabricParticleTypes.simple();
 
     public static void registerParticles(){
         Registry.register(Registries.PARTICLE_TYPE, OhMyMeteors.getIdentifier("laser_particle"),
                 LASER_PARTICLE);
         Registry.register(Registries.PARTICLE_TYPE, OhMyMeteors.getIdentifier("laser_particle_small"),
                 LASER_PARTICLE_SMALL);
-        Registry.register(Registries.PARTICLE_TYPE, OhMyMeteors.getIdentifier("laser_flash_particle"),
-                LASER_FLASH_PARTICLE);
+        /*Registry.register(Registries.PARTICLE_TYPE, OhMyMeteors.getIdentifier("laser_flash_particle"),
+                LASER_FLASH_PARTICLE);*/
     }
 }
