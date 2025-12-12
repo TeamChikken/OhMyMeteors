@@ -18,6 +18,13 @@
   "message.ohmymeteors.meteor_destroyed": "A meteor has been destroyed!",
   "message.ohmymeteors.meteor_spawned.huge": "WATCH OUT! A new HUGE meteor has spawned!",
   "message.ohmymeteors.meteor_destroyed.huge": "A HUGE meteor has been destroyed!",
+  "message.ohmymeteors.meteor_shower_spawned": "!!! A METEOR SHOWER HAS BEGUN !!!",
+
+  "message.ohmymeteors.meteor_spawned.localized": "A new meteor has spawned around %s!",
+  "message.ohmymeteors.meteor_destroyed.localized": "A meteor has been destroyed around %s!",
+  "message.ohmymeteors.meteor_spawned.huge.localized": "WATCH OUT! A new HUGE meteor has spawned around %s!",
+  "message.ohmymeteors.meteor_destroyed.huge.localized": "A HUGE meteor has been destroyed around %s!",
+  "message.ohmymeteors.meteor_shower_spawned.localized": "!!! A METEOR SHOWER HAS BEGUN AROUND %s !!!",
 
   "audio.ohmymeteors.laser_fire": "Meteor Laser fired!",
   "audio.ohmymeteors.laser_area_on": "Showing laser target area!",
