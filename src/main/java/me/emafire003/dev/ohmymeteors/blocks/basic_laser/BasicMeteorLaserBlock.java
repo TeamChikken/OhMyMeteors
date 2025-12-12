@@ -215,6 +215,7 @@ public class BasicMeteorLaserBlock extends BlockWithEntity implements BlockEntit
             BlockState blockState = state.with(FIRING, true);
             world.setBlockState(pos, blockState, Block.NOTIFY_LISTENERS);
 
+
             meteors.forEach( meteorProjectileEntity -> {
 
                 if(meteorProjectileEntity.getSize() > Config.NATURAL_METEOR_MAX_SIZE/1.5){
@@ -245,11 +246,20 @@ public class BasicMeteorLaserBlock extends BlockWithEntity implements BlockEntit
 
 
                 if(Config.ANNOUNCE_METEOR_DESTROYED){
-                    if(meteorProjectileEntity.isHuge()){
-                        serverWorld.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_destroyed.huge").formatted(Formatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                    if(Config.ANNOUNCE_LOCATION){
+                        if(meteorProjectileEntity.isHuge()){
+                            serverWorld.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_destroyed.huge.localized", String.valueOf(meteorProjectileEntity.getBlockPos())).formatted(Formatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                        }else{
+                            serverWorld.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_destroyed.localized", String.valueOf(meteorProjectileEntity.getBlockPos())).formatted(Formatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                        }
                     }else{
-                        serverWorld.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_destroyed").formatted(Formatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                        if(meteorProjectileEntity.isHuge()){
+                            serverWorld.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_destroyed.huge").formatted(Formatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                        }else{
+                            serverWorld.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_destroyed").formatted(Formatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                        }
                     }
+
                 }
             });
 

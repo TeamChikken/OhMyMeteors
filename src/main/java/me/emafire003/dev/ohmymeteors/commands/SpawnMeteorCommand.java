@@ -131,7 +131,7 @@ public class SpawnMeteorCommand implements OMMCommand {
 
            ServerPlayerEntity p = source.getWorld().getRandomAlivePlayer();
            if(spawnChecks(p)){
-               MeteorProjectileEntity.spawnMeteor(source.getWorld(), p);
+               MeteorProjectileEntity.spawnMeteor(source.getWorld(), p, false);
            }else{
                source.sendError(Text.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
                return 0;
@@ -141,6 +141,34 @@ public class SpawnMeteorCommand implements OMMCommand {
         }catch(Exception e){
             e.printStackTrace();
             source.sendFeedback( Text.literal("Error: " + e),false);
+            return 0;
+        }
+    }
+
+    /**Spawns a meteor shower exactly like the natural spawns. Gives an error if there are no players online*/
+    private int spawnShower(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerCommandSource source = context.getSource();
+
+        try{
+
+            if(source.getWorld().getPlayers().isEmpty()){
+                source.sendFeedback( () -> Text.literal("Could not spawn a natural meteor since there are no players online!"),true);
+                return -1;
+            }
+
+
+            ServerPlayerEntity p = source.getWorld().getRandomAlivePlayer();
+            if(spawnChecks(p)){
+                MeteorProjectileEntity.spawnMeteorShower(source.getWorld(), p);
+            }else{
+                source.sendError(Text.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
+                return 0;
+            }
+
+            return 1;
+        }catch(Exception e){
+            e.printStackTrace();
+            source.sendFeedback( () -> Text.literal("Error: " + e),false);
             return 0;
         }
     }
@@ -165,6 +193,9 @@ public class SpawnMeteorCommand implements OMMCommand {
                                                 .executes(this::spawnSpeed)
                                 )
                                 .executes(this::spawnSize)
+                ).then(
+                        CommandManager.literal("shower")
+                                .executes(this::spawnShower)
                 )
                 .build();
     }

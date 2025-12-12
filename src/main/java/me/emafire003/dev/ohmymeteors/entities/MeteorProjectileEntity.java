@@ -625,7 +625,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     }
 
     /**
-     * Gets a meteor object to be spawned in, with a velocity oriented dowards and a spawn position already set up
+     * Gets a meteor object to be spawned in, with a velocity oriented downwards and a spawn position already set up
      * */
     public static MeteorProjectileEntity getDownwardsMeteor(Vec3d originPos, ServerWorld world, int min_spawn_d, int max_spawn_d, double spawn_height, int min_size, int max_size, boolean homing){
         MeteorProjectileEntity meteor = new MeteorProjectileEntity(world);
@@ -669,8 +669,12 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         return meteor;
     }
 
-    /**Spawns a meteor around a random alive online player*/
-    public static void spawnMeteor(ServerWorld world, PlayerEntity p){
+    /**Spawns a meteor around a random alive online player
+     *
+     * @param world The world in which the meteors are gonna be spawned in
+     * @param p The player around which the meteor will spawn
+     * @param silenced Weather or not the meteor should be announced in chat*/
+    public static void spawnMeteor(ServerWorld world, PlayerEntity p, boolean silenced){
 
         if(p == null){
             //for some reason it won't detect that there is player online sometimes
@@ -695,12 +699,33 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             message = "message.ohmymeteors.meteor_spawned";
         }
 
-        if(Config.ANNOUNCE_METEOR_SPAWN){
-            world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+        if(Config.ANNOUNCE_METEOR_SPAWN && !silenced){
+            if(Config.ANNOUNCE_LOCATION){
+                MeteorProjectileEntity finalMeteor = meteor;
+                world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message+".localized", finalMeteor.getBlockPos()).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+            }else{
+                world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+            }
         }
 
 
         world.spawnEntity(meteor);
+    }
+
+    public static void spawnMeteorShower(ServerWorld world, PlayerEntity p){
+        int r = world.getRandom().nextBetween(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        for(int i = 0; i < r; i++){
+            spawnMeteor(world, p, true);
+        }
+        String message = "message.ohmymeteors.meteor_shower_spawned";
+        if(Config.ANNOUNCE_METEOR_SPAWN){
+            if(Config.ANNOUNCE_LOCATION){
+                String pos = String.valueOf(p.getPos().x) + " x, " + String.valueOf(p.getPos().z) + " y!";
+                world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message+".localized", pos).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+            }else{
+                world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+            }
+        }
     }
 
     /**Checks if the meteor can spawn in the given dimension
