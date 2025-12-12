@@ -701,8 +701,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         if(Config.ANNOUNCE_METEOR_SPAWN && !silenced){
             if(Config.ANNOUNCE_LOCATION){
-                MeteorProjectileEntity finalMeteor = meteor;
-                world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message+".localized", finalMeteor.getBlockPos()).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                String meteorPos = String.valueOf(meteor.getBlockPos().getX()) + " x, " + String.valueOf(meteor.getBlockPos().getZ()) + " z!";
+                world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message+".localized", meteorPos).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }else{
                 world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }
@@ -720,7 +720,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         String message = "message.ohmymeteors.meteor_shower_spawned";
         if(Config.ANNOUNCE_METEOR_SPAWN){
             if(Config.ANNOUNCE_LOCATION){
-                String pos = String.valueOf(p.getPos().x) + " x, " + String.valueOf(p.getPos().z) + " y!";
+                String pos = String.valueOf(p.getBlockPos().getX()) + " x, " + String.valueOf(p.getBlockPos().getZ()) + " z!";
                 world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message+".localized", pos).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }else{
                 world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
