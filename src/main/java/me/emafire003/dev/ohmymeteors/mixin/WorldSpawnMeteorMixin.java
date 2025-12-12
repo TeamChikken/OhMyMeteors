@@ -32,6 +32,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import static me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity.spawnMeteor;
+import static me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity.spawnMeteorShower;
 
 //(there would be a way to like list all of the loaded chunks but it seems a bit impractical when we can just target a random online player)
 @Mixin(ServerWorld.class)
@@ -115,7 +116,16 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
         }
 
         if(this.getRandom().nextBetween(0, chance) == 0){
-            spawnMeteor(((ServerWorld) (Object) this), p);
+            if(Config.METEOR_SHOWERS_ENABLED){
+                if(this.getRandom().nextBetween(0, Config.METEOR_SHOWER_CHANCE) == 0){
+                    spawnMeteorShower(((ServerWorld) (Object) this), p);
+                }else{
+                    spawnMeteor(((ServerWorld) (Object) this), p, false);
+                }
+            }else{
+                spawnMeteor(((ServerWorld) (Object) this), p, false);
+            }
+
             if(Config.SHOULD_COOLDOWN_BETWEEN_METEORS){
                 meteorCooldown = 20*Config.MIN_METEOR_COOLDOWN_TIME;
             }
@@ -125,4 +135,6 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
     protected WorldSpawnMeteorMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
     }
+
+
 }

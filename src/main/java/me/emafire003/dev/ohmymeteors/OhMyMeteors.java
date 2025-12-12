@@ -50,6 +50,7 @@ public class OhMyMeteors implements ModInitializer {
 		// Proceed with mild caution.
 		Config.FILEPATH = PATH.resolve(OhMyMeteors.MOD_ID + "_config.yml");
 
+		OMMCommands.registerArguments();
 		CommandRegistrationCallback.EVENT.register(OMMCommands::registerCommands);
 
 		OMMProperties.registerBlockProperties();
