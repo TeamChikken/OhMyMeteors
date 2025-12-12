@@ -245,10 +245,11 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
 
                 if(Config.ANNOUNCE_METEOR_DESTROYED){
                     if(Config.ANNOUNCE_LOCATION){
+                        String meteorPos = String.valueOf(meteorProjectileEntity.getBlockPos().getX()) + " x, " + String.valueOf(meteorProjectileEntity.getBlockPos().getZ()) + " z!";
                         if(meteorProjectileEntity.isHuge()){
-                            serverWorld.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_destroyed.huge.localized", String.valueOf(meteorProjectileEntity.getBlockPos())).formatted(Formatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                            serverWorld.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_destroyed.huge.localized", meteorPos).formatted(Formatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
                         }else{
-                            serverWorld.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_destroyed.localized", String.valueOf(meteorProjectileEntity.getBlockPos())).formatted(Formatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                            serverWorld.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_destroyed.localized", meteorPos).formatted(Formatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
                         }
                     }else{
                         if(meteorProjectileEntity.isHuge()){
