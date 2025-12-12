@@ -2,7 +2,12 @@ package me.emafire003.dev.ohmymeteors.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.commands.argument.MeteorSizeClassArgumentType;
+import me.emafire003.dev.ohmymeteors.util.MeteorSizeClass;
+import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 
@@ -34,5 +39,10 @@ public class OMMCommands {
         for (OMMCommand command : commands) {
             omm_commands.addChild(command.getNode(registryAccess));
         }
+    }
+
+    public static void registerArguments(){
+        ArgumentTypeRegistry.registerArgumentType(OhMyMeteors.getIdentifier("meteor_size_class"), MeteorSizeClassArgumentType.class, ConstantArgumentSerializer.of(MeteorSizeClassArgumentType::meteorSizeClass));
+
     }
 }

@@ -126,6 +126,14 @@ public class Config {
     );
     private static final List<String> BIOME_SPAWN_LIST_default =  List.of(BiomeKeys.CHERRY_GROVE.getValue().toString(), BiomeKeys.SOUL_SAND_VALLEY.getValue().toString(), "modname:modbiome");
 
+    //V5
+    public static boolean METEOR_SHOWERS_ENABLED = true;
+    public static int METEOR_SHOWER_CHANCE = 100; //on top of the normal meteor chance. aka a metor drop may become a meteor shower
+    public static int MIN_METEORS_IN_SHOWER = 5;
+    public static int MAX_METEORS_IN_SHOWER = 20;
+    public static boolean ANNOUNCE_LOCATION = true;
+
+
 
     public static void handleVersionChange(){
         int version_found = CONFIG.getOrDefault("version", ver);
@@ -218,6 +226,9 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("announce_meteor_spawn", false),"Should players get a message in chat/hotbar when a meteor spawns?");
         configs.addKeyValuePair(new Pair<>("announce_meteor_destroyed", false),"Should players get a message in chat/hotbar when a meteor is destroyed?");
         configs.addKeyValuePair(new Pair<>("actionbar_announcements", true),"Should the above announcement be displayed above the hotbar in the actionbar or in chat?");
+        //V5
+        configs.addKeyValuePair(new Pair<>("announce_location", true),"If announcements are enabled, should they also display the (approximate) coordinates of the meteor being spawned/destroyed?");
+
         //V2
         configs.addKeyValuePair(new Pair<>("global_explosion_sound", false),"Should the explosion sound of the meteor be heard by all players online?");
         configs.addKeyValuePair(new Pair<>("area_explosion_sound", false),"Should the explosion sound of the meteor be heard by all players around a certain area from the impact point?");
@@ -277,6 +288,12 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("use_better_explosions", true),"If true will use a spherical explosion instead of the vanilla cubical one. These look nicer at higher explosion power/ranges, but after power 100 become quite laggy.");
         configs.addKeyValuePair(new Pair<>("meteor_render_distance", 200),"How far should meteors be rendered. WARNING: YOU NEED TO RESTART YOUR SERVER AND CLIENT IF YOU CHANGE THIS VALUE in order for it to take effect. It is multiplied by the 'entity render' distance of the server");
 
+        //V5
+        configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
+        configs.addKeyValuePair(new Pair<>("meteor_showers_enabled", true),"If true, there will be a chance that meteor showers will spawn (a lot of metors spawning at the same time & place)");
+        configs.addKeyValuePair(new Pair<>("meteor_shower_chance", 100),"The chance for a meteor shower to spawn (on top of the normal meteor spawning chance, so it's meteor_spawn*meteor_shower spawn)");
+        configs.addKeyValuePair(new Pair<>("min_meteors_in_shower", 5),"The minimum number of meteors that are going to spawn in the meteor shower.");
+        configs.addKeyValuePair(new Pair<>("max_meteors_in_shower", 20),"The maximum number of meteors that are going to spawn in the meteor shower.");
 
     }
 
@@ -359,6 +376,12 @@ public class Config {
         //V4
         USE_BETTER_EXPLOSIONS = CONFIG.getOrDefault("use_better_explosions", true);
         METEOR_RENDER_DISTANCE = CONFIG.getOrDefault("meteor_render_distance", 200);
+
+        //V5
+        METEOR_SHOWERS_ENABLED = CONFIG.getOrDefault("meteor_showers_enabled", true);
+        METEOR_SHOWER_CHANCE = CONFIG.getOrDefault("meteor_shower_chance", 100);
+        MIN_METEORS_IN_SHOWER = CONFIG.getOrDefault("min_meteors_in_shower", 5);
+        MAX_METEORS_IN_SHOWER = CONFIG.getOrDefault("max_meteors_in_shower", 20);
     }
 }
 
