@@ -30,7 +30,6 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
-import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.BlockMirror;
@@ -334,7 +333,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
             ((ServerWorld)this.getEntityWorld()).getPlayers().forEach(serverPlayerEntity -> {
                 //If it should play a sound for every player, do it, unless the player is close enough to the original one
-                //TODO test these out
                 if(Config.GLOBAL_EXPLOSION_SOUND && (serverPlayerEntity.getEntityPos().distanceTo(this.getEntityPos()) > 60)){
                     serverPlayerEntity.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), 0.5f, 0.8f);
                 }else if(Config.AREA_EXPLOSION_SOUND){

@@ -154,7 +154,7 @@ public class ExplosionUtils {
             case MOB -> destructionType = world.getGameRules().getValue(GameRules.DO_MOB_GRIEFING) ? getDestructionType(world, GameRules.MOB_EXPLOSION_DROP_DECAY) : Explosion.DestructionType.KEEP;
             case TNT -> destructionType = getDestructionType(world, GameRules.TNT_EXPLOSION_DROP_DECAY);
             case TRIGGER -> destructionType = Explosion.DestructionType.TRIGGER_BLOCK;
-            default -> throw new MatchException((String)null, (Throwable)null);
+            default -> throw new MatchException(null, null);
         }
 
         Vec3d vec3d = new Vec3d(x, y, z);
