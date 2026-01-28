@@ -2,6 +2,7 @@ package me.emafire003.dev.ohmymeteors.compat.perms;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.command.DefaultPermissions;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
 
@@ -27,7 +28,7 @@ public class PermissionsChecker {
     public static Predicate<ServerCommandSource> hasPerms(String permission, int defaultValue) {
         return (source) -> {
             if(!permissions){
-                return source.hasPermissionLevel(2);
+                return source.getPermissions().hasPermission(DefaultPermissions.ADMINS);
             }else {
                 return Permissions.check(source, permission, defaultValue);
             }

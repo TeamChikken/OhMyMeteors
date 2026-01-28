@@ -334,12 +334,13 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
             ((ServerWorld)this.getEntityWorld()).getPlayers().forEach(serverPlayerEntity -> {
                 //If it should play a sound for every player, do it, unless the player is close enough to the original one
+                //TODO test these out
                 if(Config.GLOBAL_EXPLOSION_SOUND && (serverPlayerEntity.getEntityPos().distanceTo(this.getEntityPos()) > 60)){
-                    serverPlayerEntity.playSoundToPlayer(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.BLOCKS, 0.5f, 0.8f);
+                    serverPlayerEntity.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), 0.5f, 0.8f);
                 }else if(Config.AREA_EXPLOSION_SOUND){
                     double dist = serverPlayerEntity.getEntityPos().distanceTo(this.getEntityPos());
                     if(dist < Config.AREA_EXPLOSION_SOUND_RADIUS && dist > 60){
-                        serverPlayerEntity.playSoundToPlayer(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.BLOCKS, 0.5f, 0.8f);
+                        serverPlayerEntity.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), 0.5f, 0.8f);
                     }
                 }
                 ((ServerWorld)this.getEntityWorld()).spawnParticles(serverPlayerEntity, ParticleTypes.EXPLOSION_EMITTER, Config.USE_FORCED_PARTICLES, Config.USE_FORCED_PARTICLES,  this.getX(), this.getY(), this.getZ(), 1, 0.1, 0.1, 0.1, 0.1);

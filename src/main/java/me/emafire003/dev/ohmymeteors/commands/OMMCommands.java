@@ -8,19 +8,18 @@ import net.minecraft.server.command.ServerCommandSource;
 
 public class OMMCommands {
 
-
     //Based on Factions' code https://github.com/ickerio/factions
     public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
         LiteralCommandNode<ServerCommandSource> omm_commands = CommandManager
                 .literal("omm")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(2))
+                .requires(CommandManager.requirePermissionLevel(CommandManager.ADMINS_CHECK))
                 .build();
 
         dispatcher.getRoot().addChild(omm_commands);
 
         LiteralCommandNode<ServerCommandSource> pal_alias = CommandManager
                 .literal("ohmymeteors")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(2))
+                .requires(CommandManager.requirePermissionLevel(CommandManager.ADMINS_CHECK))
                 .build();
 
 

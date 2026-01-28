@@ -17,7 +17,7 @@ import java.util.List;
 public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProjectileEntity, MeteorProjectileRenderState> {
     protected MeteorProjectileEntityModel model;
 
-    public static final Identifier TEXTURE = Identifier.ofVanilla("textures/entity/trident.png");
+    public static final Identifier TEXTURE = OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png");
 
     public MeteorProjectileEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);

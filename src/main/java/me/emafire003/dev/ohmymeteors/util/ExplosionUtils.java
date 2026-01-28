@@ -13,10 +13,11 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.collection.Pool;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import net.minecraft.world.explosion.ExplosionBehavior;
+import net.minecraft.world.rule.GameRule;
+import net.minecraft.world.rule.GameRules;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -127,6 +128,7 @@ public class ExplosionUtils {
                 SoundEvents.ENTITY_GENERIC_EXPLODE
         );
     }
+
     
     public static void createExplosion(
             ServerWorld world,
@@ -144,30 +146,32 @@ public class ExplosionUtils {
             Pool<BlockParticleEffect> blockParticles,
             RegistryEntry<SoundEvent> soundEvent
     ) {
-        Explosion.DestructionType destructionType = switch (explosionSourceType) {
-            case NONE -> Explosion.DestructionType.KEEP;
-            case BLOCK -> getDestructionType(world, GameRules.BLOCK_EXPLOSION_DROP_DECAY);
-            case MOB -> world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)
-                    ? getDestructionType(world, GameRules.MOB_EXPLOSION_DROP_DECAY)
-                    : Explosion.DestructionType.KEEP;
-            case TNT -> getDestructionType(world, GameRules.TNT_EXPLOSION_DROP_DECAY);
-            case TRIGGER -> Explosion.DestructionType.TRIGGER_BLOCK;
-        };
+
+        Explosion.DestructionType destructionType;
+        switch (explosionSourceType) {
+            case NONE -> destructionType = Explosion.DestructionType.KEEP;
+            case BLOCK -> destructionType = getDestructionType(world, GameRules.BLOCK_EXPLOSION_DROP_DECAY);
+            case MOB -> destructionType = world.getGameRules().getValue(GameRules.DO_MOB_GRIEFING) ? getDestructionType(world, GameRules.MOB_EXPLOSION_DROP_DECAY) : Explosion.DestructionType.KEEP;
+            case TNT -> destructionType = getDestructionType(world, GameRules.TNT_EXPLOSION_DROP_DECAY);
+            case TRIGGER -> destructionType = Explosion.DestructionType.TRIGGER_BLOCK;
+            default -> throw new MatchException((String)null, (Throwable)null);
+        }
+
         Vec3d vec3d = new Vec3d(x, y, z);
         SphereExplosion explosionImpl = new SphereExplosion(world, entity, damageSource, behavior, vec3d, power, createFire, destructionType);
         int i = explosionImpl.explode();
         ParticleEffect particleEffect = explosionImpl.isSmall() ? smallParticle : largeParticle;
 
-        for (ServerPlayerEntity serverPlayerEntity : world.getPlayers()) {
-            if (serverPlayerEntity.squaredDistanceTo(vec3d) < 4096.0) {
-                Optional<Vec3d> optional = Optional.ofNullable(explosionImpl.getKnockbackByPlayer().get(serverPlayerEntity));
+        for(ServerPlayerEntity serverPlayerEntity : world.getPlayers()) {
+            if (serverPlayerEntity.squaredDistanceTo(vec3d) < (double)4096.0F) {
+                Optional<Vec3d> optional = Optional.ofNullable((Vec3d)explosionImpl.getKnockbackByPlayer().get(serverPlayerEntity));
                 serverPlayerEntity.networkHandler.sendPacket(new ExplosionS2CPacket(vec3d, power, i, optional, particleEffect, soundEvent, blockParticles));
             }
         }
     }
 
-    private static Explosion.DestructionType getDestructionType(ServerWorld world, GameRules.Key<GameRules.BooleanRule> decayRule) {
-        return world.getGameRules().getBoolean(decayRule) ? Explosion.DestructionType.DESTROY_WITH_DECAY : Explosion.DestructionType.DESTROY;
+    private static Explosion.DestructionType getDestructionType(ServerWorld world, GameRule<Boolean> decayRule) {
+        return world.getGameRules().getValue(decayRule) ? Explosion.DestructionType.DESTROY_WITH_DECAY : Explosion.DestructionType.DESTROY;
     }
 
 }
