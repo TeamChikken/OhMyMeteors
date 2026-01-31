@@ -493,6 +493,11 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             return true;
         }).toList();
 
+        if (structs.isEmpty()){
+            OhMyMeteors.LOGGER.error("The list of structures for size class '" + sizeClass + "' is empty! Check that your structures are valid ones!");
+            structs = List.of(OhMyMeteors.getIdentifier("error"));
+        }
+
         Identifier structure_id = structs.get(this.getWorld().getRandom().nextBetween(0,structs.size()-1));
         //This is to prevent special structures from spawning "before" they should
         //TODO make sure it's not too much of a performance issue
