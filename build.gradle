@@ -1,13 +1,15 @@
 plugins {
-    id 'fabric-loom' version '1.15-SNAPSHOT'
+    id 'fabric-loom' version "${loom_version}"
     id 'maven-publish'
 }
+
 version = project.mod_version
 group = project.maven_group
 
 base {
     archivesName = project.archives_base_name
 }
+
 
 repositories {
     // Add repositories to retrieve artifacts from in here.

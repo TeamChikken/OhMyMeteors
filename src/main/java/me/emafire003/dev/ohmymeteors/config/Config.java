@@ -19,7 +19,7 @@ public class Config {
     public static SimpleConfig CONFIG;
     private static ConfigProvider configs;
 
-    private static final int ver = 4;
+    private static final int ver = 5;
     public static Path FILEPATH;
 
     public static int VERSION;
@@ -131,7 +131,9 @@ public class Config {
     public static int METEOR_SHOWER_CHANCE = 100; //on top of the normal meteor chance. aka a metor drop may become a meteor shower
     public static int MIN_METEORS_IN_SHOWER = 5;
     public static int MAX_METEORS_IN_SHOWER = 20;
-    public static boolean ANNOUNCE_LOCATION = true;
+    public static boolean ANNOUNCE_LOCATION = true; //TODO annouce land location
+    public static boolean ONLY_REPLACE_AIR = false;
+    public static boolean SCATTER_ONLY_REPALCE_AIR = false;
 
 
 
@@ -244,6 +246,9 @@ public class Config {
 
         configs.addKeyValuePair(new Pair<>("meteor_structure", true),"Should meteors spawn the meteor structure after impact?");
         configs.addKeyValuePair(new Pair<>("scatter_meteor_structure", true),"Should the meteors that come out of a bigger meteor when it's broken be able to destroy spawn structures on impact?");
+
+        configs.addKeyValuePair(new Pair<>("only_replace_air", false),"Should the meteor structure only replace air blocks?");
+        configs.addKeyValuePair(new Pair<>("scatter_only_replace_air", true),"Should the meteors that come out of a bigger meteor when it's broken only replace air blocks for their structure?");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
@@ -382,6 +387,8 @@ public class Config {
         METEOR_SHOWER_CHANCE = CONFIG.getOrDefault("meteor_shower_chance", 100);
         MIN_METEORS_IN_SHOWER = CONFIG.getOrDefault("min_meteors_in_shower", 5);
         MAX_METEORS_IN_SHOWER = CONFIG.getOrDefault("max_meteors_in_shower", 20);
+        ONLY_REPLACE_AIR = CONFIG.getOrDefault("only_replace_air", false);
+        SCATTER_ONLY_REPALCE_AIR = CONFIG.getOrDefault("only_repalcer_air_scatter", false);
     }
 }
 

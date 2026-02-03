@@ -4,7 +4,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.commands.argument.MeteorSizeClassArgumentType;
-import me.emafire003.dev.ohmymeteors.util.MeteorSizeClass;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
@@ -32,7 +31,8 @@ public class OMMCommands {
 
         OMMCommand[] commands = new OMMCommand[] {
                 new SpawnMeteorCommand(),
-                new ConfigCommand()
+                new ConfigCommand(),
+                new CustomStructureCommand()
         };
 
         for (OMMCommand command : commands) {
