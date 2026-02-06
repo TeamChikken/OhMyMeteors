@@ -91,7 +91,7 @@ public class OhMyMeteors implements ModInitializer {
 		 METEOR_STRUCTURES.remove(getIdentifier("error"));
 
 		//this allows to have "ignore_<structure>" to "remove" a default structure with a datapack
-		//or "ingnoreall" to have it remove all the structures
+		//or "ignoredefault" to have it remove all the structures
 		List<Identifier> structures_copy = new ArrayList<>(METEOR_STRUCTURES);
 
 		//the stream is to avoid concurrent modification exception
@@ -109,7 +109,7 @@ public class OhMyMeteors implements ModInitializer {
 				}
 
 			}
-			if(id.getPath().contains("ignoredefault")){
+			if(id.getPath().contains("ignoredefault") || id.getPath().contains("ignoredefaults")){
 				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("big/special/big_meteor_cat"));
 				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("big/big_meteor_0"));
 				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("big/big_meteor_1"));
