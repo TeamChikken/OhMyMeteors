@@ -3,6 +3,7 @@ package me.emafire003.dev.ohmymeteors.commands;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -103,6 +104,87 @@ public class CustomStructureCommand implements OMMCommand {
         }
     }
 
+    //TODO finish (needs messages and what to do in case the move gives some errors
+    private int edit(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        try{
+            String og_structureId = StringArgumentType.getString(context, "originalName");
+            MeteorSizeClass og_size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "ogSizeClass");
+            boolean og_special = BoolArgumentType.getBool(context, "ogSpecial");
+            String new_structureId = StringArgumentType.getString(context, "newName");
+            MeteorSizeClass new_size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "newSizeClass");
+            boolean new_special = BoolArgumentType.getBool(context, "newSpecial");
+
+            //Generates the datapack folders
+            generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS));
+
+            String og_struct_id = "/"+og_size.asString()+"/"+ og_structureId+".nbt";
+            if(og_special){
+                og_struct_id = "/"+og_size.asString()+"/special/"+ og_structureId+".nbt";
+            }
+
+            String new_struct_id = "/"+new_size.asString()+"/"+ new_structureId+".nbt";
+            if(new_special){
+                new_struct_id = "/"+new_size.asString()+"/special/"+ new_structureId+".nbt";
+            }
+
+            if(!Files.exists(Path.of(PACK_DIR_STRUCTURE + og_struct_id))){
+                context.getSource().sendError(Text.literal("hey file doesn't exist"));
+                return 0;
+            }
+
+            //copies the structure file from the generated directory into the datapack folder. sends error if the file already exists
+            try{
+                Files.move(Path.of(PACK_DIR_STRUCTURE + og_struct_id),
+                        Path.of(PACK_DIR_STRUCTURE + new_struct_id));
+
+            }catch (FileAlreadyExistsException e){
+                //context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", structureId.getPath())));
+                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.already_present")));
+                return 0;
+            }
+
+            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.reload")));
+
+            return 1;
+        }catch (Exception e){
+            Identifier structureId = IdentifierArgumentType.getIdentifier(context, "originalName");
+            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", structureId.getPath())));
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    private int ignoreDefaults(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        try{
+            boolean activate = BoolArgumentType.getBool(context, "ignore");
+
+            //Generates the datapack folders
+            generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS));
+
+            if(activate){
+                //TODO note (so not actually a todo): this could also be used to get the path of a structure file.
+                //Path path = context.getSource().getWorld().getStructureTemplateManager().getTemplatePath(OhMyMeteors.getIdentifier("error"), ".nbt");
+
+                //TODO write in the changelog/wiki that the ignore_thing can just be any file. aslo maybe update the default datapack thingy
+                try{
+                    Files.createFile(Path.of(PACK_DIR_STRUCTURE + "/ignoredefault.nbt"));
+                    context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.ignoredefaults.on")));
+                }catch (FileAlreadyExistsException e){
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.ignoredefaults.already_on")));
+                    return 0;
+                }
+            }else{
+                Files.deleteIfExists(Path.of(PACK_DIR_STRUCTURE + "/ignoredefault.nbt"));
+                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.ignoredefaults.off")));
+            }
+            return 1;
+        }catch (Exception e){
+            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.ignoredefaults.failed")));
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     public static Path PACK_DIR_STRUCTURE;
 
     //TODO remember to update this for 1.20.1 and below!
@@ -168,7 +250,25 @@ public class CustomStructureCommand implements OMMCommand {
                         CommandManager.literal("ignoredefaults")
                                 .then(
                                         CommandManager.argument("ignore", BoolArgumentType.bool())
-                                                .executes(this::addStructure)
+                                                .executes(this::ignoreDefaults)
+                                )
+                )
+                .then(
+                        CommandManager.literal("edit")
+                                .then(
+                                        CommandManager.argument("originalName", StringArgumentType.string())
+                                                .then(
+                                                        CommandManager.argument("ogSizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
+                                                                .then(CommandManager.argument("ogSpecial", BoolArgumentType.bool())
+                                                                        .then(CommandManager.argument("newName", StringArgumentType.string())
+                                                                                .then(CommandManager.argument("newSizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
+                                                                                        .then(CommandManager.argument("newSpecial", BoolArgumentType.bool())
+                                                                                                .executes(this::edit)
+                                                                                        )
+                                                                                )
+                                                                        )
+                                                                )
+                                                )
                                 )
                 )
                 .build();
