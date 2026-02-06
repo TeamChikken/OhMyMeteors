@@ -52,8 +52,8 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	//StructurePlacerAPI (to spawn the meteor structure on impact)
-	include(modImplementation "maven.modrinth:structureplacerapi:${project.structureplacerapi_version}")
+    //StructurePlacerAPI (to spawn the meteor structure on impact)
+    include(modImplementation "maven.modrinth:structureplacerapi:${project.structureplacerapi_version}")
 
 	//ParticleAnimationLib for cool particle effects
 	include(modImplementation "maven.modrinth:particleanimationlib:${project.pal_version}")
