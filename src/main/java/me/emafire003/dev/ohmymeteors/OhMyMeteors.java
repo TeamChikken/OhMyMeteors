@@ -36,7 +36,7 @@ public class OhMyMeteors implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static Path PATH = Path.of(FabricLoader.getInstance().getConfigDir() + "/" + MOD_ID + "/");
 
-	public static String PREFIX = "[Oh My, Meteors!] ";
+	public static String PREFIX = "§8[Oh My, Meteors!] §r";
 
 	//Dunno, 14 is the enderpearl thingy sooo
 	public static final ChunkTicketType METEOR_CHUCK_TICKET = Registry.register(Registries.TICKET_TYPE, OhMyMeteors.MOD_ID+":meteor", new ChunkTicketType(5*20, 14));
