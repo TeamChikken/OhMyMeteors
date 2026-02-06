@@ -34,7 +34,7 @@ public class OhMyMeteors implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static Path PATH = Path.of(FabricLoader.getInstance().getConfigDir() + "/" + MOD_ID + "/");
 
-	public static String PREFIX = "[Oh My, Meteors!] ";
+	public static String PREFIX = "§8[Oh My, Meteors!] §r";
 
 	public static Identifier getIdentifier(String path){
 		return Identifier.of(MOD_ID, path);
