@@ -580,6 +580,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     private int travelledBlocks = 0;
     private Vec3d explosionPos = null;
 
+    //TODO the small meteors embed too much into the terrain
+
     /// This is the main method which does the meteor stuff on impact
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
