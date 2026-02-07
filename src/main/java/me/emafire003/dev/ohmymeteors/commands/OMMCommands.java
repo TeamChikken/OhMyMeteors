@@ -3,6 +3,7 @@ package me.emafire003.dev.ohmymeteors.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentType;
 import me.emafire003.dev.ohmymeteors.commands.argument.MeteorSizeClassArgumentType;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.minecraft.command.CommandRegistryAccess;
@@ -43,6 +44,7 @@ public class OMMCommands {
 
     public static void registerArguments(){
         ArgumentTypeRegistry.registerArgumentType(OhMyMeteors.getIdentifier("meteor_size_class"), MeteorSizeClassArgumentType.class, ConstantArgumentSerializer.of(MeteorSizeClassArgumentType::meteorSizeClass));
+        ArgumentTypeRegistry.registerArgumentType(OhMyMeteors.getIdentifier("meteor_shower_type"), MeteorShowerTypeArgumentType.class, ConstantArgumentSerializer.of(MeteorShowerTypeArgumentType::meteorShowerType));
 
     }
 }
