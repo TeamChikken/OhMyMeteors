@@ -403,7 +403,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
             Identifier tobeplaced = getStructureToPlace("small");
-            m_pos_offset = getOffset(new BlockPos(-1, -1, -1), tobeplaced);
+            m_pos_offset = getOffset(new BlockPos(-1, 0, -1), tobeplaced);
 
 
             placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
@@ -480,7 +480,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }else{
 
         }*/
-        BlockPos nonair_pos = BlockPos.ofFloored(this.getEntityPos()).add(0, -(int) size_factors.getY()/3, 0);
+        //This is the one used for "small" meteors
+        BlockPos nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
         if(tobeplaced.getPath().startsWith("big")){
             nonair_pos = BlockPos.ofFloored(this.getEntityPos()).add(0, -(int) size_factors.getY()/10, 0);
             if(this.getPitch() < 27){
@@ -776,7 +777,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
         if(Config.ANNOUNCE_METEOR_SPAWN && !silenced){
             if(Config.ANNOUNCE_LOCATION){
-                String meteorPos = String.valueOf(meteor.getBlockPos().getX()) + " x, " + String.valueOf(meteor.getBlockPos().getZ()) + " z!";
+                String meteorPos = meteor.getBlockPos().getX() + " x, " + meteor.getBlockPos().getZ() + " z!";
                 world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message+".localized", meteorPos).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }else{
                 world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
@@ -795,7 +796,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         String message = "message.ohmymeteors.meteor_shower_spawned";
         if(Config.ANNOUNCE_METEOR_SPAWN){
             if(Config.ANNOUNCE_LOCATION){
-                String pos = String.valueOf(p.getBlockPos().getX()) + " x, " + String.valueOf(p.getBlockPos().getZ()) + " z!";
+                String pos = p.getBlockPos().getX() + " x, " + p.getBlockPos().getZ() + " z!";
                 world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message+".localized", pos).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }else{
                 world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
