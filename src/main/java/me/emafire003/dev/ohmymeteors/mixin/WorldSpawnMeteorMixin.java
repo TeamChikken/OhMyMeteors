@@ -2,6 +2,8 @@ package me.emafire003.dev.ohmymeteors.mixin;
 
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
+import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -67,13 +69,13 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
 
         RegistryEntry<DimensionType> current_dim = p.getWorld().getDimensionEntry();
 
-        if(!MeteorProjectileEntity.canSpawnInDimension(current_dim)){
+        if(!MeteorUtils.canSpawnInDimension(current_dim)){
             return;
         }
 
         RegistryEntry<Biome> current_biome = p.getWorld().getBiome(p.getBlockPos());
 
-        if(!MeteorProjectileEntity.canSpawnInBiome(current_biome)){
+        if(!MeteorUtils.canSpawnInBiome(current_biome)){
             return;
         }
 
@@ -106,18 +108,18 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
                 if(this.getRandom().nextBetween(0, Config.METEOR_SHOWER_CHANCE) == 0){
                     int r = this.getRandom().nextBetween(1, 2);
                     if(r == 1){
-                        spawnMeteorShowerDelayed(((ServerWorld) (Object) this), p);
+                        MeteorUtils.spawnMeteorShowerDelayed(((ServerWorld) (Object) this), p);
                     }else if(r==2){
-                        spawnMeteorShowerDelayedDirection(((ServerWorld) (Object) this), p);
+                        MeteorUtils.spawnMeteorShowerDelayedDirection(((ServerWorld) (Object) this), p);
                     }else{
-                        spawnMeteorShowerInstant(((ServerWorld) (Object) this), p);
+                        MeteorUtils.spawnMeteorShowerInstant(((ServerWorld) (Object) this), p);
                     }
 
                 }else{
-                    spawnMeteor(((ServerWorld) (Object) this), p, false);
+                    MeteorUtils.spawnMeteor(((ServerWorld) (Object) this), p, false);
                 }
             }else{
-                spawnMeteor(((ServerWorld) (Object) this), p, false);
+                MeteorUtils.spawnMeteor(((ServerWorld) (Object) this), p, false);
             }
 
             if(Config.SHOULD_COOLDOWN_BETWEEN_METEORS){
