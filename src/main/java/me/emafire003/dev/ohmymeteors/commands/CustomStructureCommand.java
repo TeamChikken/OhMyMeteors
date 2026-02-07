@@ -128,7 +128,7 @@ public class CustomStructureCommand implements OMMCommand {
 
             if(!Files.exists(Path.of(PACK_DIR_STRUCTURE + og_struct_id))){
                 if(og_special){
-                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.file_not_found", og_structureId, og_size.toString(), "✓")));
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.file_not_found", og_structureId, og_size.toString(), "✔")));
                 }else{
                     context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.file_not_found", og_structureId, og_size.toString(), "x")));
                 }
