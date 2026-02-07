@@ -32,8 +32,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-import static me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity.spawnMeteor;
-import static me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity.spawnMeteorShower;
+import static me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity.*;
 
 //(there would be a way to like list all of the loaded chunks but it seems a bit impractical when we can just target a random online player)
 @Mixin(ServerWorld.class)
@@ -124,7 +123,15 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
         if(this.getRandom().nextBetween(0, chance) == 0){
             if(Config.METEOR_SHOWERS_ENABLED){
                 if(this.getRandom().nextBetween(0, Config.METEOR_SHOWER_CHANCE) == 0){
-                    spawnMeteorShower(((ServerWorld) (Object) this), p);
+                    int r = this.getRandom().nextBetween(1, 2);
+                    if(r == 1){
+                        spawnMeteorShowerDelayed(((ServerWorld) (Object) this), p);
+                    }else if(r==2){
+                        spawnMeteorShowerDelayedDirection(((ServerWorld) (Object) this), p);
+                    }else{
+                        spawnMeteorShowerInstant(((ServerWorld) (Object) this), p);
+                    }
+
                 }else{
                     spawnMeteor(((ServerWorld) (Object) this), p, false);
                 }
