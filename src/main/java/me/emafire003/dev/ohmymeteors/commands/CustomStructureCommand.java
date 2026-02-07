@@ -104,7 +104,6 @@ public class CustomStructureCommand implements OMMCommand {
         }
     }
 
-    //TODO finish (needs messages and what to do in case the move gives some errors
     private int edit(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         try{
             String og_structureId = StringArgumentType.getString(context, "originalName");
@@ -128,7 +127,11 @@ public class CustomStructureCommand implements OMMCommand {
             }
 
             if(!Files.exists(Path.of(PACK_DIR_STRUCTURE + og_struct_id))){
-                context.getSource().sendError(Text.literal("hey file doesn't exist"));
+                if(og_special){
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.file_not_found", og_structureId, og_size.toString(), "✓")));
+                }else{
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.file_not_found", og_structureId, og_size.toString(), "x")));
+                }
                 return 0;
             }
 
@@ -136,10 +139,16 @@ public class CustomStructureCommand implements OMMCommand {
             try{
                 Files.move(Path.of(PACK_DIR_STRUCTURE + og_struct_id),
                         Path.of(PACK_DIR_STRUCTURE + new_struct_id));
+                if(new_special){
+                    context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.success", og_structureId, new_structureId, new_size.toString())
+                            .append(Text.translatable("command.ohmymeteors.custom.special"))));
+                }else{
+                    context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.success", og_structureId, new_structureId, new_size.toString())
+                            .append(Text.translatable("command.ohmymeteors.custom.not_special"))));
+                }
 
             }catch (FileAlreadyExistsException e){
-                //context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", structureId.getPath())));
-                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.already_present")));
+                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.dest_file_already_exists", new_structureId)));
                 return 0;
             }
 
@@ -147,8 +156,8 @@ public class CustomStructureCommand implements OMMCommand {
 
             return 1;
         }catch (Exception e){
-            Identifier structureId = IdentifierArgumentType.getIdentifier(context, "originalName");
-            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", structureId.getPath())));
+            String name = StringArgumentType.getString(context, "originalName");
+            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.failed", name)));
             e.printStackTrace();
             return 0;
         }
