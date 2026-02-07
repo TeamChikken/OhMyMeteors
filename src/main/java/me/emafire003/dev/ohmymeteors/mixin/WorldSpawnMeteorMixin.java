@@ -3,7 +3,7 @@ package me.emafire003.dev.ohmymeteors.mixin;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
-import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
+import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -29,7 +29,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
-import static me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity.*;
 
 //(there would be a way to like list all of the loaded chunks but it seems a bit impractical when we can just target a random online player)
 @Mixin(ServerWorld.class)
@@ -82,13 +81,13 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
 
         RegistryEntry<DimensionType> current_dim = p.getEntityWorld().getDimensionEntry();
 
-        if(!MeteorProjectileEntity.canSpawnInDimension(current_dim)){
+        if(!MeteorUtils.canSpawnInDimension(current_dim)){
             return;
         }
 
         RegistryEntry<Biome> current_biome = p.getEntityWorld().getBiome(p.getBlockPos());
 
-        if(!MeteorProjectileEntity.canSpawnInBiome(current_biome)){
+        if(!MeteorUtils.canSpawnInBiome(current_biome)){
             return;
         }
 
@@ -121,18 +120,18 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
                 if(this.getRandom().nextBetween(0, Config.METEOR_SHOWER_CHANCE) == 0){
                     int r = this.getRandom().nextBetween(1, 2);
                     if(r == 1){
-                        spawnMeteorShowerDelayed(((ServerWorld) (Object) this), p);
+                        MeteorUtils.spawnMeteorShowerDelayed(((ServerWorld) (Object) this), p);
                     }else if(r==2){
-                        spawnMeteorShowerDelayedDirection(((ServerWorld) (Object) this), p);
+                        MeteorUtils.spawnMeteorShowerDelayedDirection(((ServerWorld) (Object) this), p);
                     }else{
-                        spawnMeteorShowerInstant(((ServerWorld) (Object) this), p);
+                        MeteorUtils.spawnMeteorShowerInstant(((ServerWorld) (Object) this), p);
                     }
 
                 }else{
-                    spawnMeteor(((ServerWorld) (Object) this), p, false);
+                    MeteorUtils.spawnMeteor(((ServerWorld) (Object) this), p, false);
                 }
             }else{
-                spawnMeteor(((ServerWorld) (Object) this), p, false);
+                MeteorUtils.spawnMeteor(((ServerWorld) (Object) this), p, false);
             }
 
             if(Config.SHOULD_COOLDOWN_BETWEEN_METEORS){

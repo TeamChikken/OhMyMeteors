@@ -13,6 +13,7 @@ import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.util.MeteorShowerType;
+import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -40,8 +41,8 @@ public class SpawnMeteorCommand implements OMMCommand {
 
             MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(source.getWorld());
             meteorProjectile.setPos(
-                    source.getPlayer().getX()+source.getPlayer().getRandom().nextBetween(0, 50)*source.getPlayer().getRandom().nextBetween(-1, 1), 
-                    source.getPlayer().getEyeY()+source.getPlayer().getRandom().nextBetween(0, 50)*source.getPlayer().getRandom().nextBetween(-1, 1), 
+                    source.getPlayer().getX()+source.getPlayer().getRandom().nextBetween(0, 50)*source.getPlayer().getRandom().nextBetween(-1, 1),
+                    source.getPlayer().getEyeY()+source.getPlayer().getRandom().nextBetween(0, 50)*source.getPlayer().getRandom().nextBetween(-1, 1),
                     source.getPlayer().getZ()+source.getPlayer().getRandom().nextBetween(0, 50)*source.getPlayer().getRandom().nextBetween(-1, 1)
             );
 
@@ -124,13 +125,13 @@ public class SpawnMeteorCommand implements OMMCommand {
 
         RegistryEntry<DimensionType> current_dim = p.getEntityWorld().getDimensionEntry();
 
-        if(!MeteorProjectileEntity.canSpawnInDimension(current_dim)){
+        if(!MeteorUtils.canSpawnInDimension(current_dim)){
             return false;
         }
 
         RegistryEntry<Biome> current_biome = p.getEntityWorld().getBiome(p.getBlockPos());
 
-        if(!MeteorProjectileEntity.canSpawnInBiome(current_biome)){
+        if(!MeteorUtils.canSpawnInBiome(current_biome)){
             return false;
         }
         return true;
@@ -150,7 +151,7 @@ public class SpawnMeteorCommand implements OMMCommand {
 
            ServerPlayerEntity p = source.getWorld().getRandomAlivePlayer();
            if(spawnChecks(p)){
-               MeteorProjectileEntity.spawnMeteor(source.getWorld(), p, false);
+               MeteorUtils.spawnMeteor(source.getWorld(), p, false);
            }else{
                source.sendError(Text.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
                return 0;
@@ -176,11 +177,11 @@ public class SpawnMeteorCommand implements OMMCommand {
             ServerPlayerEntity p = source.getWorld().getRandomAlivePlayer();
             if(spawnChecks(p)){
                 if(type.equals(MeteorShowerType.DELAYED)){
-                    MeteorProjectileEntity.spawnMeteorShowerDelayed(source.getWorld(), p);
+                    MeteorUtils.spawnMeteorShowerDelayed(source.getWorld(), p);
                 }else if(type.equals(MeteorShowerType.DELAYED_DIRECTION)){
-                    MeteorProjectileEntity.spawnMeteorShowerDelayedDirection(source.getWorld(), Objects.requireNonNull(p));
+                    MeteorUtils.spawnMeteorShowerDelayedDirection(source.getWorld(), Objects.requireNonNull(p));
                 }else{
-                    MeteorProjectileEntity.spawnMeteorShowerInstant(source.getWorld(), p);
+                    MeteorUtils.spawnMeteorShowerInstant(source.getWorld(), p);
                 }
             }else{
                 source.sendError(Text.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
