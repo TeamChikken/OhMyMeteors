@@ -30,8 +30,10 @@ import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -50,7 +52,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.METEOR_STRUCTURES;
 
-
 /**
  * The projectile entity that gets spawned as a meteor.
  * Upon hitting a block which is not air, it will execute the on-hit actions
@@ -63,6 +64,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     /// Aka a meteor that is a result of the {@link #detonateScatter()} method
     protected boolean isScatterMeteor = false;
 
+    /// Weather or not the meteor should be announced in chat (used for example in the meteor showers)
+    protected boolean isSilenced = false;
 
     public MeteorProjectileEntity(EntityType<? extends ExplosiveProjectileEntity> entityType, World world) {
         super(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
@@ -247,7 +250,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }
     }
 
-    /** The sphere explposion is a little weaker than the vanilla one, so adjustment may be needed to have a niceer effect*/
+    /** The sphere explosion is a little weaker than the vanilla one, so adjustment may be needed to have a niceer effect*/
     private int sphereExplosionAdjuster(){
         int adjust = 0;
         if(this.getSize() > 3){
@@ -285,6 +288,14 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
                     this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, World.ExplosionSourceType.TNT);
                 }
             }
+
+            if(Config.ANNOUNCE_METEOR_SPAWN && !this.isSilenced()){
+                if(Config.ANNOUNCE_LOCATION){
+                    String meteorPos = this.getBlockPos().getX() + " x, " + this.getBlockPos().getZ() + " z!";
+                    this.getWorld().getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_impacted.localized", meteorPos).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                }
+            }
+
             this.discard();
             return;
         }
@@ -314,6 +325,12 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             });
         }
 
+        if(Config.ANNOUNCE_METEOR_SPAWN && !this.isSilenced()){
+            if(Config.ANNOUNCE_LOCATION){
+                String meteorPos = this.getBlockPos().getX() + " x, " + this.getBlockPos().getZ() + " z!";
+                this.getWorld().getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_impacted.localized", meteorPos).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+            }
+        }
         //entity.getWorld().addParticle(ParticleTypes.FLASH, pos.getX(), pos.getY(), pos.getZ(), 0,0,0);
         this.discard();
     }
@@ -686,5 +703,13 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     @Override
     public boolean shouldRender(double cameraX, double cameraY, double cameraZ) {
         return true;
+    }
+
+    public boolean isSilenced() {
+        return isSilenced;
+    }
+
+    public void setSilenced(boolean silenced) {
+        isSilenced = silenced;
     }
 }

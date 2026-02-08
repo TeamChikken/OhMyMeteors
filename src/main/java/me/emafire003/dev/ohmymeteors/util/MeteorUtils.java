@@ -137,6 +137,8 @@ public class MeteorUtils {
         MeteorProjectileEntity meteor = getDownwardsMeteor(p.getPos(), world.toServerWorld(),
                 Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS);
 
+        meteor.setSilenced(silenced);
+
         String message;
 
         if(Config.SPAWN_HUGE_METEORS){
@@ -153,7 +155,7 @@ public class MeteorUtils {
             message = "message.ohmymeteors.meteor_spawned";
         }
 
-        if(Config.ANNOUNCE_METEOR_SPAWN && !silenced){
+        if(Config.ANNOUNCE_METEOR_SPAWN && !meteor.isSilenced()){
             if(Config.ANNOUNCE_LOCATION){
                 String meteorPos = meteor.getBlockPos().getX() + " x, " + meteor.getBlockPos().getZ() + " z!";
                 world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message+".localized", meteorPos).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
@@ -161,7 +163,6 @@ public class MeteorUtils {
                 world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }
         }
-
 
         world.spawnEntity(meteor);
     }
