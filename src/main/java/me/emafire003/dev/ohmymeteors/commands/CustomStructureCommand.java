@@ -10,10 +10,13 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.commands.argument.MeteorSizeClassArgumentType;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
+import me.emafire003.dev.ohmymeteors.compat.schemconvert.SchemConvertCompat;
+import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.mixin.MinecraftServerSessionAccessor;
 import me.emafire003.dev.ohmymeteors.util.MeteorSizeClass;
 import me.emafire003.dev.ohmymeteors.util.packutils.PackMeta;
 import me.emafire003.dev.ohmymeteors.util.packutils.PackUtilThing;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.server.command.CommandManager;
@@ -23,12 +26,14 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 public class CustomStructureCommand implements OMMCommand {
 
@@ -75,8 +80,70 @@ public class CustomStructureCommand implements OMMCommand {
         }
     }
 
-    //TODO add a rename thingy
-    // TODO add command to add the ignorefiles thingy
+    private int addStructureWE(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        try{
+            String schemId = StringArgumentType.getString(context, "schemId");
+            MeteorSizeClass size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "sizeClass");
+            boolean special = BoolArgumentType.getBool(context, "special");
+
+            if(Config.SCHEMCONVERT_PRESENT){
+                //the path where worldedit schematics are stored
+                Path we_schempath = Path.of(FabricLoader.getInstance().getConfigDir().normalize().toString()+"/worldedit/schematics/");
+
+                schemId = schemId.replaceAll(".schem", "");
+
+                String struct_id = "/"+size.asString()+"/"+ schemId+".nbt";
+                if(special){
+                    struct_id = "/"+size.asString()+"/special/"+ schemId+".nbt";
+                }
+
+                //Generates the datapack folders
+                try {
+                    generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                    return 0;
+                }
+
+                //copies the structure file from the generated directory into the datapack folder. sends error if the file already exists
+                try{
+                    if(Files.exists(Path.of(PACK_DIR_STRUCTURE + struct_id))){
+                        context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                        context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.already_present")));
+                        return 0;
+                    }
+                    SchemConvertCompat.convertToNbt(new File(we_schempath+ "/" +schemId+".schem"), Path.of(PACK_DIR_STRUCTURE + struct_id).toFile());
+                }catch (FileAlreadyExistsException e){
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.already_present")));
+                    return 0;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                }
+
+                if(special){
+                    context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.success", schemId, size.asString()).append(Text.translatable("command.ohmymeteors.custom.special"))));
+                }else{
+                    context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.success", schemId, size.asString())));
+                }
+                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.reload")));
+
+                return 1;
+            }else{
+                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX)
+                        .append(Text.literal("If you want to use WE .schem files you need to download SchemConvert and put it the mods folder and the change the corresponding setting in the OMM config file to true")));
+            }
+            return 1;
+        }catch (Exception e){
+            String schemId = StringArgumentType.getString(context, "schemId");
+            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
 
     private int removeStructure(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         try{
@@ -240,6 +307,18 @@ public class CustomStructureCommand implements OMMCommand {
                                                                         .executes(this::addStructure)
                                                                 )
                                                 )
+                                )
+                                .then(
+                                        CommandManager.literal("worldedit_schematic").then(
+                                                CommandManager.argument("schemId", StringArgumentType.string())
+                                                        .then(
+                                                                CommandManager.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
+                                                                        .then(CommandManager.argument("special", BoolArgumentType.bool())
+                                                                                .executes(this::addStructureWE)
+                                                                        )
+                                                        )
+                                        )
+
                                 )
                 )
                 .then(
