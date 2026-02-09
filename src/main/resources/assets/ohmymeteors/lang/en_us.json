@@ -42,7 +42,6 @@
   "command.ohmymeteors.custom.edit.dest_file_already_exists": "A file with the name '%s' already exits in the destination (size and special) you have specified!",
   "command.ohmymeteors.custom.edit.failed": "Failed to edit '%s', check the logs!",
 
-
   "audio.ohmymeteors.laser_fire": "Meteor Laser fired!",
   "audio.ohmymeteors.laser_area_on": "Showing laser target area!",
   "audio.ohmymeteors.laser_area_off": "Stop showing laser target area!"
