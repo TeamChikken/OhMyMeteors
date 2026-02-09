@@ -21,6 +21,8 @@ import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
@@ -33,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 
 public class CustomStructureCommand implements OMMCommand {
 
@@ -56,6 +57,11 @@ public class CustomStructureCommand implements OMMCommand {
 
             //copies the structure file from the generated directory into the datapack folder. sends error if the file already exists
             try{
+                if(!Files.exists(Path.of(generated_path+"/minecraft/structures/" + structureId.getPath()+".nbt"))){
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.origin_not_found", structureId.getPath()+".nbt")));
+                    OhMyMeteors.LOGGER.warn("The path in which the file was searched: " + Path.of(generated_path+"/minecraft/structures/" + structureId.getPath()+".nbt"));
+                    return 0;
+                }
                 Files.copy(Path.of(generated_path+"/minecraft/structures/" + structureId.getPath()+".nbt"),
                         Path.of(PACK_DIR_STRUCTURE + struct_id));
             }catch (FileAlreadyExistsException e){
@@ -86,15 +92,16 @@ public class CustomStructureCommand implements OMMCommand {
             MeteorSizeClass size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "sizeClass");
             boolean special = BoolArgumentType.getBool(context, "special");
 
-            if(Config.SCHEMCONVERT_PRESENT){
+            if(Config.SCHEMCONVERT_PRESENT || FabricLoader.getInstance().isDevelopmentEnvironment()){
                 //the path where worldedit schematics are stored
                 Path we_schempath = Path.of(FabricLoader.getInstance().getConfigDir().normalize().toString()+"/worldedit/schematics/");
 
-                schemId = schemId.replaceAll(".schem", "");
+                //TODO test the thing here if it works
+                schemId = schemId.replaceAll("\\.schem", "");
 
-                String struct_id = "/"+size.asString()+"/"+ schemId+".nbt";
+                String struct_id = "/"+size.asString()+"/"+ schemId.toLowerCase()+".nbt";
                 if(special){
-                    struct_id = "/"+size.asString()+"/special/"+ schemId+".nbt";
+                    struct_id = "/"+size.asString()+"/special/"+ schemId.toLowerCase()+".nbt";
                 }
 
                 //Generates the datapack folders
@@ -111,6 +118,11 @@ public class CustomStructureCommand implements OMMCommand {
                     if(Files.exists(Path.of(PACK_DIR_STRUCTURE + struct_id))){
                         context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
                         context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.already_present")));
+                        return 0;
+                    }
+                    if(!Files.exists(Path.of(we_schempath+ "/" +schemId+".schem"))){
+                        context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.origin_not_found", schemId+".schem")));
+                        OhMyMeteors.LOGGER.warn("The path in which the file was searched: " + Path.of(we_schempath+ "/" +schemId+".schem"));
                         return 0;
                     }
                     SchemConvertCompat.convertToNbt(new File(we_schempath+ "/" +schemId+".schem"), Path.of(PACK_DIR_STRUCTURE + struct_id).toFile());
@@ -133,9 +145,87 @@ public class CustomStructureCommand implements OMMCommand {
                 return 1;
             }else{
                 context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX)
-                        .append(Text.literal("If you want to use WE .schem files you need to download SchemConvert and put it the mods folder and the change the corresponding setting in the OMM config file to true")));
+                        .append(Text.translatable("command.ohmymeteors.custom.add.3dpary_schems", "WorldEdit §7.schem§r")));
+                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX)
+                        .append(Text.translatable("command.ohmymeteors.custom.add.schemconvert_link")
+                                .setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
+                                        "https://github.com/PiTheGuy/SchemConvert/releases")))));
+                return 0;
             }
-            return 1;
+        }catch (Exception e){
+            String schemId = StringArgumentType.getString(context, "schemId");
+            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    private int addStructureLitematica(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        try{
+            String schemId = StringArgumentType.getString(context, "schemId");
+            MeteorSizeClass size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "sizeClass");
+            boolean special = BoolArgumentType.getBool(context, "special");
+
+            //TODO remove false
+            if(Config.SCHEMCONVERT_PRESENT || FabricLoader.getInstance().isDevelopmentEnvironment() && false){
+                //the path where litematica schematics are stored
+                Path lm_schempath = Path.of(FabricLoader.getInstance().getConfigDir().getParent().normalize().toString()+"/schematics/");
+
+                schemId = schemId.replaceAll("\\.litematic", "");
+
+                String struct_id = "/"+size.asString()+"/"+ schemId.toLowerCase()+".nbt";
+                if(special){
+                    struct_id = "/"+size.asString()+"/special/"+ schemId.toLowerCase()+".nbt";
+                }
+
+                //Generates the datapack folders
+                try {
+                    generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                    return 0;
+                }
+
+                //copies the structure file from the generated directory into the datapack folder. sends error if the file already exists
+                try{
+                    if(Files.exists(Path.of(PACK_DIR_STRUCTURE + struct_id))){
+                        context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                        context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.already_present")));
+                        return 0;
+                    }
+                    if(!Files.exists(Path.of(lm_schempath+ "/" +schemId+".litematic"))){
+                        context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.origin_not_found", schemId+".litematic")));
+                        OhMyMeteors.LOGGER.warn("The path in which the file was searched: " + Path.of(lm_schempath+ "/" +schemId+".litematic"));
+                        return 0;
+                    }
+                    SchemConvertCompat.convertToNbt(new File(lm_schempath+ "/" +schemId+".litematic"), Path.of(PACK_DIR_STRUCTURE + struct_id).toFile());
+                }catch (FileAlreadyExistsException e){
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.already_present")));
+                    return 0;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                }
+
+                if(special){
+                    context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.success", schemId, size.asString()).append(Text.translatable("command.ohmymeteors.custom.special"))));
+                }else{
+                    context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.success", schemId, size.asString())));
+                }
+                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.reload")));
+
+                return 1;
+            }else{
+                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX)
+                        .append(Text.translatable("command.ohmymeteors.custom.add.3dpary_schems", "Litematica §7.litematic§r")));
+                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX)
+                        .append(Text.translatable("command.ohmymeteors.custom.add.schemconvert_link")
+                                .setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
+                                        "https://github.com/PiTheGuy/SchemConvert/releases")))));
+                return 0;
+            }
         }catch (Exception e){
             String schemId = StringArgumentType.getString(context, "schemId");
             context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
@@ -299,25 +389,41 @@ public class CustomStructureCommand implements OMMCommand {
                 .then(
                         CommandManager.literal("add")
                                 .then(
-                                        CommandManager.argument("structureId", IdentifierArgumentType.identifier()
-                                                )
-                                                .then(
-                                                        CommandManager.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
-                                                                .then(CommandManager.argument("special", BoolArgumentType.bool())
-                                                                        .executes(this::addStructure)
-                                                                )
-                                                )
-                                )
-                                .then(
-                                        CommandManager.literal("worldedit_schematic").then(
-                                                CommandManager.argument("schemId", StringArgumentType.string())
+                                        CommandManager.literal("structureblock").then(
+                                                CommandManager.argument("structureId", IdentifierArgumentType.identifier()
+                                                        )
                                                         .then(
                                                                 CommandManager.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
                                                                         .then(CommandManager.argument("special", BoolArgumentType.bool())
-                                                                                .executes(this::addStructureWE)
+                                                                                .executes(this::addStructure)
                                                                         )
                                                         )
                                         )
+                                )
+                                .then(
+                                        CommandManager.literal("worldedit_schematic")
+                                                .then(
+                                                        CommandManager.argument("schemId", StringArgumentType.string())
+                                                                .then(
+                                                                        CommandManager.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
+                                                                                .then(CommandManager.argument("special", BoolArgumentType.bool())
+                                                                                        .executes(this::addStructureWE)
+                                                                        )
+                                                        )
+                                        )
+
+                                )
+                                .then(
+                                        CommandManager.literal("litematica_schematic")
+                                                .then(
+                                                        CommandManager.argument("schemId", StringArgumentType.string())
+                                                                .then(
+                                                                        CommandManager.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
+                                                                                .then(CommandManager.argument("special", BoolArgumentType.bool())
+                                                                                        .executes(this::addStructureLitematica)
+                                                                                )
+                                                                )
+                                                )
 
                                 )
                 )
