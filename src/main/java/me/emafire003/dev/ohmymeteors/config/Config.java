@@ -131,11 +131,10 @@ public class Config {
     public static int METEOR_SHOWER_CHANCE = 100; //on top of the normal meteor chance. aka a metor drop may become a meteor shower
     public static int MIN_METEORS_IN_SHOWER = 5;
     public static int MAX_METEORS_IN_SHOWER = 20;
-    public static boolean ANNOUNCE_LOCATION = true; //TODO annouce land location
+    public static boolean ANNOUNCE_LOCATION = true;
     public static boolean ONLY_REPLACE_AIR = false;
     public static boolean SCATTER_ONLY_REPALCE_AIR = false;
-
-
+    public static boolean SCHEMCONVERT_PRESENT = false;
 
     public static void handleVersionChange(){
         int version_found = CONFIG.getOrDefault("version", ver);
@@ -300,6 +299,8 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("min_meteors_in_shower", 5),"The minimum number of meteors that are going to spawn in the meteor shower.");
         configs.addKeyValuePair(new Pair<>("max_meteors_in_shower", 20),"The maximum number of meteors that are going to spawn in the meteor shower.");
 
+        configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
+        configs.addKeyValuePair(new Pair<>("schemconvert_present", false),"Change this to true if you have downloaded SchemConvert and put it in the mods folder. This will allow you to also use schem files while generating a datapack using /omm custom");
     }
 
     public static void reloadConfig(){
@@ -389,6 +390,7 @@ public class Config {
         MAX_METEORS_IN_SHOWER = CONFIG.getOrDefault("max_meteors_in_shower", 20);
         ONLY_REPLACE_AIR = CONFIG.getOrDefault("only_replace_air", false);
         SCATTER_ONLY_REPALCE_AIR = CONFIG.getOrDefault("only_repalcer_air_scatter", false);
+        SCHEMCONVERT_PRESENT = CONFIG.getOrDefault("schemconvert_present", false);
     }
 }
 

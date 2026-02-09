@@ -37,6 +37,7 @@ repositories {
 			includeGroup "curse.maven"
 		}
 	}
+    maven { url 'https://jitpack.io' }
 	mavenCentral()
 	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 	maven { url 'https://maven.nucleoid.xyz/' }
@@ -63,6 +64,10 @@ dependencies {
 
     //Fabric permission api
     modImplementation "me.lucko:fabric-permissions-api:${project.fabricperms_version}"
+
+    //SchemConvert
+    implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT'
+    //implementation 'com.github.PiTheGuy:SchemConvert:v1.2.5 '
 
 }
 
