@@ -38,6 +38,7 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    maven { url 'https://jitpack.io' }
     mavenCentral()
 }
 
@@ -73,6 +74,11 @@ dependencies {
     modImplementation("curse.maven:yawp-663276:${project.yawp_version}"){
         transitive = false
     }
+
+    //SchemConvert
+    implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT'
+    //implementation 'com.github.PiTheGuy:SchemConvert:v1.2.5 '
+
 
 }
 
