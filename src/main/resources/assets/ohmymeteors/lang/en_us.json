@@ -47,6 +47,13 @@
   "command.ohmymeteors.custom.edit.file_not_found": "The file of structure '%s' with size '%s' and special '%s' doesn't exist in the datapack!",
   "command.ohmymeteors.custom.edit.dest_file_already_exists": "A file with the name '%s' already exits in the destination (size and special) you have specified!",
   "command.ohmymeteors.custom.edit.failed": "Failed to edit '%s', check the logs!",
+  "command.ohmymeteors.custom.display.special": "specials",
+  "command.ohmymeteors.custom.display.huge": "Huge meteors",
+  "command.ohmymeteors.custom.display.big": "Big meteors",
+  "command.ohmymeteors.custom.display.medium": "Medium meteors",
+  "command.ohmymeteors.custom.display.small": "Small meteors",
+  "command.ohmymeteors.custom.display.not_generated": "Datapack not yet generated!",
+  "command.ohmymeteors.custom.display.failed": "Failed to list the structures inside the generated datapack, check the logs!",
 
   "audio.ohmymeteors.laser_fire": "Meteor Laser fired!",
   "audio.ohmymeteors.laser_area_on": "Showing laser target area!",

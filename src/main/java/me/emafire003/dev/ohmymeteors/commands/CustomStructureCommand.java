@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -166,8 +167,7 @@ public class CustomStructureCommand implements OMMCommand {
             MeteorSizeClass size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "sizeClass");
             boolean special = BoolArgumentType.getBool(context, "special");
 
-            //TODO remove false
-            if(Config.SCHEMCONVERT_PRESENT || FabricLoader.getInstance().isDevelopmentEnvironment() && false){
+            if(Config.SCHEMCONVERT_PRESENT || FabricLoader.getInstance().isDevelopmentEnvironment()){
                 //the path where litematica schematics are stored
                 Path lm_schempath = Path.of(FabricLoader.getInstance().getConfigDir().getParent().normalize().toString()+"/schematics/");
 
@@ -351,6 +351,98 @@ public class CustomStructureCommand implements OMMCommand {
         }
     }
 
+    private int displayCurrent(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        try{
+            context.getSource().sendMessage(Text.literal(String.valueOf(Path.of((((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS))+"/ohmymeteors_generated/pack.mcmeta"))));
+            //TODO what the heck? it always says the file is not there :/
+            /*if(!Files.exists(Path.of((((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS))+"/ohmymeteors_generated/pack.mcmeta"))){
+                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.not_generated")));
+                return 1;
+            }*/
+            
+            generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS));
+
+            //Cheks and lists small meteors
+            Path smalls = Path.of(PACK_DIR_STRUCTURE+"/small/");
+            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.small").append(Text.literal(": "))));
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(smalls)) {
+                for (Path file : stream) {
+                    if(file.getFileName().toString().equals("special")){
+                        context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.small").append(Text.literal(" ")).append(Text.translatable("command.ohmymeteors.custom.display.special")).append(Text.literal(": "))));
+                        try (DirectoryStream<Path> stream_s = Files.newDirectoryStream(file)) {
+                            for (Path file_s : stream_s) {
+                                context.getSource().sendMessage(Text.literal("§7-§r "+ file_s.getFileName()));
+                            }
+                        }
+                    }else{
+                        context.getSource().sendMessage(Text.literal("§7-§r "+ file.getFileName()));
+                    }
+
+                }
+            }
+
+
+            //Medium ones
+            Path mediums = Path.of(PACK_DIR_STRUCTURE+"/medium/");
+            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.medium").append(Text.literal(": "))));
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(mediums)) {
+                for (Path file : stream) {
+                    if(file.getFileName().toString().equals("special")){
+                        context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.medium").append(Text.literal(" ")).append(Text.translatable("command.ohmymeteors.custom.display.special")).append(Text.literal(": "))));
+                        try (DirectoryStream<Path> stream_s = Files.newDirectoryStream(file)) {
+                            for (Path file_s : stream_s) {
+                                context.getSource().sendMessage(Text.literal("§7-§r "+ file_s.getFileName()));
+                            }
+                        }
+                    }else{
+                        context.getSource().sendMessage(Text.literal("§7-§r "+ file.getFileName()));
+                    }
+                }
+            }
+
+            Path bigs = Path.of(PACK_DIR_STRUCTURE+"/big/");
+            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.big").append(Text.literal(": "))));
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(bigs)) {
+                for (Path file : stream) {
+                    if(file.getFileName().toString().equals("special")){
+                        context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.big").append(Text.literal(" ")).append(Text.translatable("command.ohmymeteors.custom.display.special")).append(Text.literal(": "))));
+                        try (DirectoryStream<Path> stream_s = Files.newDirectoryStream(file)) {
+                            for (Path file_s : stream_s) {
+                                context.getSource().sendMessage(Text.literal("§7-§r "+ file_s.getFileName()));
+                            }
+                        }
+                    }else{
+                        context.getSource().sendMessage(Text.literal("§7-§r "+ file.getFileName()));
+                    }
+
+                }
+            }
+
+            Path huges = Path.of(PACK_DIR_STRUCTURE+"/huge/");
+            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.huge").append(Text.literal(": "))));
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(huges)) {
+                for (Path file : stream) {
+                    if(file.getFileName().toString().equals("special")){
+                        context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.huge").append(Text.literal(" ")).append(Text.translatable("command.ohmymeteors.custom.display.special")).append(Text.literal(": "))));
+                        try (DirectoryStream<Path> stream_s = Files.newDirectoryStream(file)) {
+                            for (Path file_s : stream_s) {
+                                context.getSource().sendMessage(Text.literal("§7-§r "+ file_s.getFileName()));
+                            }
+                        }
+                    }else{
+                        context.getSource().sendMessage(Text.literal("§7-§r "+ file.getFileName()));
+                    }
+
+                }
+            }
+            return 1;
+        }catch (Exception e){
+            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.failed")));
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     public static Path PACK_DIR_STRUCTURE;
 
     //TODO remember to update this for 1.20.1 and below!
@@ -446,6 +538,10 @@ public class CustomStructureCommand implements OMMCommand {
                                         CommandManager.argument("ignore", BoolArgumentType.bool())
                                                 .executes(this::ignoreDefaults)
                                 )
+                )
+                .then(
+                        CommandManager.literal("display_current")
+                                .executes(this::displayCurrent)
                 )
                 .then(
                         CommandManager.literal("edit")
