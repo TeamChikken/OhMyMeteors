@@ -3,7 +3,7 @@ package me.emafire003.dev.ohmymeteors.util;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
@@ -190,29 +190,28 @@ public class MeteorUtils {
      * Using {@link #spawnMeteorShowerDelayedDirection(ServerWorld, PlayerEntity)} will also have them follow the same general direction*/
     public static void spawnMeteorShowerDelayed(ServerWorld world, PlayerEntity p){
         int total = world.getRandom().nextBetween(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
-        AtomicInteger ticker = new AtomicInteger();
         AtomicInteger spawned_meteors = new AtomicInteger();
         int base_spawn_delay = 15;
         AtomicInteger random_spawn_delay = new AtomicInteger(world.getRandom().nextBetween(-10, +10));
 
         spawnMeteor(world, p, true);
         spawned_meteors.getAndIncrement();
+        AtomicInteger last_delay = new AtomicInteger();
 
-        ServerTickEvents.END_SERVER_TICK.register((server) -> {
-            if(ticker.get() == -1 || spawned_meteors.get() >= total){
-                return;
+        SchedulerUtils.runEveryTick((server, ticks) -> {
+            if(spawned_meteors.get() >= total){
+                return false;
             }
-            if(ticker.get() == base_spawn_delay+ random_spawn_delay.get()){
+            if(ticks == base_spawn_delay+random_spawn_delay.get()+last_delay.get()){
                 if(spawned_meteors.get() >= total){
-                    ticker.set(-1);
-                    return;
+                    return false;
                 }
                 spawnMeteor(world, p, true);
                 spawned_meteors.getAndIncrement();
-                ticker.set(0);
+                last_delay.set(last_delay.get() + base_spawn_delay + random_spawn_delay.get());
                 random_spawn_delay.set(world.getRandom().nextBetween(-10, +10));
             }
-            ticker.getAndIncrement();
+            return true;
         });
 
         String message = "message.ohmymeteors.meteor_shower_spawned";
@@ -229,7 +228,8 @@ public class MeteorUtils {
     /**Spawns meteor showers that generally go in the same direction each delayed by a bit*/
     public static void spawnMeteorShowerDelayedDirection(ServerWorld world, PlayerEntity p){
         int total = world.getRandom().nextBetween(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
-        AtomicInteger ticker = new AtomicInteger();
+        //AtomicInteger ticks = new AtomicInteger();
+        AtomicInteger last_delay = new AtomicInteger();
         AtomicInteger spawned_meteors = new AtomicInteger();
         int base_spawn_delay = 15;
         AtomicInteger random_spawn_delay = new AtomicInteger(world.getRandom().nextBetween(-10, +10));
@@ -244,27 +244,27 @@ public class MeteorUtils {
                 Math.min(limit_b.get(), limit_a.get()), Math.max(limit_b.get(), limit_a.get()), Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS));
         spawned_meteors.getAndIncrement();
 
-        ServerTickEvents.END_SERVER_TICK.register((server) -> {
-            if(ticker.get() == -1 || spawned_meteors.get() >= total){
-                return;
+        SchedulerUtils.runEveryTick((server, ticks) -> {
+            if(spawned_meteors.get() >= total){
+                return false;
             }
-            if(ticker.get() == base_spawn_delay+ random_spawn_delay.get()){
+            if(ticks == base_spawn_delay+random_spawn_delay.get()+ last_delay.get()){
                 if(spawned_meteors.get() >= total){
-                    ticker.set(-1);
-                    return;
+                    return false;
                 }
                 limit_a.set(world.getRandom().nextBetween(Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE));
                 limit_b.set(world.getRandom().nextBetween(Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE));
 
-                world.spawnEntity(getDownwardsMeteorSameDirection(prev.getLeft(), prev.getRight(), world,
-                        Math.min(limit_b.get(), limit_a.get()), Math.max(limit_b.get(), limit_a.get()), Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS));
+                MeteorProjectileEntity meteor = getDownwardsMeteorSameDirection(prev.getLeft(), prev.getRight(), world,
+                        Math.min(limit_b.get(), limit_a.get()), Math.max(limit_b.get(), limit_a.get()), Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS);
+                meteor.setSilenced(true);
+                world.spawnEntity(meteor);
                 spawned_meteors.getAndIncrement();
-                ticker.set(0);
+                last_delay.set(last_delay.get() + base_spawn_delay + random_spawn_delay.get());
                 random_spawn_delay.set(world.getRandom().nextBetween(-10, +10));
             }
-            ticker.getAndIncrement();
+            return true;
         });
-
         String message = "message.ohmymeteors.meteor_shower_spawned";
         if(Config.ANNOUNCE_METEOR_SPAWN){
             if(Config.ANNOUNCE_LOCATION){
