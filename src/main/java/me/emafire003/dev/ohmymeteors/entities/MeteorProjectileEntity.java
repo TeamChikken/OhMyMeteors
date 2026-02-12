@@ -373,7 +373,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     }
 
     /**If the meteor is micro size (<2) will just spawn a block and return null*/
-    //TODO there is a problem with small meteors not spawning or spawning in a weird way
     public StructurePlacerAPI getPlacer(){
         //If the dimension is even lower than 2, just spawn one block
         if(this.getSize() < 2){
@@ -600,8 +599,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     private boolean exploded = false;
     private int travelledBlocks = 0;
     private Vec3d explosionPos = null;
-
-    //TODO the small meteors embed too much into the terrain
 
     /// This is the main method which does the meteor stuff on impact
     @Override
