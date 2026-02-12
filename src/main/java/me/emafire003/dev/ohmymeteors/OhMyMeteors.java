@@ -11,6 +11,7 @@ import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
 import me.emafire003.dev.ohmymeteors.util.OMMTags;
+import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -74,9 +75,10 @@ public class OhMyMeteors implements ModInitializer {
 			minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
 		});
 
-		//loads the config file on server startup
+		//loads the config file on server startup and the scheduler
 		ServerLifecycleEvents.SERVER_STARTED.register( minecraftServer -> {
 			try{
+				SchedulerUtils.registerOnServerTick();
 				Config.reloadConfig();
 				//minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
 			}catch (Exception e){
