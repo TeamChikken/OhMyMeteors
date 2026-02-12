@@ -293,7 +293,7 @@ public class Config {
 
         //V5
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
-        configs.addKeyValuePair(new Pair<>("meteor_showers_enabled", true),"If true, there will be a chance that meteor showers will spawn (a lot of metors spawning at the same time & place)");
+        configs.addKeyValuePair(new Pair<>("meteor_showers_enabled", true),"If true, there will be a chance that meteor showers will spawn (a lot of meteors spawning at the same time & place. it can also cause brief lag spikes, nothing too dramatic tho)");
         configs.addKeyValuePair(new Pair<>("meteor_shower_chance", 100),"The chance for a meteor shower to spawn (on top of the normal meteor spawning chance, so it's meteor_spawn*meteor_shower spawn)");
         configs.addKeyValuePair(new Pair<>("min_meteors_in_shower", 5),"The minimum number of meteors that are going to spawn in the meteor shower.");
         configs.addKeyValuePair(new Pair<>("max_meteors_in_shower", 20),"The maximum number of meteors that are going to spawn in the meteor shower.");
