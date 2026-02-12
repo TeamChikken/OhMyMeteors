@@ -34,8 +34,6 @@
   "command.ohmymeteors.custom.add.failed": "Failed to add '%s' to the generated datapack!",
   "command.ohmymeteors.custom.add.failed.already_present": "The structure is already present in the datapack! Remove or rename it first!",
   "command.ohmymeteors.custom.add.failed.origin_not_found": "Failed to add '%s' to the generated datapack, the specified file does not exist!",
-  "command.ohmymeteors.custom.add.3dpary_schems": "If you want to use %s files you need to download SchemConvert and put it the mods folder and the change the corresponding setting in the OMM config file to true",
-  "command.ohmymeteors.custom.add.schemconvert_link": "You can download SchemConvert at https://github.com/PiTheGuy/SchemConvert/releases",
   "command.ohmymeteors.custom.remove.success": "Structure '%s' successfully removed from the datapack!",
   "command.ohmymeteors.custom.remove.failed": "Failed to remove '%s' from the generated datapack! Check the logs!",
   "command.ohmymeteors.custom.remove.failed.already_absent": "Structure '%s' is already not in the datapack!",
@@ -53,6 +51,8 @@
   "command.ohmymeteors.custom.display.medium": "Medium meteors",
   "command.ohmymeteors.custom.display.small": "Small meteors",
   "command.ohmymeteors.custom.display.not_generated": "Datapack not yet generated!",
+  "command.ohmymeteors.custom.display.ignoredefaults.on": "Default meteors are currently §cdisabled",
+  "command.ohmymeteors.custom.display.ignoredefaults.off": "Default meteors are currently §aenabled",
   "command.ohmymeteors.custom.display.failed": "Failed to list the structures inside the generated datapack, check the logs!",
 
   "audio.ohmymeteors.laser_fire": "Meteor Laser fired!",
