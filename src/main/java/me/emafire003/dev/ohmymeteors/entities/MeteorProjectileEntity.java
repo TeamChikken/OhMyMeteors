@@ -364,7 +364,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             if(placer == null){
                 return;
             }
-            placer.setOnlyReplaceTaggedBlocks(true, BlockTags.AIR);
+            placer.setOnlyReplaceTaggedBlocks(true, OhMyMeteors.AIR_BLOCKS);
             placer.loadStructure();
         }
     }
@@ -373,7 +373,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     public StructurePlacerAPI getPlacer(){
         //If the dimension is even lower than 2, just spawn one block
         if(this.getSize() < 2){
-            int r = this.getRandom().nextBetween(1,3);
+            int r = this.getWorld().getRandom().nextBetween(1,3);
             if(r == 1){
                 this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), OMMBlocks.METEORIC_ROCK.getDefaultState());
             }else if(r == 2){
@@ -400,7 +400,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
                     this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
 
             if(Config.ONLY_REPLACE_AIR){
-                placer.setOnlyReplaceTaggedBlocks(true, BlockTags.AIR);
+                placer.setOnlyReplaceTaggedBlocks(true, OhMyMeteors.AIR_BLOCKS);
             }
 
             return placer;

@@ -289,7 +289,7 @@ public class MeteorUtils {
                     if(dimension_ok.get()){{
                         return;
                     }}
-                    if(dim.equals(current_dim.getIdAsString())){
+                    if(dim.equals(current_dim.getKey().get().getValue().toString())){
                         dimension_ok.set(true);
                     }
                 }
@@ -310,9 +310,10 @@ public class MeteorUtils {
         //If true means whitelist aka it HAS to be present
         //if false means in MUST NOT be present
         if(Config.BIOME_LIST_MODE){
-            return Config.BIOME_SPAWN_LIST.contains(current_biome.getIdAsString());
+            return Config.BIOME_SPAWN_LIST.contains(current_biome.getKey().get().getValue().toString());
         }else{
-            return !Config.BIOME_SPAWN_LIST.contains(current_biome.getIdAsString());
+            return !Config.BIOME_SPAWN_LIST.contains(current_biome.getKey().get().getValue().toString());
         }
     }
+
 }
