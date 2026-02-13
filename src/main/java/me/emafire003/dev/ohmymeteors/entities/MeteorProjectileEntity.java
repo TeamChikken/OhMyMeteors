@@ -8,6 +8,7 @@ import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.events.MeteorSpawnEvent;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.ExplosionUtils;
+import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
@@ -19,13 +20,12 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ExplosiveProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -39,9 +39,9 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.world.*;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.StructureWorldAccess;
+import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import net.minecraft.world.explosion.ExplosionBehavior;
 
@@ -51,7 +51,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.METEOR_STRUCTURES;
-
 
 /**
  * The projectile entity that gets spawned as a meteor.
@@ -65,6 +64,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     /// Aka a meteor that is a result of the {@link #detonateScatter()} method
     protected boolean isScatterMeteor = false;
 
+    /// Weather or not the meteor should be announced in chat (used for example in the meteor showers)
+    protected boolean isSilenced = false;
 
     public MeteorProjectileEntity(EntityType<? extends ExplosiveProjectileEntity> entityType, World world) {
         super(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
@@ -249,7 +250,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }
     }
 
-    /** The sphere explposion is a little weaker than the vanilla one, so adjustment may be needed to have a niceer effect*/
+    /** The sphere explosion is a little weaker than the vanilla one, so adjustment may be needed to have a niceer effect*/
     private int sphereExplosionAdjuster(){
         int adjust = 0;
         if(this.getSize() > 3){
@@ -287,6 +288,14 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
                     this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, World.ExplosionSourceType.TNT);
                 }
             }
+
+            if(Config.ANNOUNCE_METEOR_SPAWN && !this.isSilenced()){
+                if(Config.ANNOUNCE_LOCATION){
+                    String meteorPos = this.getBlockPos().getX() + " x, " + this.getBlockPos().getZ() + " z!";
+                    this.getWorld().getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_impacted.localized", meteorPos).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                }
+            }
+
             this.discard();
             return;
         }
@@ -316,87 +325,116 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             });
         }
 
+        if(Config.ANNOUNCE_METEOR_SPAWN && !this.isSilenced()){
+            if(Config.ANNOUNCE_LOCATION){
+                String meteorPos = this.getBlockPos().getX() + " x, " + this.getBlockPos().getZ() + " z!";
+                this.getWorld().getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_impacted.localized", meteorPos).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+            }
+        }
         //entity.getWorld().addParticle(ParticleTypes.FLASH, pos.getX(), pos.getY(), pos.getZ(), 0,0,0);
         this.discard();
     }
 
+
     /** Like {@link #detonateSimple()} but will also spawn the structure of the meteor*/
     public void detonateWithStructure(){
-        //this.getWorld().getServer().sendMessage(Text.literal("the movement direction is: " + this.getMovementDirection() + "\n The velocity is: " + this.getVelocity()));
         detonateSimple();
         if(!this.getWorld().isClient()){
-
-            //If the dimension is even lower than 2, just spawn one block
-            if(this.getSize() < 2){
-                int r = this.getRandom().nextBetween(1,3);
-                if(r == 1){
-                    this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), OMMBlocks.METEORIC_ROCK.getDefaultState());
-                }else if(r == 2){
-                    this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), Blocks.SMOOTH_BASALT.getDefaultState());
-                }else{
-                    this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), Blocks.BLACKSTONE.getDefaultState());
-                }
+            StructurePlacerAPI placer = getPlacer();
+            //it means the meteor was too small for the structure, a single block has been placed instead
+            if(placer == null){
                 return;
             }
+            placer.loadStructure();
+        }
+    }
 
-            BlockPos m_pos_offset = BlockPos.ofFloored(this.getVelocity()).add(-1, 0, -1);//new BlockPos(-1, -2, -1);
-            //Checks for at most 5 blocks of Air below where the meteor should spawn, which could be a result of the explosion
-
-            StructurePlacerAPI placer =
-                    new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("small/small_meteor_0"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-
-            if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
-                Identifier tobeplaced = getStructureToPlace("small");
-                m_pos_offset = getOffset(new BlockPos(-1, -1, -1), tobeplaced);
-
-
-                placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
-                        tobeplaced,
-                        this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-
-                placer.loadStructure();
+    /** Like {@link #detonateWithStructure()} but will only replace air blocks*/
+    public void detonateWithStructureOnlyAir(){
+        detonateSimple();
+        if(!this.getWorld().isClient()){
+            StructurePlacerAPI placer = getPlacer();
+            //it means the meteor was too small for the structure, a single block has been placed instead
+            if(placer == null){
                 return;
             }
+            placer.setOnlyReplaceTaggedBlocks(true, BlockTags.AIR);
+            placer.loadStructure();
+        }
+    }
 
-            if(this.getSize() <= Config.MAX_MEDIUM_METEOR_SIZE){
-                Identifier tobeplaced = getStructureToPlace("medium");
-                m_pos_offset = getOffset(new BlockPos(-2, +1, -2), tobeplaced);
-
-
-                placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
-                        tobeplaced,
-                        this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
-
-                placer.loadStructure();
-                return;
+    /**If the meteor is micro size (<2) will just spawn a block and return null*/
+    public StructurePlacerAPI getPlacer(){
+        //If the dimension is even lower than 2, just spawn one block
+        if(this.getSize() < 2){
+            int r = this.getRandom().nextBetween(1,3);
+            if(r == 1){
+                this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), OMMBlocks.METEORIC_ROCK.getDefaultState());
+            }else if(r == 2){
+                this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), Blocks.SMOOTH_BASALT.getDefaultState());
+            }else{
+                this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), Blocks.BLACKSTONE.getDefaultState());
             }
+            return null;
+        }
 
-            if(this.getSize() <= Config.MAX_BIG_METEOR_SIZE){
-                Identifier tobeplaced = getStructureToPlace("big");
-                m_pos_offset = getOffset(new BlockPos(-3, 0, -3), tobeplaced);
+        BlockPos m_pos_offset = BlockPos.ofFloored(this.getVelocity()).add(-1, 0, -1);//new BlockPos(-1, -2, -1);
+        //Checks for at most 5 blocks of Air below where the meteor should spawn, which could be a result of the explosion
 
-                //m_pos_offset = new BlockPos(-4, -6, -3);
+        StructurePlacerAPI placer =
+                new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("small/small_meteor_0"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
 
-                placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
-                        tobeplaced,
-                        this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
+        if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
+            Identifier tobeplaced = getStructureToPlace("small");
+            m_pos_offset = getOffset(new BlockPos(-1, 0, -1), tobeplaced);
 
-                placer.loadStructure();
-                return;
-            }
-
-            //If it's not in the sizes above, then it's a huge one:
-
-            Identifier tobeplaced = getStructureToPlace("huge");
-            m_pos_offset = getOffset(new BlockPos(-4, 0, -4), tobeplaced);
-            //m_pos_offset = new BlockPos(-4, -10, -3);
 
             placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
                     tobeplaced,
                     this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
 
-            placer.loadStructure();
+            if(Config.ONLY_REPLACE_AIR){
+                placer.setOnlyReplaceTaggedBlocks(true, BlockTags.AIR);
+            }
+
+            return placer;
         }
+
+        if(this.getSize() <= Config.MAX_MEDIUM_METEOR_SIZE){
+            Identifier tobeplaced = getStructureToPlace("medium");
+            m_pos_offset = getOffset(new BlockPos(-2, +1, -2), tobeplaced);
+
+
+            placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
+                    tobeplaced,
+                    this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
+            return placer;
+        }
+
+        if(this.getSize() <= Config.MAX_BIG_METEOR_SIZE){
+            Identifier tobeplaced = getStructureToPlace("big");
+            m_pos_offset = getOffset(new BlockPos(-3, 0, -3), tobeplaced);
+
+            //m_pos_offset = new BlockPos(-4, -6, -3);
+
+            placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
+                    tobeplaced,
+                    this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
+
+            return placer;
+        }
+
+        //If it's not in the sizes above, then it's a huge one:
+
+        Identifier tobeplaced = getStructureToPlace("huge");
+        m_pos_offset = getOffset(new BlockPos(-4, 0, -4), tobeplaced);
+        //m_pos_offset = new BlockPos(-4, -10, -3);
+
+        placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
+                tobeplaced,
+                this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
+
+        return placer;
     }
 
     /** Returms the offset of the meteor structure, aka how much it's going to be embedded in the terrain.
@@ -425,6 +463,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }else{
 
         }*/
+
+        //This is the one used for "small" meteors
         BlockPos nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
         if(tobeplaced.getPath().startsWith("big")){
             nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/10, 0);
@@ -490,7 +530,12 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             return true;
         }).toList();
 
-        Identifier structure_id = structs.get(this.getRandom().nextBetween(0,structs.size()-1));
+        if (structs.isEmpty()){
+            OhMyMeteors.LOGGER.error("The list of structures for size class '" + sizeClass + "' is empty! Check that your structures are valid ones!");
+            structs = List.of(OhMyMeteors.getIdentifier("error"));
+        }
+
+        Identifier structure_id = structs.get(this.getWorld().getRandom().nextBetween(0,structs.size()-1));
         //This is to prevent special structures from spawning "before" they should
         //TODO make sure it's not too much of a performance issue
         while(structure_id.getPath().startsWith(sizeClass+"/special")){
@@ -529,7 +574,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         for(int i = 0; i<scatter_into; i++){
             //Gets a random number between 1 and the remaining size, making sure to leave at least one size for each new meteor yet to generate)
             int size =  this.getRandom().nextBetween(1, Math.max(remainingSize-(scatter_into-i), 1));
-            MeteorProjectileEntity m = getDownwardsMeteor(this.getPos(), (ServerWorld) this.getWorld(), 1, 10+this.getSize() /2, this.getPos().getY(), size, size, false);
+            MeteorProjectileEntity m = MeteorUtils.getDownwardsMeteor(this.getPos(), (ServerWorld) this.getWorld(), 1, 10+this.getSize() /2, this.getPos().getY(), size, size, false);
             m.setScatterMeteor(true);
             newMeteors.add(m);
         }
@@ -605,7 +650,11 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             if(!this.getWorld().isClient()){
                 if(this.isScatterMeteor()){
                     if(Config.SCATTER_METEOR_STRUCTURE){
-                        this.detonateWithStructure();
+                        if(Config.SCATTER_ONLY_REPALCE_AIR){
+                            this.detonateWithStructureOnlyAir();
+                        }else{
+                            this.detonateWithStructure();
+                        }
                         return;
                     }else{
                         this.detonateSimple();
@@ -614,7 +663,12 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
                 }
 
                 if(Config.METEOR_STRUCTURE){
-                    this.detonateWithStructure();
+                    if(Config.ONLY_REPLACE_AIR){
+                        this.detonateWithStructureOnlyAir();
+                    }else{
+                        this.detonateWithStructure();
+                    }
+
                 }else{
                     this.detonateSimple();
                 }
@@ -629,123 +683,6 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         return this.getSize() > Config.MAX_BIG_METEOR_SIZE;
     }
 
-    /**
-     * Gets a meteor object to be spawned in, with a velocity oriented dowards and a spawn position already set up
-     * */
-    public static MeteorProjectileEntity getDownwardsMeteor(Vec3d originPos, ServerWorld world, int min_spawn_d, int max_spawn_d, double spawn_height, int min_size, int max_size, boolean homing){
-        MeteorProjectileEntity meteor = new MeteorProjectileEntity(world);
-
-        //The invert is to also have a chance at having negative coordinates, otherwise they would always be positive
-        int invert_x = 1;
-        if(world.getRandom().nextBoolean()){
-            invert_x = -1;
-        }
-
-        int invert_y = 1;
-        if(world.getRandom().nextBoolean()){
-            invert_y = -1;
-        }
-
-        meteor.setPos(originPos.getX()+world.getRandom().nextBetween(min_spawn_d, max_spawn_d)*invert_x,
-                spawn_height,
-                originPos.getZ()+world.getRandom().nextBetween(min_spawn_d, max_spawn_d)*invert_y
-        );
-
-        invert_x = 1;
-        if(world.getRandom().nextBoolean()){
-            invert_x = -1;
-        }
-
-        invert_y = 1;
-        if(world.getRandom().nextBoolean()){
-            invert_y = -1;
-        }
-
-        meteor.setSize(world.getRandom().nextBetween(Math.max(0, min_size), Math.min(50, max_size)));
-
-        meteor.setVelocity((world.getRandom().nextFloat()/2)*invert_x, -1.0f*(world.getRandom().nextFloat()+Config.DOWNWARDS_SPEED_MODIFIER), (world.getRandom().nextFloat()/2)*invert_y);
-
-        if(homing){
-            //TODO maybe just go with 1,1,1 as velocity multiplier
-            meteor.setVelocity(originPos.subtract(meteor.getPos()).normalize().multiply(meteor.getVelocity().getX(), meteor.getVelocity().getY()*-1, meteor.getVelocity().getZ()));
-        }
-
-        return meteor;
-    }
-
-    /**Spawns a meteor around a random alive online player*/
-    public static void spawnMeteor(ServerWorld world, PlayerEntity p){
-
-        if(p == null){
-            //for some reason it won't detect that there is player online sometimes
-            return;
-        }
-        MeteorProjectileEntity meteor = MeteorProjectileEntity.getDownwardsMeteor(p.getPos(), world.toServerWorld(),
-                Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS);
-
-        String message;
-
-        if(Config.SPAWN_HUGE_METEORS){
-            if(world.getRandom().nextBetween(0, Config.HUGE_METEOR_CHANCE) == 0){
-                meteor = MeteorProjectileEntity.getDownwardsMeteor(p.getPos(), world.toServerWorld(),
-                        Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT, Config.MAX_BIG_METEOR_SIZE, Config.HUGE_METEOR_SIZE_LIMIT, Config.HOMING_METEORS);
-
-                message = "message.ohmymeteors.meteor_spawned.huge";
-            } else {
-                //world mess is because it needs a final variable btw
-                message = "message.ohmymeteors.meteor_spawned";
-            }
-        } else {
-            message = "message.ohmymeteors.meteor_spawned";
-        }
-
-        if(Config.ANNOUNCE_METEOR_SPAWN){
-            world.getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable(message).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
-        }
-
-
-        world.spawnEntity(meteor);
-    }
-
-    /**Checks if the meteor can spawn in the given dimension
-     *
-     * @param current_dim The dimension on which to perform the check
-     * @return true if the meteor can spawn in there, false otherwise
-     * */
-    public static boolean canSpawnInDimension(RegistryEntry<DimensionType> current_dim){
-        //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
-        //and then stops checking
-        AtomicBoolean dimension_ok = new AtomicBoolean(false);
-        Config.SPAWN_DIMENSIONS.forEach(dim -> {
-                    if(dimension_ok.get()){{
-                        return;
-                    }}
-                    if(dim.equals(current_dim.getIdAsString())){
-                        dimension_ok.set(true);
-                    }
-                }
-        );
-
-        return dimension_ok.get();
-    }
-
-    /**Checks if the meteor can spawn in the given biome
-     *
-     * @param current_biome The biome on which to perform the check
-     * @return true if the meteor can spawn in there, false otherwise
-     * */
-    public static boolean canSpawnInBiome(RegistryEntry<Biome> current_biome){
-        //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
-        //and then stops checking
-
-        //If true means whitelist aka it HAS to be present
-        //if false means in MUST NOT be present
-        if(Config.BIOME_LIST_MODE){
-            return Config.BIOME_SPAWN_LIST.contains(current_biome.getIdAsString());
-        }else{
-            return !Config.BIOME_SPAWN_LIST.contains(current_biome.getIdAsString());
-        }
-    }
 
     public boolean isScatterMeteor() {
         return isScatterMeteor;
@@ -763,5 +700,13 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     @Override
     public boolean shouldRender(double cameraX, double cameraY, double cameraZ) {
         return true;
+    }
+
+    public boolean isSilenced() {
+        return isSilenced;
+    }
+
+    public void setSilenced(boolean silenced) {
+        isSilenced = silenced;
     }
 }

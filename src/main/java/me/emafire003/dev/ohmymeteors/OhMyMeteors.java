@@ -10,6 +10,7 @@ import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
+import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -37,7 +38,7 @@ public class OhMyMeteors implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static Path PATH = Path.of(FabricLoader.getInstance().getConfigDir() + "/" + MOD_ID + "/");
 
-	public static String PREFIX = "[Oh My, Meteors!] ";
+	public static String PREFIX = "§8[Oh My, Meteors!] §r";
 
 	public static Identifier getIdentifier(String path){
 		return Identifier.of(MOD_ID, path);
@@ -50,6 +51,7 @@ public class OhMyMeteors implements ModInitializer {
 		// Proceed with mild caution.
 		Config.FILEPATH = PATH.resolve(OhMyMeteors.MOD_ID + "_config.yml");
 
+		OMMCommands.registerArguments();
 		CommandRegistrationCallback.EVENT.register(OMMCommands::registerCommands);
 
 		OMMProperties.registerBlockProperties();
@@ -70,9 +72,10 @@ public class OhMyMeteors implements ModInitializer {
 			minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
 		});
 
-		//loads the config file on server startup
+		//loads the config file on server startup and the scheduler
 		ServerLifecycleEvents.SERVER_STARTED.register( minecraftServer -> {
 			try{
+				SchedulerUtils.registerOnServerTick();
 				Config.reloadConfig();
 				//minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
 			}catch (Exception e){
@@ -102,7 +105,7 @@ public class OhMyMeteors implements ModInitializer {
 		 METEOR_STRUCTURES.remove(getIdentifier("error"));
 
 		//this allows to have "ignore_<structure>" to "remove" a default structure with a datapack
-		//or "ingnoreall" to have it remove all the structures
+		//or "ignoredefault" to have it remove all the structures
 		List<Identifier> structures_copy = new ArrayList<>(METEOR_STRUCTURES);
 
 		//the stream is to avoid concurrent modification exception
@@ -120,7 +123,7 @@ public class OhMyMeteors implements ModInitializer {
 				}
 
 			}
-			if(id.getPath().contains("ignoredefault")){
+			if(id.getPath().contains("ignoredefault") || id.getPath().contains("ignoredefaults")){
 				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("big/special/big_meteor_cat"));
 				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("big/big_meteor_0"));
 				METEOR_STRUCTURES.remove(OhMyMeteors.getIdentifier("big/big_meteor_1"));

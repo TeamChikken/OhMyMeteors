@@ -3,7 +3,7 @@ package me.emafire003.dev.ohmymeteors.mixin;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
-import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
+import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-import static me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity.spawnMeteor;
 
 //(there would be a way to like list all of the loaded chunks but it seems a bit impractical when we can just target a random online player)
 @Mixin(ServerWorld.class)
@@ -80,13 +79,13 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
 
         RegistryEntry<DimensionType> current_dim = p.getWorld().getDimensionEntry();
 
-        if(!MeteorProjectileEntity.canSpawnInDimension(current_dim)){
+        if(!MeteorUtils.canSpawnInDimension(current_dim)){
             return;
         }
 
         RegistryEntry<Biome> current_biome = p.getWorld().getBiome(p.getBlockPos());
 
-        if(!MeteorProjectileEntity.canSpawnInBiome(current_biome)){
+        if(!MeteorUtils.canSpawnInBiome(current_biome)){
             return;
         }
 
@@ -115,7 +114,24 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
         }
 
         if(this.getRandom().nextBetween(0, chance) == 0){
-            spawnMeteor(((ServerWorld) (Object) this), p);
+            if(Config.METEOR_SHOWERS_ENABLED){
+                if(this.getRandom().nextBetween(0, Config.METEOR_SHOWER_CHANCE) == 0){
+                    int r = this.getRandom().nextBetween(1, 2);
+                    if(r == 1){
+                        MeteorUtils.spawnMeteorShowerDelayed(((ServerWorld) (Object) this), p);
+                    }else if(r==2){
+                        MeteorUtils.spawnMeteorShowerDelayedDirection(((ServerWorld) (Object) this), p);
+                    }else{
+                        MeteorUtils.spawnMeteorShowerInstant(((ServerWorld) (Object) this), p);
+                    }
+
+                }else{
+                    MeteorUtils.spawnMeteor(((ServerWorld) (Object) this), p, false);
+                }
+            }else{
+                MeteorUtils.spawnMeteor(((ServerWorld) (Object) this), p, false);
+            }
+
             if(Config.SHOULD_COOLDOWN_BETWEEN_METEORS){
                 meteorCooldown = 20*Config.MIN_METEOR_COOLDOWN_TIME;
             }
@@ -125,4 +141,6 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
     protected WorldSpawnMeteorMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
     }
+
+
 }
