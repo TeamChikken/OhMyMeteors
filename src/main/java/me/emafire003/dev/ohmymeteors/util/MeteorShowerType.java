@@ -1,9 +1,9 @@
 package me.emafire003.dev.ohmymeteors.util;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
 
-public enum MeteorShowerType implements StringIdentifiable {
+public enum MeteorShowerType implements StringRepresentable {
     INSTANT("instant"),
     DELAYED("delayed"),
     DELAYED_DIRECTION("delayed_direction");
@@ -13,10 +13,10 @@ public enum MeteorShowerType implements StringIdentifiable {
         this.name = name;
     }
 
-    public static final Codec<MeteorShowerType> CODEC = StringIdentifiable.createCodec(MeteorShowerType::values);
+    public static final Codec<MeteorShowerType> CODEC = StringRepresentable.fromEnum(MeteorShowerType::values);
 
     @Override
-    public String asString() {
+    public String getSerializedName() {
         return this.name;
     }
 }

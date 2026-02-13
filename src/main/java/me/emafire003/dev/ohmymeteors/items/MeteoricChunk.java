@@ -1,9 +1,9 @@
 package me.emafire003.dev.ohmymeteors.items;
 
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 
 public class MeteoricChunk extends Item {
-    public MeteoricChunk(Settings settings) {
+    public MeteoricChunk(Properties settings) {
         super(settings);
     }
 }

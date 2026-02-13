@@ -2,26 +2,26 @@ package me.emafire003.dev.ohmymeteors.entities.client;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.resources.ResourceLocation;
 
 public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProjectileEntity> {
     protected MeteorProjectileEntityModel model;
 
-    public MeteorProjectileEntityRenderer(EntityRendererFactory.Context ctx) {
+    public MeteorProjectileEntityRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
-        this.model = new MeteorProjectileEntityModel(ctx.getPart(MeteorProjectileEntityModel.METEOR));
+        this.model = new MeteorProjectileEntityModel(ctx.bakeLayer(MeteorProjectileEntityModel.METEOR));
     }
 
     @Override
-    public void render(MeteorProjectileEntity entity, float yaw, float tickDelta, MatrixStack matrices,
-                       VertexConsumerProvider vertexConsumers, int light) {
+    public void render(MeteorProjectileEntity entity, float yaw, float tickDelta, PoseStack matrices,
+                       MultiBufferSource vertexConsumers, int light) {
         /*
         matrices.push();
 
@@ -41,17 +41,17 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
 
         matrices.pop();*/
 
-        matrices.push();
-        VertexConsumer vertexconsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers,
-                this.model.getLayer(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+        matrices.pushPose();
+        VertexConsumer vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
 
         matrices.translate(0, -entity.getDimensions(entity.getPose()).height()/1.5, 0);
 
         matrices.scale(entity.getSize(), entity.getSize(), entity.getSize());
 
-        this.model.render(matrices, vertexconsumer, light, OverlayTexture.DEFAULT_UV);
+        this.model.renderToBuffer(matrices, vertexconsumer, light, OverlayTexture.NO_OVERLAY);
 
-        matrices.pop();
+        matrices.popPose();
         super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
     }
 
@@ -66,7 +66,7 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
     }*/
 
     @Override
-    public Identifier getTexture(MeteorProjectileEntity entity) {
+    public ResourceLocation getTextureLocation(MeteorProjectileEntity entity) {
         return OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png");
     }
 }
