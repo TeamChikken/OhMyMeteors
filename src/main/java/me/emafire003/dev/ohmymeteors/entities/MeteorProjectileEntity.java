@@ -8,7 +8,6 @@ import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.ExplosionUtils;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
@@ -21,7 +20,6 @@ import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -35,10 +33,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.*;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
@@ -378,16 +373,16 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         if(this.getSize() < 2){
             int r = this.getWorld().getRandom().nextBetween(1,3);
             if(r == 1){
-                this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), OMMBlocks.METEORIC_ROCK.getDefaultState());
+                this.getWorld().setBlockState(new BlockPos(this.getPos()), OMMBlocks.METEORIC_ROCK.getDefaultState());
             }else if(r == 2){
-                this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), Blocks.SMOOTH_BASALT.getDefaultState());
+                this.getWorld().setBlockState(new BlockPos(this.getPos()), Blocks.SMOOTH_BASALT.getDefaultState());
             }else{
-                this.getWorld().setBlockState(BlockPos.ofFloored(this.getPos()), Blocks.BLACKSTONE.getDefaultState());
+                this.getWorld().setBlockState(new BlockPos(this.getPos()), Blocks.BLACKSTONE.getDefaultState());
             }
             return null;
         }
 
-        BlockPos m_pos_offset = BlockPos.ofFloored(this.getVelocity()).add(-1, 0, -1);//new BlockPos(-1, -2, -1);
+        BlockPos m_pos_offset = new BlockPos(this.getVelocity()).add(-1, 0, -1);//new BlockPos(-1, -2, -1);
         //Checks for at most 5 blocks of Air below where the meteor should spawn, which could be a result of the explosion
 
         StructurePlacerAPI placer =
@@ -474,7 +469,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }*/
 
         //This is the one used for "small" meteors
-        BlockPos nonair_pos = BlockPos.ofFloored(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
+        BlockPos nonair_pos = new BlockPos(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
         //BlockPos nonair_pos = new BlockPos(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
         if(tobeplaced.getPath().startsWith("big")){
             nonair_pos = new BlockPos(this.getPos()).add(0, -(int) size_factors.getY()/10, 0);

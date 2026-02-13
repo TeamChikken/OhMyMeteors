@@ -1,7 +1,5 @@
 package me.emafire003.dev.ohmymeteors.util;
 
-import com.mojang.serialization.Codec;
-import net.minecraft.util.BlockMirror;
 import net.minecraft.util.StringIdentifiable;
 
 public enum MeteorSizeClass implements StringIdentifiable {

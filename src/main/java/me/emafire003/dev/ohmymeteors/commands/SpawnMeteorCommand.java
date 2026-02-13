@@ -6,14 +6,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
-import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;;
-import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentType;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
-import me.emafire003.dev.ohmymeteors.config.Config;
+import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentType;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.util.MeteorShowerType;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -159,7 +156,7 @@ public class SpawnMeteorCommand implements OMMCommand {
         MeteorShowerType type = MeteorShowerTypeArgumentType.getMeteorShowerType(context, "type");
         try{
             if(source.getWorld().getPlayers().isEmpty()){
-                source.sendFeedback( () -> Text.literal("Could not spawn a natural meteor since there are no players online!"),true);
+                source.sendFeedback(Text.literal("Could not spawn a natural meteor since there are no players online!"),true);
                 return -1;
             }
             ServerPlayerEntity p = source.getWorld().getRandomAlivePlayer();
@@ -179,7 +176,7 @@ public class SpawnMeteorCommand implements OMMCommand {
             return 1;
         }catch(Exception e){
             e.printStackTrace();
-            source.sendFeedback( () -> Text.literal("Error: " + e),false);
+            source.sendFeedback(Text.literal("Error: " + e),false);
             return 0;
         }
     }

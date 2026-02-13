@@ -16,8 +16,6 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
@@ -83,7 +81,7 @@ public class OhMyMeteors implements ModInitializer {
 
 	public static final TagKey<Block> METEOR_BYPASSES = TagKey.of(Registry.BLOCK_KEY, getIdentifier("meteor_bypasses"));
 	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.of(Registry.BLOCK_KEY, getIdentifier("meteor_bypasses_and_destroy"));
-    public static final TagKey<Block> AIR_BLOCKS = TagKey.of(RegistryKeys.BLOCK, getIdentifier("air"));
+    public static final TagKey<Block> AIR_BLOCKS = TagKey.of(Registry.BLOCK_KEY, getIdentifier("air"));
 
 	public static List<Identifier> METEOR_STRUCTURES = new ArrayList<>();
 
