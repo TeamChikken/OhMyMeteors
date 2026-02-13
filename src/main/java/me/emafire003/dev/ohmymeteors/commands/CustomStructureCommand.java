@@ -421,7 +421,6 @@ public class CustomStructureCommand implements OMMCommand {
 
     public static Path PACK_DIR_STRUCTURE;
 
-    //TODO remember to update this for 1.20.1 and below!
     /** Generates the datapack folders and mcmeta file in the datapack folder given in its argument*/
     public static void generateDatapack(Path datapackDir) throws IOException {
 
@@ -441,8 +440,8 @@ public class CustomStructureCommand implements OMMCommand {
             throw new RuntimeException(e);
         }
 
-        //creates the structure directories
-        PACK_DIR_STRUCTURE = Files.createDirectories(Path.of(PACK_DIR + "/data/" + OhMyMeteors.MOD_ID + "/structure/"));
+        //creates the structures directories
+        PACK_DIR_STRUCTURE = Files.createDirectories(Path.of(PACK_DIR + "/data/" + OhMyMeteors.MOD_ID + "/structures/"));
         Files.createDirectories(Path.of(PACK_DIR_STRUCTURE + "/big/special/"));
         Files.createDirectories(Path.of(PACK_DIR_STRUCTURE + "/huge/special/"));
         Files.createDirectories(Path.of(PACK_DIR_STRUCTURE + "/medium/special/"));
