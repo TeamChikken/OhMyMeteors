@@ -26,7 +26,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLConfig;
@@ -59,7 +58,7 @@ public class OhMyMeteors {
 
 	// The constructor for the mod class is the first code that is run when your mod is loaded.
 	// FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
-	public OhMyMeteors(IEventBus modEventBus, ModContainer modContainer) {
+	public OhMyMeteors(IEventBus eventBus) {
 		// Register the commonSetup method for modloading
 		//modEventBus.addListener(this::commonSetup);
 
@@ -76,17 +75,18 @@ public class OhMyMeteors {
 		NeoForge.EVENT_BUS.register(this);
 		NeoForge.EVENT_BUS.register(new OMMEvents());
 		NeoForge.EVENT_BUS.register(SchedulerUtils.class);
+		eventBus.addListener(this::registerCustomArgumentType);
 
 
 		Config.FILEPATH = PATH.resolve(OhMyMeteors.MOD_ID + "_config.yml");
 
-		OMMBlocks.register(modEventBus);
-		OMMItems.register(modEventBus);
+		OMMBlocks.register(eventBus);
+		OMMItems.register(eventBus);
 		OMMProperties.registerBlockProperties();
-		OMMEntities.register(modEventBus);
-		OMMSounds.registerSounds();
+		OMMEntities.register(eventBus);
+		OMMSounds.register(eventBus);
 		registerTags();
-		OMMParticles.register(modEventBus);
+		OMMParticles.register(eventBus);
 
 
 		if(ModList.get().isLoaded("flan")){
@@ -141,7 +141,6 @@ public class OhMyMeteors {
 	}
 
 	//Register argument types
-	@SubscribeEvent
 	private void registerCustomArgumentType(RegisterEvent event) {
 		event.register(
 				BuiltInRegistries.COMMAND_ARGUMENT_TYPE.key(),

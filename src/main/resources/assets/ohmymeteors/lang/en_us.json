@@ -52,6 +52,9 @@
   "command.ohmymeteors.custom.display.ignoredefaults.off": "Default meteors are currently §aenabled",
   "command.ohmymeteors.custom.display.failed": "Failed to list the structures inside the generated datapack, check the logs!",
 
+  "flan.permision.ohmymeteors:allow_meteor_spawn": "Meteor spawning",
+  "flan.permision.ohmymeteors:allow_meteor_spawn.desc": "Allows meteors to spawn inside this claim",
+
   "audio.ohmymeteors.laser_fire": "Meteor Laser fired!",
   "audio.ohmymeteors.laser_area_on": "Showing laser target area!",
   "audio.ohmymeteors.laser_area_off": "Stop showing laser target area!"

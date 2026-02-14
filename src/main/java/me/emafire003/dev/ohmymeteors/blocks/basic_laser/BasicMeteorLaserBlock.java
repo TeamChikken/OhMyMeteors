@@ -106,6 +106,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
         return AWAKE;
     }
 
+    //TODO it remains active for some reason after firing
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
@@ -113,9 +114,9 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
         if(stack.is(OMMItems.FOCUSING_LENSES)){
             BlockState blockState = state.cycle(SHOW_AREA);
             if(blockState.getValue(SHOW_AREA)){
-                world.playSound(null, pos, OMMSounds.LASER_AREA_ON, SoundSource.BLOCKS, 0.7f, 1f);
+                world.playSound(null, pos, OMMSounds.LASER_AREA_ON.get(), SoundSource.BLOCKS, 0.7f, 1f);
             }else{
-                world.playSound(null, pos, OMMSounds.LASER_AREA_OFF, SoundSource.BLOCKS, 0.7f, 1f);
+                world.playSound(null, pos, OMMSounds.LASER_AREA_OFF.get(), SoundSource.BLOCKS, 0.7f, 1f);
             }
             world.setBlock(pos, blockState, Block.UPDATE_CLIENTS);
         }
@@ -256,7 +257,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
 
 
                 //Plays the "pew" laser firing sound
-                world.playSound(null, pos, OMMSounds.LASER_FIRE, SoundSource.BLOCKS, 1f, 1.25f);
+                world.playSound(null, pos, OMMSounds.LASER_FIRE.get(), SoundSource.BLOCKS, 1f, 1.25f);
 
 
                 if(Config.ANNOUNCE_METEOR_DESTROYED){

@@ -178,6 +178,8 @@ dependencies {
         transitive = false
     }
 
+    runtimeOnly("maven.modrinth:forge-config-api-port:v21.1.6-1.21.1-NeoForge")
+
     //SchemConvert
     implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT'
     //implementation 'com.github.PiTheGuy:SchemConvert:v1.2.5 '

@@ -132,6 +132,7 @@ public class SpawnMeteorCommand implements OMMCommand {
         Holder<Biome> current_biome = p.level().getBiome(p.blockPosition());
 
         if(!MeteorUtils.canSpawnInBiome(current_biome)){
+            p.sendSystemMessage(Component.literal("biome"));
             return false;
         }
         return true;

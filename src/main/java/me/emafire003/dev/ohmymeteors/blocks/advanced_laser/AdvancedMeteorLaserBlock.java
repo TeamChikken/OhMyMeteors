@@ -240,7 +240,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 });
 
                 //Plays the "pew" laser firing sound
-                world.playSound(null, pos, OMMSounds.LASER_FIRE, SoundSource.BLOCKS, 1f, 1.4f);
+                world.playSound(null, pos, OMMSounds.LASER_FIRE.get(), SoundSource.BLOCKS, 1f, 1.4f);
 
 
                 if(Config.ANNOUNCE_METEOR_DESTROYED){
