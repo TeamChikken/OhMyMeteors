@@ -323,6 +323,7 @@
 			"scale": [0.81, 0.81, 0.81]
 		}
 	},
+	"render_type": "minecraft:cutout",
 	"groups": [
 		{
 			"name": "group",

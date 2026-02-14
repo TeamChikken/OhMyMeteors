@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -92,7 +91,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
-        return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, OMMBlocks.BASIC_METEOR_LASER_BLOCK_ENTITY, BasicMeteorLaserBlock::tick) : null;
+        return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, OMMBlocks.BASIC_METEOR_LASER_BLOCK_ENTITY.get(), BasicMeteorLaserBlock::tick) : null;
     }
 
         /**
@@ -223,7 +222,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
             }
 
             List<MeteorProjectileEntity> meteors = world.getEntitiesOfClass(MeteorProjectileEntity.class, box, (meteorProjectileEntity -> true));
-            if(meteors == null || meteors.isEmpty()){
+            if(meteors.isEmpty()){
                 return;
             }
             //From here it means there is at least one meteor, so activate the laser with the firing texture and stuff
@@ -239,10 +238,10 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
                     meteorProjectileEntity.detonateSimple();
                 }
 
-                serverWorld.sendParticles(OMMParticles.LASER_FLASH_PARTICLE, pos.above().above().getX(), pos.above().above().getY(), pos.above().above().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
+                serverWorld.sendParticles(OMMParticles.LASER_FLASH_PARTICLE.get(), pos.above().above().getX(), pos.above().above().getY(), pos.above().above().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
 
                 LineEffect lineEffect = LineEffect
-                        .builder(serverWorld, OMMParticles.LASER_PARTICLE, pos.getCenter().add(0, 0.5, 0))
+                        .builder(serverWorld, OMMParticles.LASER_PARTICLE.get(), pos.getCenter().add(0, 0.5, 0))
                         .targetPos(meteorProjectileEntity.position())
                         .forced(Config.USE_FORCED_PARTICLES)
                         .particles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*3))

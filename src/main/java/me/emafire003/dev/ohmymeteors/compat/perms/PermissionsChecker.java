@@ -1,7 +1,5 @@
 package me.emafire003.dev.ohmymeteors.compat.perms;
 
-import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.commands.CommandSourceStack;
 
@@ -9,8 +7,6 @@ import java.util.function.Predicate;
 
 //Based on Factions' code https://github.com/ickerio/factions (MIT license)
 public class PermissionsChecker {
-
-    public static final boolean permissions = FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0");
 
     @SafeVarargs
     public static Predicate<CommandSourceStack> multiple(
@@ -26,19 +22,20 @@ public class PermissionsChecker {
 
     public static Predicate<CommandSourceStack> hasPerms(String permission, int defaultValue) {
         return (source) -> {
-            if(!permissions){
+            //if(!permissions){
                 return source.hasPermission(2);
-            }else {
+            /*}else {
                 return Permissions.check(source, permission, defaultValue);
-            }
+            }*/
+            //TODO figure out what to do with forge's permissions
         };
     }
 
     public static boolean hasPerms(Entity entity, String permission, boolean defValue){
-        if(!permissions){
+        //if(!permissions){
             return defValue;
-        }else {
+        /*}else {
             return Permissions.check(entity, permission, defValue);
-        }
+        }*/
     }
 }

@@ -8,7 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 
 public class MeteorSizeClassArgumentType extends StringRepresentableArgument<MeteorSizeClass> {
 
-    protected MeteorSizeClassArgumentType() {
+    public MeteorSizeClassArgumentType() {
         super(MeteorSizeClass.CODEC, MeteorSizeClass::values);
     }
 

@@ -63,7 +63,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
-        return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, OMMBlocks.ADVANCED_METEOR_LASER_BLOCK_ENTITY, AdvancedMeteorLaserBlock::tick) : null;
+        return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, OMMBlocks.ADVANCED_METEOR_LASER_BLOCK_ENTITY.get(), AdvancedMeteorLaserBlock::tick) : null;
     }
 
     /**
@@ -199,17 +199,17 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
 
                 meteorProjectileEntity.detonateSimple();
 
-                serverWorld.sendParticles(OMMParticles.LASER_FLASH_PARTICLE, pos.above().above().getX(), pos.above().above().getY(), pos.above().above().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
+                serverWorld.sendParticles(OMMParticles.LASER_FLASH_PARTICLE.get(), pos.above().above().getX(), pos.above().above().getY(), pos.above().above().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
 
                 //BUBBLE_POP could also work?
                 LineEffect lineEffect = LineEffect
-                        .builder(serverWorld, OMMParticles.LASER_PARTICLE, pos.above().getCenter())
+                        .builder(serverWorld, OMMParticles.LASER_PARTICLE.get(), pos.above().getCenter())
                         .targetPos(meteorProjectileEntity.position())
                         .particles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*2))
                         .forced(Config.USE_FORCED_PARTICLES)
                         .build();
 
-                lineEffect.setParticle(OMMParticles.LASER_PARTICLE_SMALL);
+                lineEffect.setParticle(OMMParticles.LASER_PARTICLE_SMALL.get());
                 lineEffect.setOriginPos(pos.above().getCenter().add(0.5, -0.5, 0));
                 lineEffect.setParticles((int) (pos.above().getCenter().add(0.5, -0.5, 0).distanceTo(meteorProjectileEntity.position())*2));
                 lineEffect.runFor(1);
@@ -226,7 +226,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 lineEffect.setParticles((int) (pos.above().getCenter().add(0, -0.5, -0.5).distanceTo(meteorProjectileEntity.position())*2));
                 lineEffect.runFor(1);
 
-                lineEffect.setParticle(OMMParticles.LASER_PARTICLE);
+                lineEffect.setParticle(OMMParticles.LASER_PARTICLE.get());
                 lineEffect.setOriginPos(pos.above().getCenter());
                 lineEffect.setTargetPos(meteorProjectileEntity.position());
                 lineEffect.setParticles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*2));

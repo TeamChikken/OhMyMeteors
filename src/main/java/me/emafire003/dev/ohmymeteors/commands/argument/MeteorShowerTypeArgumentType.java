@@ -8,7 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 
 public class MeteorShowerTypeArgumentType extends StringRepresentableArgument<MeteorShowerType> {
 
-    protected MeteorShowerTypeArgumentType() {
+    public MeteorShowerTypeArgumentType() {
         super(MeteorShowerType.CODEC, MeteorShowerType::values);
     }
 

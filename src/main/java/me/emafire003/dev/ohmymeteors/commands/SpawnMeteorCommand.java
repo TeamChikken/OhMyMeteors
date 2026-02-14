@@ -14,7 +14,6 @@ import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.util.MeteorShowerType;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.core.Holder;
 import net.minecraft.commands.Commands;
@@ -24,6 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.neoforged.fml.ModList;
 
 import java.util.Objects;
 
@@ -110,13 +110,13 @@ public class SpawnMeteorCommand implements OMMCommand {
     }
 
     private boolean spawnChecks(ServerPlayer p){
-        if(FabricLoader.getInstance().isModLoaded("flan")){
+        if(ModList.get().isLoaded("flan")){
             if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
                 return false;
             }
         }
 
-        if(FabricLoader.getInstance().isModLoaded("yawp")){
+        if(ModList.get().isLoaded("yawp")){
             //Checks the player pos and the place where the meteor would spawn
             if(!(YawpCompat.canSpawnHere(p.serverLevel(), p.blockPosition()) || YawpCompat.canSpawnHere(p.serverLevel(), new BlockPos(p.blockPosition().getX(), Config.METEOR_SPAWN_HEIGHT, p.blockPosition().getZ())))){
                 return false;

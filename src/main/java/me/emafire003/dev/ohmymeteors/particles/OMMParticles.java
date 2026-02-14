@@ -1,23 +1,28 @@
 package me.emafire003.dev.ohmymeteors.particles;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
-import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.Registry;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.function.Supplier;
 
 public class OMMParticles {
 
-    public static final SimpleParticleType LASER_PARTICLE = FabricParticleTypes.simple();
-    public static final SimpleParticleType LASER_PARTICLE_SMALL = FabricParticleTypes.simple();
-    public static final SimpleParticleType LASER_FLASH_PARTICLE = FabricParticleTypes.simple();
+    public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES =
+            DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, OhMyMeteors.MOD_ID);
 
-    public static void registerParticles(){
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, OhMyMeteors.getIdentifier("laser_particle"),
-                LASER_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, OhMyMeteors.getIdentifier("laser_particle_small"),
-                LASER_PARTICLE_SMALL);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, OhMyMeteors.getIdentifier("laser_flash_particle"),
-                LASER_FLASH_PARTICLE);
+
+    public static final Supplier<SimpleParticleType> LASER_PARTICLE = PARTICLE_TYPES.register(
+            "laser_particle", () -> new SimpleParticleType(true));
+    public static final Supplier<SimpleParticleType> LASER_PARTICLE_SMALL = PARTICLE_TYPES.register(
+            "laser_particle_small", () -> new SimpleParticleType(true));
+    public static final Supplier<SimpleParticleType> LASER_FLASH_PARTICLE = PARTICLE_TYPES.register(
+            "laser_flash_particle", () -> new SimpleParticleType(true));
+
+    public static void register(IEventBus eventBus) {
+        PARTICLE_TYPES.register(eventBus);
     }
 }

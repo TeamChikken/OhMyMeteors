@@ -4,7 +4,6 @@ import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
@@ -19,6 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -64,13 +64,13 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
         }
 
         /// As for spawning, region overrides biome overrides dimension
-        if(FabricLoader.getInstance().isModLoaded("flan")){
+        if(ModList.get().isLoaded("flan")){
             if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
                 return;
             }
         }
 
-        if(FabricLoader.getInstance().isModLoaded("yawp")){
+        if(ModList.get().isLoaded("yawp")){
             //Checks the player pos and the place where the meteor would spawn
             if(!(YawpCompat.canSpawnHere(((ServerLevel) (Object) this), p.blockPosition()) || YawpCompat.canSpawnHere(((ServerLevel) (Object) this), new BlockPos(p.blockPosition().getX(), Config.METEOR_SPAWN_HEIGHT, p.blockPosition().getZ())))){
                 return;

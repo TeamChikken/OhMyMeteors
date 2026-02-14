@@ -6,21 +6,21 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.config.Config;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 public class ConfigCommand implements OMMCommand {
 
     private int openConfig(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
             CommandSourceStack source = context.getSource();
-            if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.SERVER)){
+
+            if(FMLEnvironment.dist.isDedicatedServer()){
                 source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Warning! The config file is located on the server, go to your server's config folder and edit '").withStyle(ChatFormatting.GOLD).append(Component.literal(Config.FILEPATH.toFile().toString()).withStyle(ChatFormatting.LIGHT_PURPLE).append(Component.literal("'").withStyle(ChatFormatting.GOLD)))));
                 return 2;
             }
