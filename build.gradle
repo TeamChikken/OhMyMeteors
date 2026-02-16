@@ -71,14 +71,13 @@ dependencies {
 
     //Yet another world protector (world protection)
     //modImplementation("maven.modrinth:yawp:${project.yawp_version}")
-    modImplementation("curse.maven:yawp-663276:${project.yawp_version}"){
+    modCompileOnly("curse.maven:yawp-663276:${project.yawp_version}"){
         transitive = false
     }
 
     //SchemConvert
     include (implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT')
     //implementation 'com.github.PiTheGuy:SchemConvert:v1.2.5 '
-
 
 }
 
