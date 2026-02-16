@@ -8,8 +8,7 @@ You will be able to craft lasers to defend yourself from the destructive power o
 
 ![oh my meteor](https://github.com/user-attachments/assets/2b4d86fe-4e99-4844-82ad-42cd914a147b)
 
-Video showcase of version 0.1.0 of the mod by Boodlyneck:
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/LWCvP63pooQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+Video showcase of version 0.1.0 of the mod by Boodlyneck: https://www.youtube-nocookie.com/embed/LWCvP63pooQ
 
 This mod is extremely configurable, meaning that you can adjust it however you like. Would you like more metors at night? Cool!
 Would like them not to explode anything? Done! And a lot of other settings!
@@ -58,7 +57,8 @@ Meteor showers are a rare occurrence where a cluster of meteors fall together at
 - 'delayed' with each meteor spawning a bit after the next one
 - 'delayed directioned' with each meteor spawning after the next one but with all meteors following the same general trajectory
 
-//TODO make a video showcase and link it here
+![MeteorShower-ezgif com-optimize(1)](https://github.com/user-attachments/assets/5676eeaa-470d-49eb-98bf-f93e0d87091a)
+
 
 ### Config file
 Located at `/config/ohmymeteros/ohmymeteors_config.yml` it contains a lot of settings that you can adjust to your liking. Remember that if you play on a server, the server's settings are the one that are going to be used (this is also part of the reason why there is no GUI).
