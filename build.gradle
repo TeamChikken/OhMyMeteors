@@ -157,15 +157,17 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
     //StructurePlacerAPI (to spawn the meteor structure on impact)
-    implementation(files("run/libs/structureplacerapi-${project.structureplacerapi_version}.jar"))
-    //implementation "maven.modrinth:structureplacerapi:${project.structureplacerapi_version}"
+    implementation "maven.modrinth:structureplacerapi:${project.structureplacerapi_version}"
+    jarJar("maven.modrinth:structureplacerapi:${project.structureplacerapi_version}")
 
     //ParticleAnimationLib for cool particle effects
-    implementation(files("run/libs/particleanimationlib-${project.pal_version}.jar"))
-    //implementation "maven.modrinth:particleanimationlib:${project.pal_version}"
+    implementation "maven.modrinth:particleanimationlib:${project.pal_version}"
+    jarJar("maven.modrinth:particleanimationlib:${project.pal_version}")
 
     //Fabric permission api
     //implementation "me.lucko:fabric-permissions-api:${project.fabricperms_version}"
+    //Luckperms
+    implementation "net.luckperms:api:${project.luckperms_version}"
 
     //Flan
     implementation("maven.modrinth:flan:${project.flan_version}"){
@@ -177,7 +179,6 @@ dependencies {
     implementation("curse.maven:yawp-663276:${project.yawp_version}"){
         transitive = false
     }
-
     runtimeOnly("maven.modrinth:forge-config-api-port:v21.1.6-1.21.1-NeoForge")
 
     //SchemConvert

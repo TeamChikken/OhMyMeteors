@@ -5,6 +5,7 @@ import me.emafire003.dev.ohmymeteors.blocks.OMMProperties;
 import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentType;
 import me.emafire003.dev.ohmymeteors.commands.argument.MeteorSizeClassArgumentType;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
+import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
@@ -14,6 +15,7 @@ import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 
+import net.luckperms.api.LuckPermsProvider;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.server.MinecraftServer;
@@ -103,6 +105,9 @@ public class OhMyMeteors {
 		// Do something when the server starts
 		try{
 			Config.reloadConfig();
+			if(ModList.get().isLoaded("luckperms")){
+				PermissionsChecker.luckPerms = LuckPermsProvider.get();
+			}
 			//This is needed because for SOME REASON the datapack reload event doesn't have a server parameter :/
 			serverInstance = event.getServer();
 			//minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
