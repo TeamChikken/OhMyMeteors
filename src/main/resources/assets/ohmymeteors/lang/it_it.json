@@ -48,6 +48,9 @@
   "command.ohmymeteors.custom.display.ignoredefaults.off": "Le strutture di defualt delle meteore sono  §aabilitate",
   "audio.ohmymeteors.laser_fire": "Laser per meteore attivato!",
   "audio.ohmymeteors.laser_area_on": "Mostrando l'area di azione del laser!",
-  "audio.ohmymeteors.laser_area_off": "Area di azione del laser non più mostrata!",
-  "modmenu.descriptionTranslation.ohmymeteors": "Mod che introduce meteore che cadono dal cielo! Ampiamente configurabile, con svariate dimensioni diverse per le meteore e tipi di strutture generate all'impatto. Ed anche un nuovo micio! Commissionata da SlayerTheChikken"
+  "audio.ohmymeteors.laser_area_off": "Area di azione del laser non più mostrata!","flan.permision.ohmymeteors:allow_meteor_spawn": "Spawning delle meteore",
+  "flan.permision.ohmymeteors:allow_meteor_spawn.desc": "Permette alle meteore di apparire in questo claim",
+  "creativetab.ohmymeteors.ohmymeteors_tab": "Oggetti OhMyMeteors",
+  "modmenu.descriptionTranslation.ohmymeteors": "Mod che introduce meteore che cadono dal cielo! Ampiamente configurabile, con svariate dimensioni diverse per le meteore e tipi di strutture generate all'impatto. Ed anche un nuovo micio! Commissionata da SlayerTheChikken",
+
 }

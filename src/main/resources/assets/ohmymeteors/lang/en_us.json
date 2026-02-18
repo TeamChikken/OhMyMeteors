@@ -55,6 +55,8 @@
   "flan.permision.ohmymeteors:allow_meteor_spawn": "Meteor spawning",
   "flan.permision.ohmymeteors:allow_meteor_spawn.desc": "Allows meteors to spawn inside this claim",
 
+  "creativetab.ohmymeteors.ohmymeteors_tab": "OhMyMeteors Items",
+
   "audio.ohmymeteors.laser_fire": "Meteor Laser fired!",
   "audio.ohmymeteors.laser_area_on": "Showing laser target area!",
   "audio.ohmymeteors.laser_area_off": "Stop showing laser target area!"

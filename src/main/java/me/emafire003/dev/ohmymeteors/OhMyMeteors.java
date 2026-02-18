@@ -10,6 +10,7 @@ import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
+import me.emafire003.dev.ohmymeteors.items.OMMItemTab;
 import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
@@ -30,7 +31,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.loading.FMLConfig;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -50,7 +51,7 @@ public class OhMyMeteors {
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final String MOD_ID = "ohmymeteors";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	public static Path PATH = Path.of(FMLConfig.defaultConfigPath() + "/" + MOD_ID + "/");
+	public static Path PATH = Path.of(FMLLoader.getGamePath() + "/config/" + MOD_ID + "/");
 
 	public static String PREFIX = "§8[Oh My, Meteors!] §r";
 
@@ -87,6 +88,7 @@ public class OhMyMeteors {
 		OMMProperties.registerBlockProperties();
 		OMMEntities.register(eventBus);
 		OMMSounds.register(eventBus);
+		OMMItemTab.register(eventBus);
 		registerTags();
 		OMMParticles.register(eventBus);
 

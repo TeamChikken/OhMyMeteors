@@ -29,6 +29,11 @@ public class PermissionsChecker {
             if(!permissions){
                 return source.hasPermission(2);
             }else {
+                //checks if they are an operator
+                if(source.getEntity() != null && source.getEntity().hasPermissions(4)){
+                    checkPermission(source.getEntity(), permission).asBoolean();
+                    return true;
+                }
                 return checkPermission(source.getEntity(), permission).asBoolean();
             }
         };
