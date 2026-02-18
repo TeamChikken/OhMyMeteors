@@ -69,7 +69,7 @@ public class MeteorUtils {
 
         if(homing){
             //TODO maybe just go with 1,1,1 as velocity multiplier
-            meteor.setVelocity(originPos.subtract(meteor.getPos()).normalize().multiply(meteor.getVelocity().getX(), meteor.getVelocity().getY()*-1, meteor.getVelocity().getZ()));
+            meteor.setVelocity(originPos.subtract(meteor.getEntityPos()).normalize().multiply(meteor.getVelocity().getX(), meteor.getVelocity().getY()*-1, meteor.getVelocity().getZ()));
         }
 
         return meteor;
@@ -117,7 +117,7 @@ public class MeteorUtils {
         meteor.setVelocity(vel_modifier.add(prev_vel));
 
         if(homing){
-            meteor.setVelocity(prev_origin.subtract(meteor.getPos()).normalize().multiply(meteor.getVelocity().getX(), meteor.getVelocity().getY()*-1, meteor.getVelocity().getZ()));
+            meteor.setVelocity(prev_origin.subtract(meteor.getEntityPos()).normalize().multiply(meteor.getVelocity().getX(), meteor.getVelocity().getY()*-1, meteor.getVelocity().getZ()));
         }
 
         return meteor;
@@ -134,7 +134,7 @@ public class MeteorUtils {
             //for some reason it won't detect that there is player online sometimes
             return;
         }
-        MeteorProjectileEntity meteor = getDownwardsMeteor(p.getPos(), world.toServerWorld(),
+        MeteorProjectileEntity meteor = getDownwardsMeteor(p.getEntityPos(), world.toServerWorld(),
                 Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS);
 
         meteor.setSilenced(silenced);
@@ -143,7 +143,7 @@ public class MeteorUtils {
 
         if(Config.SPAWN_HUGE_METEORS){
             if(world.getRandom().nextBetween(0, Config.HUGE_METEOR_CHANCE) == 0){
-                meteor = getDownwardsMeteor(p.getPos(), world.toServerWorld(),
+                meteor = getDownwardsMeteor(p.getEntityPos(), world.toServerWorld(),
                         Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT, Config.MAX_BIG_METEOR_SIZE, Config.HUGE_METEOR_SIZE_LIMIT, Config.HOMING_METEORS);
 
                 message = "message.ohmymeteors.meteor_spawned.huge";
@@ -234,7 +234,7 @@ public class MeteorUtils {
         int base_spawn_delay = 15;
         AtomicInteger random_spawn_delay = new AtomicInteger(world.getRandom().nextBetween(-10, +10));
 
-        Pair<Vec3d, Vec3d> prev = getDownwardsMeteorPosAndVelocity(p.getPos(), world.toServerWorld(),
+        Pair<Vec3d, Vec3d> prev = getDownwardsMeteorPosAndVelocity(p.getEntityPos(), world.toServerWorld(),
                 Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT);
 
         AtomicInteger limit_a = new AtomicInteger(world.getRandom().nextBetween(Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE));
