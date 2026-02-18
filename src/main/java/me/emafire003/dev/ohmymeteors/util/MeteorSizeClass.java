@@ -1,10 +1,8 @@
 package me.emafire003.dev.ohmymeteors.util;
 
-import com.mojang.serialization.Codec;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
 
-public enum MeteorSizeClass implements StringIdentifiable {
+public enum MeteorSizeClass implements StringRepresentable {
     SMALL("small"),
     MEDIUM("medium"),
     BIG("big"),
@@ -15,10 +13,10 @@ public enum MeteorSizeClass implements StringIdentifiable {
         this.name = name;
     }
 
-    public static final Codec<MeteorSizeClass> CODEC = StringIdentifiable.createCodec(MeteorSizeClass::values);
+    public static final EnumCodec<MeteorSizeClass> CODEC = StringRepresentable.fromEnum(MeteorSizeClass::values);
 
     @Override
-    public String asString() {
+    public String getSerializedName() {
         return this.name;
     }
 }

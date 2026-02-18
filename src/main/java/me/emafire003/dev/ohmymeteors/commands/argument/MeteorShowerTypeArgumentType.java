@@ -2,21 +2,21 @@ package me.emafire003.dev.ohmymeteors.commands.argument;
 
 import com.mojang.brigadier.context.CommandContext;
 import me.emafire003.dev.ohmymeteors.util.MeteorShowerType;
-import net.minecraft.command.argument.EnumArgumentType;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.arguments.StringRepresentableArgument;
+import net.minecraft.commands.CommandSourceStack;
 
 
-public class MeteorShowerTypeArgumentType extends EnumArgumentType<MeteorShowerType> {
+public class MeteorShowerTypeArgumentType extends StringRepresentableArgument<MeteorShowerType> {
 
     protected MeteorShowerTypeArgumentType() {
         super(MeteorShowerType.CODEC, MeteorShowerType::values);
     }
 
-    public static EnumArgumentType<MeteorShowerType> meteorShowerType() {
+    public static StringRepresentableArgument<MeteorShowerType> meteorShowerType() {
         return new MeteorShowerTypeArgumentType();
     }
 
-    public static MeteorShowerType getMeteorShowerType(CommandContext<ServerCommandSource> context, String id) {
+    public static MeteorShowerType getMeteorShowerType(CommandContext<CommandSourceStack> context, String id) {
         return context.getArgument(id, MeteorShowerType.class);
     }
 }

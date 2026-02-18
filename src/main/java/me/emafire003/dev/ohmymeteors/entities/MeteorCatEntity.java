@@ -2,23 +2,23 @@ package me.emafire003.dev.ohmymeteors.entities;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.mixin.CatCollarInvoker;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.passive.CatEntity;
-import net.minecraft.entity.passive.PassiveEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-public class MeteorCatEntity extends CatEntity {
+public class MeteorCatEntity extends Cat {
 
-    public MeteorCatEntity(EntityType<? extends CatEntity> entityType, World world) {
+    public MeteorCatEntity(EntityType<? extends Cat> entityType, Level world) {
         super(entityType, world);
     }
 
@@ -27,27 +27,27 @@ public class MeteorCatEntity extends CatEntity {
         return false;
     }
 
-    public static DefaultAttributeContainer.Builder createCatAttributes() {
-        return MobEntity.createMobAttributes()
-                .add(EntityAttributes.GENERIC_MAX_HEALTH, 15.0)
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.35F)
-                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.0);
+    public static AttributeSupplier.Builder createCatAttributes() {
+        return Mob.createMobAttributes()
+                .add(Attributes.MAX_HEALTH, 15.0)
+                .add(Attributes.MOVEMENT_SPEED, 0.35F)
+                .add(Attributes.ATTACK_DAMAGE, 3.0);
     }
 
 
     @Override
-    public boolean damage(DamageSource source, float amount) {
-        if(source.isOf(DamageTypes.ON_FIRE) || source.isOf(DamageTypes.IN_FIRE)  ){
+    public boolean hurt(DamageSource source, float amount) {
+        if(source.is(DamageTypes.ON_FIRE) || source.is(DamageTypes.IN_FIRE)  ){
             return false;
         }
-        return super.damage(source, amount);
+        return super.hurt(source, amount);
     }
 
     //Compat stuff aka removing variants and such.
     // The idea is, always return the same texture but keep the tracked data there in order not to cause too many issues.
     // The only other way would be copying over the methods of the cat to a new Entity without extending the cat
     @Override
-    public Identifier getTexture() {
+    public ResourceLocation getResourceLocation() {
         return OhMyMeteors.getIdentifier("textures/entity/meteor_cat.png");
     }
 
@@ -60,15 +60,15 @@ public class MeteorCatEntity extends CatEntity {
     //TODO if to breed with cats, just needs to remove the "meteor" part
     //also should not need overriding
     @Nullable
-    public MeteorCatEntity createChild(ServerWorld serverWorld, PassiveEntity passiveEntity) {
+    public MeteorCatEntity getBreedOffspring(ServerLevel serverWorld, AgeableMob passiveEntity) {
         MeteorCatEntity catEntity = OMMEntities.METEOR_KITTY_CAT.create(serverWorld);
         //EntityType.CAT.create(serverWorld);
         if (catEntity != null && passiveEntity instanceof MeteorCatEntity catEntity2) {
 
 
-            if (this.isTamed()) {
-                catEntity.setOwnerUuid(this.getOwnerUuid());
-                catEntity.setTamed(true);
+            if (this.isTame()) {
+                catEntity.setOwnerUUID(this.getOwnerUUID());
+                catEntity.setTame(true);
                 if (this.random.nextBoolean()) {
                     ((CatCollarInvoker) catEntity).invokeSetCollarColor(this.getCollarColor());
                 } else {
@@ -81,11 +81,11 @@ public class MeteorCatEntity extends CatEntity {
     }
 
     @Override
-    public boolean canBreedWith(AnimalEntity other) {
-        if (!this.isTamed()) {
+    public boolean canMate(Animal other) {
+        if (!this.isTame()) {
             return false;
         } else {
-            return other instanceof MeteorCatEntity catEntity && catEntity.isTamed() && super.canBreedWith(other);
+            return other instanceof MeteorCatEntity catEntity && catEntity.isTame() && super.canMate(other);
         }
     }
 

@@ -3,27 +3,27 @@ package me.emafire003.dev.ohmymeteors.entities;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 
 public class OMMEntities {
 
 
     public static final EntityType<MeteorProjectileEntity> METEOR_PROJECTILE_ENTITY = Registry.register(
-            Registries.ENTITY_TYPE,
+            BuiltInRegistries.ENTITY_TYPE,
             OhMyMeteors.getIdentifier("meteor_projectile"),
-            EntityType.Builder.<MeteorProjectileEntity>create(MeteorProjectileEntity::new, SpawnGroup.MISC)
-                    .maxTrackingRange(getMeteorTrackingDistance())
-                    .setDimensions(0.9F, 0.9F).build("meteor_projectile")
+            EntityType.Builder.<MeteorProjectileEntity>of(MeteorProjectileEntity::new, MobCategory.MISC)
+                    .clientTrackingRange(getMeteorTrackingDistance())
+                    .sized(0.9F, 0.9F).build("meteor_projectile")
     );
 
     public static final EntityType<MeteorCatEntity> METEOR_KITTY_CAT = Registry.register(
-            Registries.ENTITY_TYPE,
+            BuiltInRegistries.ENTITY_TYPE,
             OhMyMeteors.getIdentifier("meteor_cat"),
-            EntityType.Builder.<MeteorCatEntity>create(MeteorCatEntity::new, SpawnGroup.MISC)
-                    .setDimensions(0.9F, 0.9F).build("meteor_cat"));
+            EntityType.Builder.<MeteorCatEntity>of(MeteorCatEntity::new, MobCategory.MISC)
+                    .sized(0.9F, 0.9F).build("meteor_cat"));
 
     public static int getMeteorTrackingDistance(){
         Config.reloadConfig();

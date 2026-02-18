@@ -1,25 +1,24 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
-import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.Entity;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.profiler.Profiler;
-import net.minecraft.world.MutableWorldProperties;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.ChunkManager;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.ChunkSource;
+import net.minecraft.world.level.dimension.DimensionType;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,23 +33,23 @@ import java.util.function.Supplier;
 
 
 //(there would be a way to like list all of the loaded chunks but it seems a bit impractical when we can just target a random online player)
-@Mixin(ServerWorld.class)
-public abstract class WorldSpawnMeteorMixin extends World implements StructureWorldAccess {
+@Mixin(ServerLevel.class)
+public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLevel {
 
 
-    protected WorldSpawnMeteorMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
+    protected WorldSpawnMeteorMixin(WritableLevelData properties, ResourceKey<Level> registryRef, RegistryAccess registryManager, Holder<DimensionType> dimensionEntry, Supplier<ProfilerFiller> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
     }
 
-    @Shadow @Nullable public abstract ServerPlayerEntity getRandomAlivePlayer();
+    @Shadow @Nullable public abstract ServerPlayer getRandomPlayer();
 
-    @Shadow public abstract boolean spawnEntity(Entity entity);
+    @Shadow public abstract boolean addFreshEntity(Entity entity);
 
-    @Shadow public abstract ChunkManager getChunkManager();
+    @Shadow public abstract ChunkSource getChunkSource();
 
-    @Shadow public abstract ServerWorld toServerWorld();
+    @Shadow public abstract ServerLevel getLevel();
 
-    @Shadow public abstract List<ServerPlayerEntity> getPlayers();
+    @Shadow public abstract List<ServerPlayer> players();
 
     @Unique
     int meteorCooldown = 0;
@@ -64,32 +63,32 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
         }
 
         //TODO check if it's a problem performance wise?
-        ServerPlayerEntity p = this.getRandomAlivePlayer();
+        ServerPlayer p = this.getRandomPlayer();
         if(p == null){
             return;
         }
 
         /// As for spawning, region overrides biome overrides dimension
         if(FabricLoader.getInstance().isModLoaded("flan")){
-            if(!FlanCompat.canSpawnHere(p, p.getBlockPos())){
+            if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
                 return;
             }
         }
 
         if(FabricLoader.getInstance().isModLoaded("yawp")){
             //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere(((ServerWorld) (Object) this), p.getBlockPos()) || YawpCompat.canSpawnHere(((ServerWorld) (Object) this), new BlockPos(p.getBlockPos().getX(), Config.METEOR_SPAWN_HEIGHT, p.getBlockPos().getZ())))){
+            if(!(YawpCompat.canSpawnHere(((ServerLevel) (Object) this), p.blockPosition()) || YawpCompat.canSpawnHere(((ServerLevel) (Object) this), new BlockPos(p.blockPosition().getX(), Config.METEOR_SPAWN_HEIGHT, p.blockPosition().getZ())))){
                 return;
             }
         }
 
-        RegistryEntry<DimensionType> current_dim = p.getWorld().getDimensionEntry();
+        Holder<DimensionType> current_dim = p.level().dimensionTypeRegistration();
 
         if(!MeteorUtils.canSpawnInDimension(current_dim)){
             return;
         }
 
-        RegistryEntry<Biome> current_biome = p.getWorld().getBiome(p.getBlockPos());
+        Holder<Biome> current_biome = p.level().getBiome(p.blockPosition());
 
         if(!MeteorUtils.canSpawnInBiome(current_biome)){
             return;
@@ -100,42 +99,42 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
         int chance = Config.METEOR_SPAWN_CHANCE;
 
         //If the current dimension is in the map, it will override the chance thing
-        if(Config.DIMENSION_CHANCES.containsKey(current_dim.getKey().get().getValue().toString())){
-            chance = Config.DIMENSION_CHANCES.get(current_dim.getKey().get().getValue().toString());
+        if(Config.DIMENSION_CHANCES.containsKey(current_dim.unwrapKey().get().location().toString())){
+            chance = Config.DIMENSION_CHANCES.get(current_dim.unwrapKey().get().location().toString());
         }
 
         //If the biome is in the map the chance gets overridden again
-        if(Config.BIOME_CHANCES.containsKey(current_biome.getKey().get().getValue().toString())){
-            chance = Config.BIOME_CHANCES.get(current_biome.getKey().get().getValue().toString());
+        if(Config.BIOME_CHANCES.containsKey(current_biome.unwrapKey().get().location().toString())){
+            chance = Config.BIOME_CHANCES.get(current_biome.unwrapKey().get().location().toString());
         }
 
         if(Config.MODIFY_SPAWN_CHANCE_AT_NIGHT && this.isNight()){
             chance = Config.METEOR_NIGHT_SPAWN_CHANCE;
-            if(Config.DIMENSION_NIGHT_CHANCES.containsKey(current_dim.getKey().get().getValue().toString())){
-                chance = Config.DIMENSION_NIGHT_CHANCES.get(current_dim.getKey().get().getValue().toString());
+            if(Config.DIMENSION_NIGHT_CHANCES.containsKey(current_dim.unwrapKey().get().location().toString())){
+                chance = Config.DIMENSION_NIGHT_CHANCES.get(current_dim.unwrapKey().get().location().toString());
             }
-            if(Config.BIOME_NIGHT_CHANCES.containsKey(current_biome.getKey().get().getValue().toString())){
-                chance = Config.BIOME_NIGHT_CHANCES.get(current_biome.getKey().get().getValue().toString());
+            if(Config.BIOME_NIGHT_CHANCES.containsKey(current_biome.unwrapKey().get().location().toString())){
+                chance = Config.BIOME_NIGHT_CHANCES.get(current_biome.unwrapKey().get().location().toString());
             }
         }
 
-        if(this.getRandom().nextBetween(0, chance) == 0){
+        if(this.getRandom().nextIntBetweenInclusive(0, chance) == 0){
             if(Config.METEOR_SHOWERS_ENABLED){
-                if(this.getRandom().nextBetween(0, Config.METEOR_SHOWER_CHANCE) == 0){
-                    int r = this.getRandom().nextBetween(1, 2);
+                if(this.getRandom().nextIntBetweenInclusive(0, Config.METEOR_SHOWER_CHANCE) == 0){
+                    int r = this.getRandom().nextIntBetweenInclusive(1, 2);
                     if(r == 1){
-                        MeteorUtils.spawnMeteorShowerDelayed(((ServerWorld) (Object) this), p);
+                        MeteorUtils.spawnMeteorShowerDelayed(((ServerLevel) (Object) this), p);
                     }else if(r==2){
-                        MeteorUtils.spawnMeteorShowerDelayedDirection(((ServerWorld) (Object) this), p);
+                        MeteorUtils.spawnMeteorShowerDelayedDirection(((ServerLevel) (Object) this), p);
                     }else{
-                        MeteorUtils.spawnMeteorShowerInstant(((ServerWorld) (Object) this), p);
+                        MeteorUtils.spawnMeteorShowerInstant(((ServerLevel) (Object) this), p);
                     }
 
                 }else{
-                    MeteorUtils.spawnMeteor(((ServerWorld) (Object) this), p, false);
+                    MeteorUtils.spawnMeteor(((ServerLevel) (Object) this), p, false);
                 }
             }else{
-                MeteorUtils.spawnMeteor(((ServerWorld) (Object) this), p, false);
+                MeteorUtils.spawnMeteor(((ServerLevel) (Object) this), p, false);
             }
 
             if(Config.SHOULD_COOLDOWN_BETWEEN_METEORS){
@@ -146,23 +145,23 @@ public abstract class WorldSpawnMeteorMixin extends World implements StructureWo
 
 
     @Unique
-    public boolean checkDimension(RegistryEntry<DimensionType> current_dim){
+    public boolean checkDimension(Holder<DimensionType> current_dim){
         //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
         //and then stops checking
-        return Config.SPAWN_DIMENSIONS.contains(current_dim.getKey().get().getValue().toString());
+        return Config.SPAWN_DIMENSIONS.contains(current_dim.unwrapKey().get().location().toString());
     }
 
     @Unique
-    public boolean checkBiome(RegistryEntry<Biome> current_biome){
+    public boolean checkBiome(Holder<Biome> current_biome){
         //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
         //and then stops checking
 
         //If true means whitelist aka it HAS to be present
         //if false means in MUST NOT be present
         if(Config.BIOME_LIST_MODE){
-            return Config.BIOME_SPAWN_LIST.contains(current_biome.getKey().get().getValue().toString());
+            return Config.BIOME_SPAWN_LIST.contains(current_biome.unwrapKey().get().location().toString());
         }else{
-            return !Config.BIOME_SPAWN_LIST.contains(current_biome.getKey().get().getValue().toString());
+            return !Config.BIOME_SPAWN_LIST.contains(current_biome.unwrapKey().get().location().toString());
         }
     }
 
