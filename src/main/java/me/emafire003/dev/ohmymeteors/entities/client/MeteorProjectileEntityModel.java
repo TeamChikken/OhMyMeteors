@@ -37,11 +37,14 @@ public class MeteorProjectileEntityModel extends EntityModel<MeteorProjectileEnt
 		PartDefinition cube_r2 = main.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(0, 0).addBox(3.0F, -12.0F, -1.0F, 12.0F, 12.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-2.0F, 0.0F, -10.0F, 0.0F, -0.7854F, 0.0F));
 		return LayerDefinition.create(modelData, 16, 16);
 	}
+
 	@Override
 	public void setupAnim(MeteorProjectileEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 	}
+
+
 	@Override
-	public void renderToBuffer(PoseStack matrices, VertexConsumer vertexConsumer, int light, int overlay, int color) {
-		main.render(matrices, vertexConsumer, light, overlay, color);
+	public void renderToBuffer(PoseStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+		main.render(matrices, vertices, light, overlay, red, green, blue, alpha);
 	}
 }

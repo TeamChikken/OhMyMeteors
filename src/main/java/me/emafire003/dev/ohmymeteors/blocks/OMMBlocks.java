@@ -13,22 +13,22 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.SoundType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Supplier;
 
 public class OMMBlocks {
-
     // Create a Deferred Register to hold Blocks which will all be registered under the "ohmymeteors" namespace
-    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(OhMyMeteors.MOD_ID);
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, OhMyMeteors.MOD_ID);
 
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
-            DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, OhMyMeteors.MOD_ID);
+            DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, OhMyMeteors.MOD_ID);
 
 
-    public static final DeferredBlock<Block> BASIC_METEOR_LASER = registerBlock("basic_meteor_laser",
+    public static final RegistryObject<Block> BASIC_METEOR_LASER = registerBlock("basic_meteor_laser",
             () -> new BasicMeteorLaserBlock(BlockBehaviour.Properties.of()
                     .strength(1.9f)
                     .lightLevel(value -> 1) //Makes a little bit of light
@@ -41,7 +41,7 @@ public class OMMBlocks {
                     BasicMeteorLaserBlockEntity::new, BASIC_METEOR_LASER.get()
             ).build(null));
 
-    public static final DeferredBlock<Block> ADVANCED_METEOR_LASER = registerBlock("advanced_meteor_laser",
+    public static final RegistryObject<Block> ADVANCED_METEOR_LASER = registerBlock("advanced_meteor_laser",
             () -> new AdvancedMeteorLaserBlock(BlockBehaviour.Properties.of()
                     .strength(2f)
                     .lightLevel(value -> 2) //Makes a little bit moreof light
@@ -54,18 +54,19 @@ public class OMMBlocks {
                     AdvancedMeteorLaserBlockEntity::new, ADVANCED_METEOR_LASER.get()
             ).build(null));
 
-    public static final DeferredBlock<Block> METEORIC_ROCK = registerBlock("meteoric_rock",
+    public static final RegistryObject<Block> METEORIC_ROCK = registerBlock("meteoric_rock",
             () -> new MeteoricRockBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops().strength(4F).forceSolidOn()));
 
 
-    private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {
-        DeferredBlock<T> toReturn = BLOCKS.register(name, block);
+
+    private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
+        RegistryObject<T> toReturn = BLOCKS.register(name, block);
         registerBlockItem(name, toReturn);
         return toReturn;
     }
 
-    private static <T extends Block> void registerBlockItem(String name, DeferredBlock<T> block) {
-        OMMItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
+    private static <T extends Block> RegistryObject<Item> registerBlockItem(String name, RegistryObject<T> block) {
+        return OMMItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
     }
 
     public static void register(IEventBus eventBus) {

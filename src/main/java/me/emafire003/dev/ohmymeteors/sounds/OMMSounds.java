@@ -1,18 +1,18 @@
 package me.emafire003.dev.ohmymeteors.sounds;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.Supplier;
 
 public class OMMSounds {
 
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS =
-            DeferredRegister.create(BuiltInRegistries.SOUND_EVENT, OhMyMeteors.MOD_ID);
+            DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, OhMyMeteors.MOD_ID);
 
     public static Supplier<SoundEvent> LASER_FIRE = registerSoundEvent("laser_fire");
     public static Supplier<SoundEvent> LASER_AREA_ON = registerSoundEvent("laser_area_on");

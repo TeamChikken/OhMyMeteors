@@ -3,16 +3,16 @@ package me.emafire003.dev.ohmymeteors.particles;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.Supplier;
 
 public class OMMParticles {
 
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES =
-            DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, OhMyMeteors.MOD_ID);
+            DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, OhMyMeteors.MOD_ID);
 
 
     public static final Supplier<SimpleParticleType> LASER_PARTICLE = PARTICLE_TYPES.register(

@@ -29,20 +29,22 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.item.enchantment.ProtectionEnchantment;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -74,28 +76,15 @@ public class SphereExplosion extends Explosion {
     protected final float power;
     protected final DamageSource damageSource;
     protected final ExplosionDamageCalculator behavior;
-    protected final ParticleOptions particle;
-    protected final ParticleOptions emitterParticle;
-    protected final Holder<SoundEvent> soundEvent;
+    /*protected final ParticleEffect particle;
+    protected final ParticleEffect emitterParticle;
+    protected final RegistryEntry<SoundEvent> soundEvent;*/
     protected final ObjectArrayList<BlockPos> affectedBlocks = new ObjectArrayList<>();
     protected final Map<Player, Vec3> affectedPlayers = Maps.newHashMap();
-    
 
-    public SphereExplosion(
-            Level world,
-            @Nullable Entity entity,
-            double x,
-            double y,
-            double z,
-            float power,
-            List<BlockPos> affectedBlocks,
-            Explosion.BlockInteraction destructionType,
-            ParticleOptions particle,
-            ParticleOptions emitterParticle,
-            Holder<SoundEvent> soundEvent
-    ) {
-        this(world, entity, getDefaultDamageSource(world, entity), null, x, y, z, power, false, destructionType, particle, emitterParticle, soundEvent);
-        this.affectedBlocks.addAll(affectedBlocks);
+
+    public SphereExplosion(Level world, @Nullable Entity entity, double x, double y, double z, float power, List<BlockPos> affectedBlocks) {
+        this(world, entity, x, y, z, power, false, Explosion.BlockInteraction.DESTROY_WITH_DECAY, affectedBlocks);
     }
 
     public SphereExplosion(
@@ -116,22 +105,9 @@ public class SphereExplosion extends Explosion {
     public SphereExplosion(
             Level world, @Nullable Entity entity, double x, double y, double z, float power, boolean createFire, Explosion.BlockInteraction destructionType
     ) {
-        this(
-                world,
-                entity,
-                getDefaultDamageSource(world, entity),
-                null,
-                x,
-                y,
-                z,
-                power,
-                createFire,
-                destructionType,
-                ParticleTypes.EXPLOSION,
-                ParticleTypes.EXPLOSION_EMITTER,
-                SoundEvents.GENERIC_EXPLODE
-        );
+        this(world, entity, null, null, x, y, z, power, createFire, destructionType);
     }
+
 
     public SphereExplosion(
             Level world,
@@ -143,12 +119,9 @@ public class SphereExplosion extends Explosion {
             double z,
             float power,
             boolean createFire,
-            Explosion.BlockInteraction destructionType,
-            ParticleOptions particle,
-            ParticleOptions emitterParticle,
-            Holder<SoundEvent> soundEvent
+            Explosion.BlockInteraction destructionType
     ) {
-        super(world, entity, damageSource, behavior, x,y,z,power,createFire,destructionType,particle,emitterParticle,soundEvent);
+        super(world, entity, damageSource, behavior, x,y,z, power, createFire, destructionType);
         this.world = world;
         this.entity = entity;
         this.power = power;
@@ -159,9 +132,9 @@ public class SphereExplosion extends Explosion {
         this.destructionType = destructionType;
         this.damageSource = damageSource == null ? world.damageSources().explosion(this) : damageSource;
         this.behavior = behavior == null ? this.chooseBehavior(entity) : behavior;
-        this.particle = particle;
+        /*this.particle = particle;
         this.emitterParticle = emitterParticle;
-        this.soundEvent = soundEvent;
+        this.soundEvent = soundEvent;*/
     }
 
     private ExplosionDamageCalculator chooseBehavior(@Nullable Entity entity) {
@@ -240,39 +213,35 @@ public class SphereExplosion extends Explosion {
         Vec3 vec3d = new Vec3(this.x, this.y, this.z);
 
         for (Entity entity : list) {
-            if (!entity.ignoreExplosion(this)) {
+            if (!entity.ignoreExplosion()) {
                 double v = Math.sqrt(entity.distanceToSqr(vec3d)) / q;
                 if (v <= 1.0) {
-                    double w = entity.getX() - this.x;
-                    double x = (entity instanceof PrimedTnt ? entity.getY() : entity.getEyeY()) - this.y;
-                    double y = entity.getZ() - this.z;
-                    double z = Math.sqrt(w * w + x * x + y * y);
-                    if (z != 0.0) {
-                        w /= z;
-                        x /= z;
-                        y /= z;
-                        if (this.behavior.shouldDamageEntity(this, entity)) {
-                            entity.hurt(this.damageSource, this.behavior.getEntityDamageAmount(this, entity));
-                        }
-
-                        double aa = (1.0 - v) * getSeenPercent(vec3d, entity) * this.behavior.getKnockbackMultiplier(entity);
-                        double ab;
+                    double x = entity.getX() - this.x;
+                    double y = (entity instanceof PrimedTnt ? entity.getY() : entity.getEyeY()) - this.y;
+                    double z = entity.getZ() - this.z;
+                    double aa = Math.sqrt(x * x + y * y + z * z);
+                    if (aa != 0.0) {
+                        x /= aa;
+                        y /= aa;
+                        z /= aa;
+                        double ab = getSeenPercent(vec3d, entity);
+                        double ac = (1.0 - v) * ab;
+                        entity.hurt(this.getDamageSource(), (int)((ac * ac + ac) / 2.0 * 7.0 * q + 1.0));
+                        double ad;
                         if (entity instanceof LivingEntity livingEntity) {
-                            ab = aa * (1.0 - livingEntity.getAttributeValue(Attributes.EXPLOSION_KNOCKBACK_RESISTANCE));
+                            ad = ProtectionEnchantment.getExplosionKnockbackAfterDampener(livingEntity, ac);
                         } else {
-                            ab = aa;
+                            ad = ac;
                         }
 
-                        w *= ab;
-                        x *= ab;
-                        y *= ab;
-                        Vec3 vec3d2 = new Vec3(w, x, y);
+                        x *= ad;
+                        y *= ad;
+                        z *= ad;
+                        Vec3 vec3d2 = new Vec3(x, y, z);
                         entity.setDeltaMovement(entity.getDeltaMovement().add(vec3d2));
                         if (entity instanceof Player playerEntity && !playerEntity.isSpectator() && (!playerEntity.isCreative() || !playerEntity.getAbilities().flying)) {
                             this.affectedPlayers.put(playerEntity, vec3d2);
                         }
-
-                        entity.onExplosionHit(this.entity);
                     }
                 }
             }
@@ -302,7 +271,7 @@ public class SphereExplosion extends Explosion {
                             this.x,
                             this.y,
                             this.z,
-                            this.soundEvent.value(),
+                            SoundEvents.GENERIC_EXPLODE,
                             SoundSource.BLOCKS,
                             4.0F,
                             (1.0F + (this.world.random.nextFloat() - this.world.random.nextFloat()) * 0.2F) * 0.7F,
@@ -312,47 +281,66 @@ public class SphereExplosion extends Explosion {
             world.playSound(
                     null, // Player - if non-null, will play sound for every nearby player *except* the specified player
                     BlockPos.containing(x,y,z), // The position of where the sound will come from
-                    this.soundEvent.value(), // The sound that will play, in this case, the sound the anvil plays when it lands.
+                    SoundEvents.GENERIC_EXPLODE, // The sound that will play, in this case, the sound the anvil plays when it lands.
                     SoundSource.BLOCKS, // This determines which of the volume sliders affect this sound
                     4f, //Volume multiplier, 1 is normal, 0.5 is half volume, etc
                     (1.0F + (this.world.random.nextFloat() - this.world.random.nextFloat()) * 0.2F) * 0.7F
             );
         }
 
+
         boolean bl = this.interactsWithBlocks();
         if (particles) {
-            ParticleOptions particleEffect;
             if (!(this.power < 2.0F) && bl) {
-                particleEffect = this.emitterParticle;
+                this.world.addParticle(ParticleTypes.EXPLOSION_EMITTER, this.x, this.y, this.z, 1.0, 0.0, 0.0);
             } else {
-                particleEffect = this.particle;
+                this.world.addParticle(ParticleTypes.EXPLOSION, this.x, this.y, this.z, 1.0, 0.0, 0.0);
             }
-
-            this.world.addParticle(particleEffect, this.x, this.y, this.z, 1.0, 0.0, 0.0);
         }
 
         if (bl) {
-            this.world.getProfiler().push("explosion_blocks");
-            List<Pair<ItemStack, BlockPos>> list = new ArrayList<>();
+            ObjectArrayList<Pair<ItemStack, BlockPos>> objectArrayList = new ObjectArrayList<>();
+            boolean bl2 = this.getIndirectSourceEntity() instanceof Player;
             Util.shuffle(this.affectedBlocks, this.world.random);
 
             for (BlockPos blockPos : this.affectedBlocks) {
-                this.world.getBlockState(blockPos).onExplosionHit(this.world, blockPos, this, (stack, pos) -> tryMergeStack(list, stack, pos));
+                BlockState blockState = this.world.getBlockState(blockPos);
+                Block block = blockState.getBlock();
+                if (!blockState.isAir()) {
+                    BlockPos blockPos2 = blockPos.immutable();
+                    this.world.getProfiler().push("explosion_blocks");
+                    if (block.dropFromExplosion(this) && this.world instanceof ServerLevel serverWorld) {
+                        BlockEntity blockEntity = blockState.hasBlockEntity() ? this.world.getBlockEntity(blockPos) : null;
+                        LootParams.Builder builder = new LootParams.Builder(serverWorld)
+                                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(blockPos))
+                                .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
+                                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity)
+                                .withOptionalParameter(LootContextParams.THIS_ENTITY, this.entity);
+                        if (this.destructionType == Explosion.BlockInteraction.DESTROY_WITH_DECAY) {
+                            builder.withParameter(LootContextParams.EXPLOSION_RADIUS, this.power);
+                        }
+
+                        blockState.spawnAfterBreak(serverWorld, blockPos, ItemStack.EMPTY, bl2);
+                        blockState.getDrops(builder).forEach(stack -> tryMergeStack(objectArrayList, stack, blockPos2));
+                    }
+
+                    this.world.setBlock(blockPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                    block.wasExploded(this.world, blockPos, this);
+                    this.world.getProfiler().pop();
+                }
             }
 
-            for (Pair<ItemStack, BlockPos> pair : list) {
+            for (Pair<ItemStack, BlockPos> pair : objectArrayList) {
                 Block.popResource(this.world, pair.getSecond(), pair.getFirst());
             }
-
-            this.world.getProfiler().pop();
         }
 
         if (this.createFire) {
-            for (BlockPos blockPos2 : this.affectedBlocks) {
+            for (BlockPos blockPos3 : this.affectedBlocks) {
                 if (this.random.nextInt(3) == 0
-                        && this.world.getBlockState(blockPos2).isAir()
-                        && this.world.getBlockState(blockPos2.below()).isSolidRender(this.world, blockPos2.below())) {
-                    this.world.setBlockAndUpdate(blockPos2, BaseFireBlock.getState(this.world, blockPos2));
+                        && this.world.getBlockState(blockPos3).isAir()
+                        && this.world.getBlockState(blockPos3.below()).isSolidRender(this.world, blockPos3.below())) {
+                    this.world.setBlockAndUpdate(blockPos3, BaseFireBlock.getState(this.world, blockPos3));
                 }
             }
         }

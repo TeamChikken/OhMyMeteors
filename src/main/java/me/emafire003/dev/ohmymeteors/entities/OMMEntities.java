@@ -5,15 +5,16 @@ import me.emafire003.dev.ohmymeteors.config.Config;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.Supplier;
 
 public class OMMEntities {
 
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
-            DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, OhMyMeteors.MOD_ID);
+            DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, OhMyMeteors.MOD_ID);
 
     public static final Supplier<EntityType<MeteorProjectileEntity>> METEOR_PROJECTILE_ENTITY =
             ENTITY_TYPES.register(

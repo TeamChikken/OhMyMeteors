@@ -5,7 +5,8 @@ import net.luckperms.api.util.Tristate;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.commands.CommandSourceStack;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
+
 import java.util.function.Predicate;
 
 public class PermissionsChecker {

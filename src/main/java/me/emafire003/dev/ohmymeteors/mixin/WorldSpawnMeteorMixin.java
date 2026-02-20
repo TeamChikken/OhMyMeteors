@@ -18,7 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -94,22 +94,22 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
         int chance = Config.METEOR_SPAWN_CHANCE;
 
         //If the current dimension is in the map, it will override the chance thing
-        if(Config.DIMENSION_CHANCES.containsKey(current_dim.getRegisteredName())){
-            chance = Config.DIMENSION_CHANCES.get(current_dim.getRegisteredName());
+        if(Config.DIMENSION_CHANCES.containsKey(current_dim.unwrapKey().get().location().toString())){
+            chance = Config.DIMENSION_CHANCES.get(current_dim.unwrapKey().get().location().toString());
         }
 
         //If the biome is in the map the chance gets overridden again
-        if(Config.BIOME_CHANCES.containsKey(current_biome.getRegisteredName())){
-            chance = Config.BIOME_CHANCES.get(current_biome.getRegisteredName());
+        if(Config.BIOME_CHANCES.containsKey(current_biome.unwrapKey().get().location().toString())){
+            chance = Config.BIOME_CHANCES.get(current_biome.unwrapKey().get().location().toString());
         }
 
         if(Config.MODIFY_SPAWN_CHANCE_AT_NIGHT && this.isNight()){
             chance = Config.METEOR_NIGHT_SPAWN_CHANCE;
-            if(Config.DIMENSION_NIGHT_CHANCES.containsKey(current_dim.getRegisteredName())){
-                chance = Config.DIMENSION_NIGHT_CHANCES.get(current_dim.getRegisteredName());
+            if(Config.DIMENSION_NIGHT_CHANCES.containsKey(current_dim.unwrapKey().get().location().toString())){
+                chance = Config.DIMENSION_NIGHT_CHANCES.get(current_dim.unwrapKey().get().location().toString());
             }
-            if(Config.BIOME_NIGHT_CHANCES.containsKey(current_biome.getRegisteredName())){
-                chance = Config.BIOME_NIGHT_CHANCES.get(current_biome.getRegisteredName());
+            if(Config.BIOME_NIGHT_CHANCES.containsKey(current_biome.unwrapKey().get().location().toString())){
+                chance = Config.BIOME_NIGHT_CHANCES.get(current_biome.unwrapKey().get().location().toString());
             }
         }
 
