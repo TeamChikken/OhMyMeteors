@@ -91,6 +91,7 @@ public class OhMyMeteors {
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new OMMEvents());
 		MinecraftForge.EVENT_BUS.register(SchedulerUtils.class);
+		//MinecraftForge.EVENT_BUS.register(OhMyMeteorsClient.class);
 		eventBus.addListener(this::registerCustomArgumentType);
 
 
@@ -250,21 +251,43 @@ public class OhMyMeteors {
 
 	/////////////////////////////// Client ///////////////////////////////
 
-	@Mod.EventBusSubscriber(modid = OhMyMeteors.MOD_ID, value = Dist.CLIENT)
-	public static class OhMyMeteorsClient {
+	// You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
+	@Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+	public static class ClientModEvents {
+		@SubscribeEvent
+		public static void onClientSetup(FMLClientSetupEvent event) {
 
+			EntityRenderers.register(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), MeteorProjectileEntityRenderer::new);
+			EntityRenderers.register(OMMEntities.METEOR_KITTY_CAT.get(), MeteorCatEntityRenderer::new);
+		}
+		@SubscribeEvent
+		public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
+			event.registerSpriteSet(OMMParticles.LASER_PARTICLE.get(), LaserParticle.EggCrackFactory::new);
+			event.registerSpriteSet(OMMParticles.LASER_PARTICLE_SMALL.get(), LaserParticleSmall.EggCrackFactory::new);
+			event.registerSpriteSet(OMMParticles.LASER_FLASH_PARTICLE.get(), LaserFlashParticle.LaserFlashFactory::new);
+		}
+
+		@SubscribeEvent
+		public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event){
+			event.registerLayerDefinition(MeteorProjectileEntityModel.METEOR, MeteorProjectileEntityModel::getTexturedModelData);
+		}
+	}
+
+	/*@Mod.EventBusSubscriber(modid = OhMyMeteors.MOD_ID, value = Dist.CLIENT)
+	public static class OhMyMeteorsClient {
 
     /*public void registerParticles(){
         ParticleFactoryRegistry.getInstance().register(OMMParticles.LASER_PARTICLE, LaserParticle.EggCrackFactory::new);
         ParticleFactoryRegistry.getInstance().register(OMMParticles.LASER_PARTICLE_SMALL, LaserParticleSmall.EggCrackFactory::new);
         ParticleFactoryRegistry.getInstance().register(OMMParticles.LASER_FLASH_PARTICLE, LaserFlashParticle.LaserFlashFactory::new);
-    }*/
+    }
+
 
 		@SubscribeEvent
 		static void onClientSetup(FMLClientSetupEvent event) {
+			LOGGER.error("Regustering entity struff");
 			registerEntityStuff();
 		}
-
 		@SubscribeEvent
 		public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
 			event.registerSpriteSet(OMMParticles.LASER_PARTICLE.get(), LaserParticle.EggCrackFactory::new);
@@ -276,10 +299,11 @@ public class OhMyMeteors {
 			EntityRenderers.register(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), MeteorProjectileEntityRenderer::new);
 			EntityRenderers.register(OMMEntities.METEOR_KITTY_CAT.get(), MeteorCatEntityRenderer::new);
 
+
         /*EntityModelLayerRegistry.registerModelLayer(MeteorProjectileEntityModel.METEOR, MeteorProjectileEntityModel::getTexturedModelData);
         EntityRendererRegistry.register(OMMEntities.METEOR_PROJECTILE_ENTITY, MeteorProjectileEntityRenderer::new);
         //EntityModelLayerRegistry.registerModelLayer(MeteorCatEntityModel., MeteorProjectileEntityModel::getTexturedModelData);
-        EntityRendererRegistry.register(OMMEntities.METEOR_KITTY_CAT, MeteorCatEntityRenderer::new);*/
+        EntityRendererRegistry.register(OMMEntities.METEOR_KITTY_CAT, MeteorCatEntityRenderer::new);
 
 		}
 
@@ -292,8 +316,8 @@ public class OhMyMeteors {
     public static void registerBlockStuff(){
         BlockRenderLayerMap.INSTANCE.putBlock(OMMBlocks.BASIC_METEOR_LASER, RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(OMMBlocks.ADVANCED_METEOR_LASER, RenderType.translucent());
-    }*/
+    }
 
-	}
+	}*/
 
 }
