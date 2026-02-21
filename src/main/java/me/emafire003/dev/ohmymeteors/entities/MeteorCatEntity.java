@@ -61,7 +61,7 @@ public class MeteorCatEntity extends Cat {
     //also should not need overriding
     @Nullable
     public MeteorCatEntity getBreedOffspring(ServerLevel serverWorld, AgeableMob passiveEntity) {
-        MeteorCatEntity catEntity = OMMEntities.METEOR_KITTY_CAT.create(serverWorld);
+        MeteorCatEntity catEntity = OMMEntities.METEOR_KITTY_CAT.get().create(serverWorld);
         //EntityType.CAT.create(serverWorld);
         if (catEntity != null && passiveEntity instanceof MeteorCatEntity catEntity2) {
 

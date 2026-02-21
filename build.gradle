@@ -14,6 +14,7 @@ base {
 }
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
+//TODO buttt i need 21 to make SchemConvert work
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
@@ -175,33 +176,34 @@ dependencies {
     //StructurePlacerAPI (to spawn the meteor structure on impact)
     //implementation "maven.modrinth:structureplacerapi:${project.structureplacerapi_version}"
     //jarJar("maven.modrinth:structureplacerapi:${project.structureplacerapi_version}")
-    implementation files("run/libs/structureplacerapi-2.0.0+1.20.1+forge.jar")
+    implementation files("run/libs/structureplacerapi-2.0.0+1.20.1+forge-all.jar")
 
     //ParticleAnimationLib for cool particle effects
-    implementation "maven.modrinth:particleanimationlib:${project.pal_version}"
-    jarJar("maven.modrinth:particleanimationlib:${project.pal_version}")
+    /*implementation "maven.modrinth:particleanimationlib:${project.pal_version}"
+    jarJar("maven.modrinth:particleanimationlib:${project.pal_version}")*/
+    implementation files("run/libs/particleanimationlib-0.1.2+forge.jar")
 
     //Fabric permission api
     //implementation "me.lucko:fabric-permissions-api:${project.fabricperms_version}"
     //Luckperms
-    implementation "net.luckperms:api:${project.luckperms_version}"
+    /*implementation*/compileOnly "net.luckperms:api:${project.luckperms_version}"
 
     //Flan
-    implementation("maven.modrinth:flan:${project.flan_version}"){
+    compileOnly("maven.modrinth:flan:${project.flan_version}"){
         transitive = false
     }
 
     //Yet another world protector (world protection)
     //implementation("maven.modrinth:yawp:${project.yawp_version}")
-    implementation("curse.maven:yawp-663276:${project.yawp_version}"){
+    compileOnly("curse.maven:yawp-663276:${project.yawp_version}"){
         transitive = false
     }
     runtimeOnly("maven.modrinth:forge-config-api-port:v21.1.6-1.21.1-NeoForge")
 
     //SchemConvert
-    implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT'
-    jarJar("com.github.PiTheGuy:SchemConvert:master-SNAPSHOT")
-    //implementation 'com.github.PiTheGuy:SchemConvert:v1.2.5 '
+    /*implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT'
+    jarJar("com.github.PiTheGuy:SchemConvert:master-SNAPSHOT")*/
+    implementation files("run/libs/SchemConvert-1.2.5+mod+test.jar")
 }
 
 mixin {
@@ -219,7 +221,8 @@ tasks.named('processResources', ProcessResources).configure {
             forge_version: forge_version, forge_version_range: forge_version_range,
             loader_version_range: loader_version_range,
             mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_authors: mod_authors, mod_description: mod_description,
+            mod_authors: mod_authors,
+            //mod_description: mod_description,
     ]
     inputs.properties replaceProperties
 

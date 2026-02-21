@@ -40,7 +40,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
 
     @Shadow public abstract boolean addFreshEntity(Entity entity);
 
-    @Shadow public abstract ChunkSource getChunkSource();
+    //@Shadow public abstract ChunkSource getChunkSource();
 
     @Shadow public abstract ServerLevel getLevel();
 

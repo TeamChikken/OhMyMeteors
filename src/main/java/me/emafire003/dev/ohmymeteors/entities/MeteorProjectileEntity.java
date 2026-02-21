@@ -377,7 +377,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         if(this.getSize() < 2){
             int r = this.level().getRandom().nextIntBetweenInclusive(1,3);
             if(r == 1){
-                this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.defaultBlockState());
+                this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.get().defaultBlockState());
             }else if(r == 2){
                 this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.SMOOTH_BASALT.defaultBlockState());
             }else{

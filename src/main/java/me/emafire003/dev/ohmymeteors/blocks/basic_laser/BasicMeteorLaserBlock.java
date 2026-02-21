@@ -1,6 +1,5 @@
 package me.emafire003.dev.ohmymeteors.blocks.basic_laser;
 
-import com.mojang.serialization.MapCodec;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.blocks.OMMProperties;
@@ -23,13 +22,14 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.core.BlockPos;
@@ -74,17 +74,12 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
     }
 
     @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(BasicMeteorLaserBlock::new);
-    }
-
-    @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new BasicMeteorLaserBlockEntity(pos, state);
     }
 
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
@@ -94,9 +89,9 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
         return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, OMMBlocks.BASIC_METEOR_LASER_BLOCK_ENTITY.get(), BasicMeteorLaserBlock::tick) : null;
     }
 
-        /**
-         * Wakes up all the lasers to check for meteors above them.
-         * They automatically go back to sleep after {@link #AWAKE_TIME_LIMIT} ticks*/
+    /**
+     * Wakes up all the lasers to check for meteors above them.
+     * They automatically go back to sleep after {@link #AWAKE_TIME_LIMIT} ticks*/
     public static void awakeLasers(){
         AWAKE = true;
         tickCounterAwakening = 0;
@@ -106,12 +101,11 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
         return AWAKE;
     }
 
-    //TODO it remains active for some reason after firing
-
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        ItemStack stack = player.getItemInHand(hand);
         //Note: sneaking won't work since it disables this interaction
-        if(stack.is(OMMItems.FOCUSING_LENSES)){
+        if(stack.is(OMMItems.FOCUSING_LENSES.get())){
             BlockState blockState = state.cycle(SHOW_AREA);
             if(blockState.getValue(SHOW_AREA)){
                 world.playSound(null, pos, OMMSounds.LASER_AREA_ON.get(), SoundSource.BLOCKS, 0.7f, 1f);
@@ -120,8 +114,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
             }
             world.setBlock(pos, blockState, Block.UPDATE_CLIENTS);
         }
-
-        return super.useItemOn(stack, state, world, pos, player, hand, hit);
+        return super.use(state, world, pos, player, hand, hit);
     }
 
     /// Yes it's very hacky, but only a small amount of blocks are going to be in cooldown at the same time, if any.
@@ -164,26 +157,26 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
 
             //useful to see where the box is, gets shown when the the show area blockstate property is true
             if(state.getValue(SHOW_AREA)){
-                CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, box.getMinPosition())
-                        .particles(30).targetPos(box.getMaxPosition()).iterations(1)
+                CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, new Vec3(box.minX, box.minY, box.minZ))
+                        .particles(30).targetPos(new Vec3(box.maxX, box.maxY, box.maxZ)).iterations(1)
                         .build();
                 cuboidEffect.run();
 
-                Vec3 lowerPos = new Vec3(box.getMaxPosition().x(), pos.getY(), box.getMaxPosition().z());
+                Vec3 lowerPos = new Vec3(new Vec3(box.maxX, box.maxY, box.maxZ).x(), pos.getY(), new Vec3(box.maxX, box.maxY, box.maxZ).z());
 
                 //The two vertical lines at the angles
                 LineEffect line = LineEffect
-                        .builder(serverWorld, ParticleTypes.BUBBLE_POP, box.getMaxPosition())
+                        .builder(serverWorld, ParticleTypes.BUBBLE_POP, new Vec3(box.maxX, box.maxY, box.maxZ))
                         .targetPos(lowerPos)
-                        .particles((int) (lowerPos.distanceTo(box.getMaxPosition())))
+                        .particles((int) (lowerPos.distanceTo(new Vec3(box.maxX, box.maxY, box.maxZ))))
                         .iterations(1)
                         .build();
                 line.run();
 
-                lowerPos = new Vec3(box.getMinPosition().x(), pos.getY(), box.getMinPosition().z());
+                lowerPos = new Vec3(new Vec3(box.minX, box.minY, box.minZ).x(), pos.getY(), new Vec3(box.minX, box.minY, box.minZ).z());
                 line.setTargetPos(lowerPos);
-                line.setOriginPos(box.getMinPosition());
-                line.setParticles((int) (lowerPos.distanceTo(box.getMinPosition())));
+                line.setOriginPos(new Vec3(box.minX, box.minY, box.minZ));
+                line.setParticles((int) (lowerPos.distanceTo(new Vec3(box.minX, box.minY, box.minZ))));
                 line.run();
 
                 //The vertical line in the middle
@@ -196,14 +189,14 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
                 line.run();
 
                 //The horizontal lines at the top which point to the corner of the box
-                lowerPos = box.getMaxPosition();
+                lowerPos = new Vec3(box.maxX, box.maxY, box.maxZ);
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setForced(false);
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
                 line.run();
 
-                lowerPos = box.getMinPosition();
+                lowerPos = new Vec3(box.minX, box.minY, box.minZ);
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
@@ -223,7 +216,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
             }
 
             List<MeteorProjectileEntity> meteors = world.getEntitiesOfClass(MeteorProjectileEntity.class, box, (meteorProjectileEntity -> true));
-            if(meteors.isEmpty()){
+            if(meteors == null || meteors.isEmpty()){
                 return;
             }
             //From here it means there is at least one meteor, so activate the laser with the firing texture and stuff
@@ -242,10 +235,10 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
                 serverWorld.sendParticles(OMMParticles.LASER_FLASH_PARTICLE.get(), pos.above().above().getX(), pos.above().above().getY(), pos.above().above().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
 
                 LineEffect lineEffect = LineEffect
-                        .builder(serverWorld, OMMParticles.LASER_PARTICLE.get(), pos.getCenter().add(0, 0.5, 0))
+                        .builder(serverWorld, OMMParticles.LASER_PARTICLE.get(), Vec3.atLowerCornerOf(pos).add(0, 0.5, 0))
                         .targetPos(meteorProjectileEntity.position())
                         .forced(Config.USE_FORCED_PARTICLES)
-                        .particles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*3))
+                        .particles((int) (Vec3.atLowerCornerOf(pos).distanceTo(meteorProjectileEntity.position())*3))
                         .build();
                 putInCooldown(blockEntity);
                 lineEffect.runFor(1, (effect, t) -> {
@@ -258,6 +251,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
 
                 //Plays the "pew" laser firing sound
                 world.playSound(null, pos, OMMSounds.LASER_FIRE.get(), SoundSource.BLOCKS, 1f, 1.25f);
+
 
 
                 if(Config.ANNOUNCE_METEOR_DESTROYED){
@@ -315,7 +309,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         return makeShape();
     }
 }

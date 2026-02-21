@@ -1,6 +1,5 @@
 package me.emafire003.dev.ohmymeteors.blocks.advanced_laser;
 
-import com.mojang.serialization.MapCodec;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.blocks.basic_laser.BasicMeteorLaserBlock;
@@ -12,7 +11,6 @@ import me.emafire003.dev.particleanimationlib.effects.CuboidEffect;
 import me.emafire003.dev.particleanimationlib.effects.LineEffect;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -48,11 +46,6 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
     public AdvancedMeteorLaserBlock(Properties settings) {
         super(settings);
         this.registerDefaultState(this.stateDefinition.any().setValue(SHOW_AREA, false).setValue(IN_COOLDOWN, false).setValue(FIRING, false));
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(AdvancedMeteorLaserBlock::new);
     }
 
     @Override
@@ -117,37 +110,36 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                     return;
                 }
             }
-            
+
             if(!state.getValue(SHOW_AREA) && !AWAKE){
                 return;
             }
 
             AABB box = new AABB(new BlockPos(pos.getX(), Math.min(pos.getY()+getYLevelAreaCoverage(), Config.METEOR_SPAWN_HEIGHT), pos.getZ())).inflate(getRadiusAreaCoverage(), 1, getRadiusAreaCoverage());
 
-
             //useful to see where the box is, gets shown when the the show area blockstate property is true
             if(state.getValue(SHOW_AREA)){
-                CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, box.getMinPosition())
-                        .particles(30).targetPos(box.getMaxPosition()).iterations(1)
+                CuboidEffect cuboidEffect = CuboidEffect.builder(serverWorld, ParticleTypes.BUBBLE_POP, new Vec3(box.minX, box.minY, box.minZ))
+                        .particles(30).targetPos(new Vec3(box.maxX, box.maxY, box.maxZ)).iterations(1)
                         .build();
                 cuboidEffect.run();
 
 
-                Vec3 lowerPos = new Vec3(box.getMaxPosition().x(), pos.getY(), box.getMaxPosition().z());
+                Vec3 lowerPos = new Vec3(new Vec3(box.maxX, box.maxY, box.maxZ).x(), pos.getY(), new Vec3(box.maxX, box.maxY, box.maxZ).z());
 
                 //The two vertical lines at the angles
                 LineEffect line = LineEffect
-                        .builder(serverWorld, ParticleTypes.BUBBLE_POP, box.getMaxPosition())
+                        .builder(serverWorld, ParticleTypes.BUBBLE_POP, new Vec3(box.maxX, box.maxY, box.maxZ))
                         .targetPos(lowerPos)
-                        .particles((int) (lowerPos.distanceTo(box.getMaxPosition())))
+                        .particles((int) (lowerPos.distanceTo(new Vec3(box.maxX, box.maxY, box.maxZ))))
                         .iterations(1)
                         .build();
                 line.run();
 
-                lowerPos = new Vec3(box.getMinPosition().x(), pos.getY(), box.getMinPosition().z());
+                lowerPos = new Vec3(new Vec3(box.minX, box.minY, box.minZ).x(), pos.getY(), new Vec3(box.minX, box.minY, box.minZ).z());
                 line.setTargetPos(lowerPos);
-                line.setOriginPos(box.getMinPosition());
-                line.setParticles((int) (lowerPos.distanceTo(box.getMinPosition())));
+                line.setOriginPos(new Vec3(box.minX, box.minY, box.minZ));
+                line.setParticles((int) (lowerPos.distanceTo(new Vec3(box.minX, box.minY, box.minZ))));
                 line.run();
 
                 //The vertical line in the middle
@@ -160,14 +152,14 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 line.run();
 
                 //The horizontal lines at the top which point to the corner of the box
-                lowerPos = box.getMaxPosition();
                 line.setForced(false);
+                lowerPos = new Vec3(box.maxX, box.maxY, box.maxZ);
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
                 line.run();
 
-                lowerPos = box.getMinPosition();
+                lowerPos = new Vec3(box.minX, box.minY, box.minZ);
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
@@ -187,7 +179,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
             }
 
             List<MeteorProjectileEntity> meteors = world.getEntitiesOfClass(MeteorProjectileEntity.class, box, (meteorProjectileEntity -> true));
-            if(meteors.isEmpty()){
+            if(meteors == null || meteors.isEmpty()){
                 return;
             }
 
@@ -203,33 +195,33 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
 
                 //BUBBLE_POP could also work?
                 LineEffect lineEffect = LineEffect
-                        .builder(serverWorld, OMMParticles.LASER_PARTICLE.get(), pos.above().getCenter())
+                        .builder(serverWorld, OMMParticles.LASER_PARTICLE.get(), Vec3.atLowerCornerOf(pos.above()))
                         .targetPos(meteorProjectileEntity.position())
-                        .particles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*2))
+                        .particles((int) (Vec3.atLowerCornerOf(pos).distanceTo(meteorProjectileEntity.position())*2))
                         .forced(Config.USE_FORCED_PARTICLES)
                         .build();
 
                 lineEffect.setParticle(OMMParticles.LASER_PARTICLE_SMALL.get());
-                lineEffect.setOriginPos(pos.above().getCenter().add(0.5, -0.5, 0));
-                lineEffect.setParticles((int) (pos.above().getCenter().add(0.5, -0.5, 0).distanceTo(meteorProjectileEntity.position())*2));
+                lineEffect.setOriginPos(Vec3.atLowerCornerOf(pos.above()).add(0.5, -0.5, 0));
+                lineEffect.setParticles((int) (Vec3.atLowerCornerOf(pos.above()).add(0.5, -0.5, 0).distanceTo(meteorProjectileEntity.position())*2));
                 lineEffect.runFor(1);
 
-                lineEffect.setOriginPos(pos.above().getCenter().add(-0.5, -0.5, 0));
-                lineEffect.setParticles((int) (pos.above().getCenter().add(-0.5, -0.5, 0).distanceTo(meteorProjectileEntity.position())*2));
+                lineEffect.setOriginPos(Vec3.atLowerCornerOf(pos.above()).add(-0.5, -0.5, 0));
+                lineEffect.setParticles((int) (Vec3.atLowerCornerOf(pos.above()).add(-0.5, -0.5, 0).distanceTo(meteorProjectileEntity.position())*2));
                 lineEffect.runFor(1);
 
-                lineEffect.setOriginPos(pos.above().getCenter().add(0, -0.5, 0.5));
-                lineEffect.setParticles((int) (pos.above().getCenter().add(0, -0.5, 0.5).distanceTo(meteorProjectileEntity.position())*2));
+                lineEffect.setOriginPos(Vec3.atLowerCornerOf(pos.above()).add(0, -0.5, 0.5));
+                lineEffect.setParticles((int) (Vec3.atLowerCornerOf(pos.above()).add(0, -0.5, 0.5).distanceTo(meteorProjectileEntity.position())*2));
                 lineEffect.runFor(1);
 
-                lineEffect.setOriginPos(pos.above().getCenter().add(0, -0.5, -0.5));
-                lineEffect.setParticles((int) (pos.above().getCenter().add(0, -0.5, -0.5).distanceTo(meteorProjectileEntity.position())*2));
+                lineEffect.setOriginPos(Vec3.atLowerCornerOf(pos.above()).add(0, -0.5, -0.5));
+                lineEffect.setParticles((int) (Vec3.atLowerCornerOf(pos.above()).add(0, -0.5, -0.5).distanceTo(meteorProjectileEntity.position())*2));
                 lineEffect.runFor(1);
 
                 lineEffect.setParticle(OMMParticles.LASER_PARTICLE.get());
-                lineEffect.setOriginPos(pos.above().getCenter());
+                lineEffect.setOriginPos(Vec3.atLowerCornerOf(pos.above()));
                 lineEffect.setTargetPos(meteorProjectileEntity.position());
-                lineEffect.setParticles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*2));
+                lineEffect.setParticles((int) (Vec3.atLowerCornerOf(pos).distanceTo(meteorProjectileEntity.position())*2));
                 putInCooldown(blockEntity);
                 lineEffect.runFor(1, (effect, t) -> {
                     //If the ticks are 19/20 it means the effect is about to end (1 second = 20 ticks), so revert back the state

@@ -6,17 +6,24 @@ import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentT
 import me.emafire003.dev.ohmymeteors.commands.argument.MeteorSizeClassArgumentType;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
+import me.emafire003.dev.ohmymeteors.entities.client.MeteorCatEntityRenderer;
+import me.emafire003.dev.ohmymeteors.entities.client.MeteorProjectileEntityModel;
+import me.emafire003.dev.ohmymeteors.entities.client.MeteorProjectileEntityRenderer;
 import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.items.OMMItemTab;
 import me.emafire003.dev.ohmymeteors.items.OMMItems;
+import me.emafire003.dev.ohmymeteors.particles.LaserFlashParticle;
+import me.emafire003.dev.ohmymeteors.particles.LaserParticle;
+import me.emafire003.dev.ohmymeteors.particles.LaserParticleSmall;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 
 import net.luckperms.api.LuckPermsProvider;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.server.MinecraftServer;
@@ -27,6 +34,9 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.tags.TagKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -35,6 +45,8 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.RegisterEvent;
 import org.slf4j.Logger;
@@ -61,7 +73,8 @@ public class OhMyMeteors {
 
 	// The constructor for the mod class is the first code that is run when your mod is loaded.
 	// FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
-	public OhMyMeteors(IEventBus eventBus) {
+	public OhMyMeteors(FMLJavaModLoadingContext context) {
+		IEventBus eventBus = context.getModEventBus();
 		// Register the commonSetup method for modloading
 		//modEventBus.addListener(this::commonSetup);
 
@@ -170,11 +183,14 @@ public class OhMyMeteors {
 
 	public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses"));
 	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses_and_destroy"));
+	public static final TagKey<Block> AIR_BLOCKS = TagKey.create(Registries.BLOCK, getIdentifier("air"));
+
 
 	@SuppressWarnings("unused")
 	public static void registerTags(){
 		HolderSet.Named<Block> METEOR_BYPASSES_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_BYPASSES);
 		HolderSet.Named<Block> METEOR_BYPASSES_AND_DESTROY_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_BYPASSES_AND_DESTROY);
+		HolderSet.Named<Block> AIR_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(AIR_BLOCKS);
 
 	}
 
@@ -230,6 +246,54 @@ public class OhMyMeteors {
 			METEOR_STRUCTURES.add(OhMyMeteors.getIdentifier("error"));
 			OhMyMeteors.LOGGER.error("ERROR! No meteor structures available, you have just removed every default structure! An error meteor structure is all that is going to spawn currently.  Please insert at least one of your custom structures, and reload!");
 		}
+	}
+
+	/////////////////////////////// Client ///////////////////////////////
+
+	@Mod.EventBusSubscriber(modid = OhMyMeteors.MOD_ID, value = Dist.CLIENT)
+	public static class OhMyMeteorsClient {
+
+
+    /*public void registerParticles(){
+        ParticleFactoryRegistry.getInstance().register(OMMParticles.LASER_PARTICLE, LaserParticle.EggCrackFactory::new);
+        ParticleFactoryRegistry.getInstance().register(OMMParticles.LASER_PARTICLE_SMALL, LaserParticleSmall.EggCrackFactory::new);
+        ParticleFactoryRegistry.getInstance().register(OMMParticles.LASER_FLASH_PARTICLE, LaserFlashParticle.LaserFlashFactory::new);
+    }*/
+
+		@SubscribeEvent
+		static void onClientSetup(FMLClientSetupEvent event) {
+			registerEntityStuff();
+		}
+
+		@SubscribeEvent
+		public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
+			event.registerSpriteSet(OMMParticles.LASER_PARTICLE.get(), LaserParticle.EggCrackFactory::new);
+			event.registerSpriteSet(OMMParticles.LASER_PARTICLE_SMALL.get(), LaserParticleSmall.EggCrackFactory::new);
+			event.registerSpriteSet(OMMParticles.LASER_FLASH_PARTICLE.get(), LaserFlashParticle.LaserFlashFactory::new);
+		}
+
+		public static void registerEntityStuff(){
+			EntityRenderers.register(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), MeteorProjectileEntityRenderer::new);
+			EntityRenderers.register(OMMEntities.METEOR_KITTY_CAT.get(), MeteorCatEntityRenderer::new);
+
+        /*EntityModelLayerRegistry.registerModelLayer(MeteorProjectileEntityModel.METEOR, MeteorProjectileEntityModel::getTexturedModelData);
+        EntityRendererRegistry.register(OMMEntities.METEOR_PROJECTILE_ENTITY, MeteorProjectileEntityRenderer::new);
+        //EntityModelLayerRegistry.registerModelLayer(MeteorCatEntityModel., MeteorProjectileEntityModel::getTexturedModelData);
+        EntityRendererRegistry.register(OMMEntities.METEOR_KITTY_CAT, MeteorCatEntityRenderer::new);*/
+
+		}
+
+		@SubscribeEvent
+		public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event){
+			event.registerLayerDefinition(MeteorProjectileEntityModel.METEOR, MeteorProjectileEntityModel::getTexturedModelData);
+		}
+
+    /*
+    public static void registerBlockStuff(){
+        BlockRenderLayerMap.INSTANCE.putBlock(OMMBlocks.BASIC_METEOR_LASER, RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(OMMBlocks.ADVANCED_METEOR_LASER, RenderType.translucent());
+    }*/
+
 	}
 
 }
