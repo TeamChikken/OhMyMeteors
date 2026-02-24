@@ -50,17 +50,17 @@ public class CustomStructureCommand implements OMMCommand {
                 struct_id = "/"+size.getSerializedName()+"/special/"+ structureId.getPath()+".nbt";
             }
 
-            //The path of the "generated" folder where structures are saved
+            //The path of the "generated" folder where structure are saved
             String generated_path = ((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getStorageSource().getLevelPath(LevelResource.GENERATED_DIR).toString();
 
             //copies the structure file from the generated directory into the datapack folder. sends error if the file already exists
             try{
-                if(!Files.exists(Path.of(generated_path+"/minecraft/structure/" + structureId.getPath()+".nbt"))){
+                if(!Files.exists(Path.of(generated_path+"/minecraft/structures/" + structureId.getPath()+".nbt"))){
                     context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed.origin_not_found", structureId.getPath()+".nbt")));
-                    OhMyMeteors.LOGGER.warn("The path in which the file was searched: " + Path.of(generated_path+"/minecraft/structure/" + structureId.getPath()+".nbt"));
+                    OhMyMeteors.LOGGER.warn("The path in which the file was searched: " + Path.of(generated_path+"/minecraft/structures/" + structureId.getPath()+".nbt"));
                     return 0;
                 }
-                Files.copy(Path.of(generated_path+"/minecraft/structure/" + structureId.getPath()+".nbt"),
+                Files.copy(Path.of(generated_path+"/minecraft/structures/" + structureId.getPath()+".nbt"),
                         Path.of(PACK_DIR_STRUCTURE + struct_id));
             }catch (FileAlreadyExistsException e){
                 context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", structureId.getPath())));
@@ -442,7 +442,7 @@ public class CustomStructureCommand implements OMMCommand {
         }
 
         //creates the structure directories
-        PACK_DIR_STRUCTURE = Files.createDirectories(Path.of(PACK_DIR + "/data/" + OhMyMeteors.MOD_ID + "/structure/"));
+        PACK_DIR_STRUCTURE = Files.createDirectories(Path.of(PACK_DIR + "/data/" + OhMyMeteors.MOD_ID + "/structures/"));
         Files.createDirectories(Path.of(PACK_DIR_STRUCTURE + "/big/special/"));
         Files.createDirectories(Path.of(PACK_DIR_STRUCTURE + "/huge/special/"));
         Files.createDirectories(Path.of(PACK_DIR_STRUCTURE + "/medium/special/"));
