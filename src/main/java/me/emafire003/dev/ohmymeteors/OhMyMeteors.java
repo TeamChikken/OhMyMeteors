@@ -161,6 +161,8 @@ public class OhMyMeteors {
 		}
 	}
 
+
+
 	//Register argument types
 	private void registerCustomArgumentType(RegisterEvent event) {
 		event.register(
@@ -185,6 +187,7 @@ public class OhMyMeteors {
 	public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses"));
 	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses_and_destroy"));
 	public static final TagKey<Block> AIR_BLOCKS = TagKey.create(Registries.BLOCK, getIdentifier("air"));
+
 
 
 	@SuppressWarnings("unused")

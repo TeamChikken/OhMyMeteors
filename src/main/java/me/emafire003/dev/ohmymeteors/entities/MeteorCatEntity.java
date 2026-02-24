@@ -27,6 +27,7 @@ public class MeteorCatEntity extends Cat {
         return false;
     }
 
+    //TODO register the attributes
     public static AttributeSupplier.Builder createCatAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 15.0)
