@@ -55,12 +55,12 @@ public class CustomStructureCommand implements OMMCommand {
 
             //copies the structure file from the generated directory into the datapack folder. sends error if the file already exists
             try{
-                if(!Files.exists(Path.of(generated_path+"/minecraft/structures/" + structureId.getPath()+".nbt"))){
+                if(!Files.exists(Path.of(generated_path+"/minecraft/structure/" + structureId.getPath()+".nbt"))){
                     context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed.origin_not_found", structureId.getPath()+".nbt")));
-                    OhMyMeteors.LOGGER.warn("The path in which the file was searched: " + Path.of(generated_path+"/minecraft/structures/" + structureId.getPath()+".nbt"));
+                    OhMyMeteors.LOGGER.warn("The path in which the file was searched: " + Path.of(generated_path+"/minecraft/structure/" + structureId.getPath()+".nbt"));
                     return 0;
                 }
-                Files.copy(Path.of(generated_path+"/minecraft/structures/" + structureId.getPath()+".nbt"),
+                Files.copy(Path.of(generated_path+"/minecraft/structure/" + structureId.getPath()+".nbt"),
                         Path.of(PACK_DIR_STRUCTURE + struct_id));
             }catch (FileAlreadyExistsException e){
                 context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", structureId.getPath())));

@@ -3,6 +3,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
      id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'org.spongepowered.mixin' version '0.7.+'
 }
 
@@ -149,7 +150,9 @@ repositories {
     maven { url 'https://maven.nucleoid.xyz/' }
 }
 
+
 dependencies {
+    jarJar.enable()
     // Specify the version of Minecraft to use.
     // Any artifact can be supplied so long as it has a "userdev" classifier artifact and is a compatible patcher artifact.
     // The "userdev" classifier will be requested and setup by ForgeGradle.
@@ -174,36 +177,43 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
     //StructurePlacerAPI (to spawn the meteor structure on impact)
-    //implementation "maven.modrinth:structureplacerapi:${project.structureplacerapi_version}"
+    implementation fg.deobf("maven.modrinth:structureplacerapi:${project.structureplacerapi_version}")
     //jarJar("maven.modrinth:structureplacerapi:${project.structureplacerapi_version}")
-    implementation files("run/libs/structureplacerapi-2.0.0+1.20.1+forge-all.jar")
+
+    //implementation fg.deobf('com.github.Emafire003:StructurePlacerAPI:forge-SNAPSHOT')
 
     //ParticleAnimationLib for cool particle effects
-    /*implementation "maven.modrinth:particleanimationlib:${project.pal_version}"
-    jarJar("maven.modrinth:particleanimationlib:${project.pal_version}")*/
-    implementation files("run/libs/particleanimationlib-0.1.2+forge.jar")
+    implementation fg.deobf("maven.modrinth:particleanimationlib:${project.pal_version}")
+    //jarJar("maven.modrinth:particleanimationlib:${project.pal_version}")
+    // implementation fg.deobf('com.github.Emafire003:ParticleAnimationLib:forge-SNAPSHOT')
 
     //Fabric permission api
     //implementation "me.lucko:fabric-permissions-api:${project.fabricperms_version}"
     //Luckperms
-    /*implementation*/compileOnly "net.luckperms:api:${project.luckperms_version}"
+    /*implementation*/compileOnly fg.deobf("net.luckperms:api:${project.luckperms_version}")
 
     //Flan
-    compileOnly("maven.modrinth:flan:${project.flan_version}"){
+    compileOnly fg.deobf("maven.modrinth:flan:${project.flan_version}"){
         transitive = false
     }
 
     //Yet another world protector (world protection)
     //implementation("maven.modrinth:yawp:${project.yawp_version}")
-    compileOnly("curse.maven:yawp-663276:${project.yawp_version}"){
+    //TODO make sure it works
+    compileOnly /*fg.deobf*/("curse.maven:yawp-663276:${project.yawp_version}"){
         transitive = false
     }
-    runtimeOnly("maven.modrinth:forge-config-api-port:v21.1.6-1.21.1-NeoForge")
+    //runtimeOnly("maven.modrinth:forge-config-api-port:v21.1.6-1.21.1-NeoForge")
 
     //SchemConvert
     /*implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT'
     jarJar("com.github.PiTheGuy:SchemConvert:master-SNAPSHOT")*/
-    implementation files("run/libs/SchemConvert-1.2.5+mod+test.jar")
+    implementation fg.deobf('com.github.Emafire003:SchemConvert:1.2')
+    //jarJar("com.github.Emafire003:SchemConvert:1.2")
+    jarJar(group: 'com.github.Emafire003', name: 'SchemConvert', version: '[1.2]')/* {
+        // Includes examplelib 2.8.0
+        jarJar.pin(it, '2.8.0')
+    }*/
 }
 
 mixin {
