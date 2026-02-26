@@ -14,10 +14,34 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MeteorUtils {
+
+
+    /// A list of currently active meteors out and about around the world. Used for the fog effect
+    private static final List<UUID> ALIVE_METEORS = new ArrayList<>();
+
+    public static List<UUID> getAliveMeteors() {
+        return ALIVE_METEORS;
+    }
+
+    /**Must be called client side*/
+    public static void addAliveMeteor(UUID id){
+        ALIVE_METEORS.add(id);
+        SchedulerUtils.runLater(20*60, (server -> ALIVE_METEORS.remove(id)));
+    }
+
+    /**Must be called client side*/
+    public static void removeAliveMeteor(UUID id){
+        ALIVE_METEORS.remove(id);
+    }
+
+
     /**Used to get a random meteor position and velocity oriented downwards
      *
      * @return a Pair, where the first value is the Position and teh second one the Velocity*/

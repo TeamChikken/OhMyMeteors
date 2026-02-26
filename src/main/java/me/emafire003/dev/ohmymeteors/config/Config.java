@@ -19,7 +19,7 @@ public class Config {
     public static SimpleConfig CONFIG;
     private static ConfigProvider configs;
 
-    private static final int ver = 5;
+    private static final int ver = 6;
     public static Path FILEPATH;
 
     public static int VERSION;
@@ -135,6 +135,10 @@ public class Config {
     public static boolean ONLY_REPLACE_AIR = false;
     public static boolean SCATTER_ONLY_REPALCE_AIR = false;
 
+    //V6
+    public static boolean METEOR_SKYGLOW = true;
+    public static String METEOR_SKYGLOW_COLOR = "#048da5";
+
     public static void handleVersionChange(){
         int version_found = CONFIG.getOrDefault("version", ver);
         if(version_found != ver){
@@ -199,7 +203,7 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("max_meteor_spawn_distance", 25), "Expressed in blocks, represents the max distance (as in a radius) from the origin of the meteor " +
                 "(like a player) in which a meteor can spawn in. (Remember that it has an angled trajectory so it could end up in that area regardless)");
         configs.addKeyValuePair(new Pair<>("meteor_spawn_height", 300), "The world height (y level) at which meteors spawn in");
-        configs.addKeyValuePair(new Pair<>("meteor_spawn_chance", 20000), "Expressed as '1 in <x>' chances of spawning a meteor. For example, by default it has a chance of 1 in 20000");
+        configs.addKeyValuePair(new Pair<>("meteor_spawn_chance", 20000), "Expressed as '1 in <x>' chances of spawning a meteor each tick (similar to randomTickSpeed). For example, by default it has a chance of 1 in 20000");
         configs.addKeyValuePair(new Pair<>("modify_spawn_chance_at_night", false),"Should the spawn rate be different during the night?");
 
         configs.addKeyValuePair(new Pair<>("spawn_huge_meteors", true),"Should huge meteors be able to spawn? They are meteors bigger than the maximum size of the big ones");
@@ -297,6 +301,9 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("meteor_shower_chance", 100),"The chance for a meteor shower to spawn (on top of the normal meteor spawning chance, so it's meteor_spawn*meteor_shower spawn)");
         configs.addKeyValuePair(new Pair<>("min_meteors_in_shower", 5),"The minimum number of meteors that are going to spawn in the meteor shower.");
         configs.addKeyValuePair(new Pair<>("max_meteors_in_shower", 20),"The maximum number of meteors that are going to spawn in the meteor shower.");
+        configs.addKeyValuePair(new Pair<>("meteor_skyglow", true),"If true, makes the sky glow a certain color when a meteor passes by. This only applies if the meteor is in rendering range and not world or server wide.");
+        configs.addKeyValuePair(new Pair<>("meteor_skyglow_color", "#048da5"),"The color to apply to the sky when a meteor passes by if it's enabled. By default it's a lightblue-cyan color");
+
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
     }
@@ -368,7 +375,7 @@ public class Config {
         EXPLOSION_POWER_MODIFIER = CONFIG.getOrDefault("explosion_power_modifier", 0);
 
         //V3
-        DOWNWARDS_SPEED_MODIFIER = CONFIG.getOrDefault("downwards_speed_modifier", 0);
+        DOWNWARDS_SPEED_MODIFIER = CONFIG.getOrDefault("downwards_speed_modifier", 0.0d);
         SPAWN_DIMENSIONS = CONFIG.getOrDefault("spawn_dimensions", List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString()));
         DIMENSION_CHANCES = CONFIG.getOrDefault("dimension_chances", DIMENSION_CHANCES_default);
         DIMENSION_NIGHT_CHANCES = CONFIG.getOrDefault("dimension_night_chances", DIMENSION_NIGHT_CHANCES_default);
@@ -388,6 +395,10 @@ public class Config {
         MAX_METEORS_IN_SHOWER = CONFIG.getOrDefault("max_meteors_in_shower", 20);
         ONLY_REPLACE_AIR = CONFIG.getOrDefault("only_replace_air", false);
         SCATTER_ONLY_REPALCE_AIR = CONFIG.getOrDefault("only_repalcer_air_scatter", false);
+
+        //V6
+        METEOR_SKYGLOW = CONFIG.getOrDefault("meteor_skyglow", true);
+        METEOR_SKYGLOW_COLOR = CONFIG.getOrDefault("meteor_skyglow_color", "#048da5");
     }
 }
 
