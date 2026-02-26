@@ -19,11 +19,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
+import org.spongepowered.asm.mixin.Debug;
 
 import java.util.Objects;
 
 public class SpawnMeteorCommand implements OMMCommand {
 
+    @Deprecated
     private int spawnRandom(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
 
@@ -42,7 +44,6 @@ public class SpawnMeteorCommand implements OMMCommand {
             );
 
             source.sendSystemMessage(Component.literal("Spawning meteor at " + meteorProjectile.position()));
-
             meteorProjectile.setSize(source.getPlayer().getRandom().nextIntBetweenInclusive(0, 20));
             source.getLevel().addFreshEntity(meteorProjectile);
 
@@ -186,10 +187,6 @@ public class SpawnMeteorCommand implements OMMCommand {
         return Commands
                 .literal("spawn")
                 .requires(PermissionsChecker.hasPerms(OhMyMeteors.MOD_ID+".commands.spawn", 2))
-                .then(
-                        Commands.literal("random")
-                                .executes(this::spawnRandom)
-                )
                 .then(
                         Commands.literal("natural")
                                 .executes(this::spawnNatural)
