@@ -152,6 +152,9 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
         int j = 1 << i;
         this.setSize(j);
+        if(this.level().isClientSide()){
+            MeteorUtils.addAliveMeteor(this.getUUID());
+        }
     }
 
 
@@ -680,6 +683,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
                 }else{
                     this.detonateSimple();
+                    this.discard();
                 }
             }
 
@@ -687,6 +691,22 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
     }
 
+    @Override
+    public void onClientRemoval() {
+        super.onClientRemoval();
+        MeteorUtils.removeAliveMeteor(this.getUUID());
+    }
+/*
+    @Override
+    public void remove(RemovalReason removalReason) {
+        if(this.level().isClientSide()){
+            OhMyMeteors.LOGGER.error("Removing meteor");
+            OhMyMeteors.LOGGER.error("Ok client side remove");
+            MeteorUtils.addAliveMeteor(this.getUUID());
+        }
+        super.remove(removalReason);
+    }
+*/
     /**Returns true if this meteor is classified as huge, as in bigger than the biggest "big" size*/
     public boolean isHuge(){
         return this.getSize() > Config.MAX_BIG_METEOR_SIZE;
