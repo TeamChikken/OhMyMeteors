@@ -30,6 +30,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO look at meteorutils todo
+//TODO maybe add here or in an addon a buildable siren and a cannon or gun or automatic laser that shoots incoming meteors. Maybe an addon.
+
 public class OhMyMeteors implements ModInitializer {
 	// This logger is used to write text to the console and the log file.
 	// It is considered best practice to use your mod id as the logger's name.
