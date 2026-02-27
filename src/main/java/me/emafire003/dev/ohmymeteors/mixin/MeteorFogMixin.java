@@ -30,7 +30,6 @@ public abstract class MeteorFogMixin {
             //TODO maybe add a transition?
             //Default: Vec3(4,141,165) #048da5
             Color color = Color.decode("#" + Config.METEOR_SKYGLOW_COLOR.replaceAll("#", ""));
-            camera.getEntity().sendSystemMessage(Component.literal("The color: " + new Vec3(color.getRed(), color.getBlue(), color.getGreen())));
             return new Vec3(color.getRed(), color.getBlue(), color.getGreen());
         }
         return original;

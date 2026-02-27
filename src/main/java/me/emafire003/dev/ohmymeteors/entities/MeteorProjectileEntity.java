@@ -738,4 +738,13 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     public void setSilenced(boolean silenced) {
         isSilenced = silenced;
     }
+
+    /** This method can be used by other mods to add their own custom meteors and spawn their version of the meteors*/
+    public void copy(MeteorProjectileEntity newMeteor){
+        newMeteor.setPos(this.position());
+        newMeteor.setDeltaMovement(this.getDeltaMovement());
+        newMeteor.setSize(this.getSize());
+        newMeteor.setScatterMeteor(this.isScatterMeteor());
+        newMeteor.setSilenced(this.isSilenced());
+    }
 }

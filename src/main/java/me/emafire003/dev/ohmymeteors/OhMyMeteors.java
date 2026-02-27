@@ -56,6 +56,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO look at meteorutils todo
+//TODO maybe add here or in an addon a buildable siren and a cannon or gun or automatic laser that shoots incoming meteors. Maybe an addon.
+
 @Mod(OhMyMeteors.MOD_ID)
 public class OhMyMeteors {
 	// This logger is used to write text to the console and the log file.
@@ -187,7 +190,6 @@ public class OhMyMeteors {
 	public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses"));
 	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses_and_destroy"));
 	public static final TagKey<Block> AIR_BLOCKS = TagKey.create(Registries.BLOCK, getIdentifier("air"));
-
 
 
 	@SuppressWarnings("unused")

@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MeteorUtils {
 
-
     /// A list of currently active meteors out and about around the world. Used for the fog effect
     private static final List<UUID> ALIVE_METEORS = new ArrayList<>();
 
@@ -194,7 +193,13 @@ public class MeteorUtils {
     /**Spawns a meteor shower where all meteors spawn at the same time in random directions around the point of origin
      * Also check out {@link #spawnMeteorShowerDelayed(ServerLevel, Player)} and {@link #spawnMeteorShowerDelayedDirection(ServerLevel, Player)}*/
     public static void spawnMeteorShowerInstant(ServerLevel world, Player p){
-        int r = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        int r;
+        if(Config.MAX_METEORS_IN_SHOWER < Config.MIN_METEORS_IN_SHOWER){
+            r = world.getRandom().nextIntBetweenInclusive(Math.min(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER), Math.max(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER));
+            OhMyMeteors.LOGGER.warn("The Minimum number of meteors in the meteor shower in the config file is lower than the Maximum!");
+        }else{
+            r = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        }
         for(int i = 0; i < r; i++){
             spawnMeteor(world, p, true);
         }
@@ -213,9 +218,15 @@ public class MeteorUtils {
      * unlike {@link #spawnMeteorShowerInstant(ServerLevel, Player)} where all meteors spawn at the same time.
      * Using {@link #spawnMeteorShowerDelayedDirection(ServerLevel, Player)} will also have them follow the same general direction*/
     public static void spawnMeteorShowerDelayed(ServerLevel world, Player p){
-        int total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        //int total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        int total;
+        if(Config.MAX_METEORS_IN_SHOWER < Config.MIN_METEORS_IN_SHOWER){
+            total = world.getRandom().nextIntBetweenInclusive(Math.min(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER), Math.max(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER));
+            OhMyMeteors.LOGGER.warn("The Minimum number of meteors in the meteor shower in the config file is lower than the Maximum!");
+        }else{
+            total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        }
         AtomicInteger spawned_meteors = new AtomicInteger();
-        int base_spawn_delay = 15;
         AtomicInteger random_spawn_delay = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(-10, +10));
 
         spawnMeteor(world, p, true);
@@ -226,13 +237,13 @@ public class MeteorUtils {
             if(spawned_meteors.get() >= total){
                 return false;
             }
-            if(ticks == base_spawn_delay+random_spawn_delay.get()+last_delay.get()){
+            if(ticks == Math.abs(Config.METEOR_SHOWER_DELAY_TICKS)+random_spawn_delay.get()+last_delay.get()){
                 if(spawned_meteors.get() >= total){
                     return false;
                 }
                 spawnMeteor(world, p, true);
                 spawned_meteors.getAndIncrement();
-                last_delay.set(last_delay.get() + base_spawn_delay + random_spawn_delay.get());
+                last_delay.set(last_delay.get() + Math.abs(Config.METEOR_SHOWER_DELAY_TICKS) + random_spawn_delay.get());
                 random_spawn_delay.set(world.getRandom().nextIntBetweenInclusive(-10, +10));
             }
             return true;
@@ -251,11 +262,16 @@ public class MeteorUtils {
 
     /**Spawns meteor showers that generally go in the same direction each delayed by a bit*/
     public static void spawnMeteorShowerDelayedDirection(ServerLevel world, Player p){
-        int total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        int total;
+        if(Config.MAX_METEORS_IN_SHOWER < Config.MIN_METEORS_IN_SHOWER){
+            total = world.getRandom().nextIntBetweenInclusive(Math.min(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER), Math.max(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER));
+            OhMyMeteors.LOGGER.warn("The Minimum number of meteors in the meteor shower in the config file is lower than the Maximum!");
+        }else{
+            total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        }
         //AtomicInteger ticks = new AtomicInteger();
         AtomicInteger last_delay = new AtomicInteger();
         AtomicInteger spawned_meteors = new AtomicInteger();
-        int base_spawn_delay = 15;
         AtomicInteger random_spawn_delay = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(-10, +10));
 
         Tuple<Vec3, Vec3> prev = getDownwardsMeteorPosAndVelocity(p.position(), world.getLevel(),
@@ -272,7 +288,7 @@ public class MeteorUtils {
             if(spawned_meteors.get() >= total){
                 return false;
             }
-            if(ticks == base_spawn_delay+random_spawn_delay.get()+ last_delay.get()){
+            if(ticks == Math.abs(Config.METEOR_SHOWER_DELAY_TICKS)+random_spawn_delay.get()+ last_delay.get()){
                 if(spawned_meteors.get() >= total){
                     return false;
                 }
@@ -284,7 +300,7 @@ public class MeteorUtils {
                 meteor.setSilenced(true);
                 world.addFreshEntity(meteor);
                 spawned_meteors.getAndIncrement();
-                last_delay.set(last_delay.get() + base_spawn_delay + random_spawn_delay.get());
+                last_delay.set(last_delay.get() + Math.abs(Config.METEOR_SHOWER_DELAY_TICKS) + random_spawn_delay.get());
                 random_spawn_delay.set(world.getRandom().nextIntBetweenInclusive(-10, +10));
             }
             return true;
