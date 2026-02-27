@@ -32,7 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 //Ah remeber that the whole chunk is loaded when a meteor enters it so this will be loaded as well no need for fancy stuff
 public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
 
-
 /*    ///Is able to detect and destroy meteors this many blocks up from its position
     protected static final int Y_LEVEL_AREA_COVERAGE = 64;
     /// The radius in blocks that this type of laser can cover aka how fare on the xz plane it can detect and shoot meteors
