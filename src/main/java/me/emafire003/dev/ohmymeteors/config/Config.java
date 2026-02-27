@@ -136,6 +136,7 @@ public class Config {
     public static boolean SCATTER_ONLY_REPALCE_AIR = false;
 
     //V6
+    public static int METEOR_SHOWER_DELAY_TICKS = 15;
     public static boolean METEOR_SKYGLOW = true;
     public static String METEOR_SKYGLOW_COLOR = "#048da5";
 
@@ -301,9 +302,10 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("meteor_shower_chance", 100),"The chance for a meteor shower to spawn (on top of the normal meteor spawning chance, so it's meteor_spawn*meteor_shower spawn)");
         configs.addKeyValuePair(new Pair<>("min_meteors_in_shower", 5),"The minimum number of meteors that are going to spawn in the meteor shower.");
         configs.addKeyValuePair(new Pair<>("max_meteors_in_shower", 20),"The maximum number of meteors that are going to spawn in the meteor shower.");
+        //V6
+        configs.addKeyValuePair(new Pair<>("meteor_shower_delay_ticks", 15),"The delay (in ticks) between each meteor that gets spawned in delayed and direction delayed meteor showers");
         configs.addKeyValuePair(new Pair<>("meteor_skyglow", true),"If true, makes the sky glow a certain color when a meteor passes by. This only applies if the meteor is in rendering range and not world or server wide.");
         configs.addKeyValuePair(new Pair<>("meteor_skyglow_color", "#048da5"),"The color to apply to the sky when a meteor passes by if it's enabled. By default it's a lightblue-cyan color");
-
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
     }
@@ -397,6 +399,7 @@ public class Config {
         SCATTER_ONLY_REPALCE_AIR = CONFIG.getOrDefault("only_repalcer_air_scatter", false);
 
         //V6
+        METEOR_SHOWER_DELAY_TICKS = CONFIG.getOrDefault("meteor_shower_delay_ticks", 15);
         METEOR_SKYGLOW = CONFIG.getOrDefault("meteor_skyglow", true);
         METEOR_SKYGLOW_COLOR = CONFIG.getOrDefault("meteor_skyglow_color", "#048da5");
     }
