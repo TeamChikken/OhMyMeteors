@@ -8,6 +8,7 @@ import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.events.MeteorSpawnEvent;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.ExplosionUtils;
+import me.emafire003.dev.ohmymeteors.util.MeteorSizeClass;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
 import net.fabricmc.loader.api.FabricLoader;
@@ -48,6 +49,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -163,7 +165,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
 
     @Override
-    public final EntityDimensions getDimensions(Pose pose) {
+    public final @NotNull EntityDimensions getDimensions(Pose pose) {
         return super.getDimensions(pose).scale(this.getSize());
     }
 
@@ -400,7 +402,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 new StructurePlacerAPI((WorldGenLevel) this.level(), OhMyMeteors.getIdentifier("small/small_meteor_0"), this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
 
         if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
-            ResourceLocation tobeplaced = getStructureToPlace("small");
+            ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.SMALL);
             m_pos_offset = getOffset(new BlockPos(-1, 0, -1), tobeplaced);
 
 
@@ -416,7 +418,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
 
         if(this.getSize() <= Config.MAX_MEDIUM_METEOR_SIZE){
-            ResourceLocation tobeplaced = getStructureToPlace("medium");
+            ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.MEDIUM);
             m_pos_offset = getOffset(new BlockPos(-2, +1, -2), tobeplaced);
 
 
@@ -427,7 +429,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
 
         if(this.getSize() <= Config.MAX_BIG_METEOR_SIZE){
-            ResourceLocation tobeplaced = getStructureToPlace("big");
+            ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.BIG);
             m_pos_offset = getOffset(new BlockPos(-3, 0, -3), tobeplaced);
 
             //m_pos_offset = new BlockPos(-4, -6, -3);
@@ -441,7 +443,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
         //If it's not in the sizes above, then it's a huge one:
 
-        ResourceLocation tobeplaced = getStructureToPlace("huge");
+        ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.HUGE);
         m_pos_offset = getOffset(new BlockPos(-4, 0, -4), tobeplaced);
         //m_pos_offset = new BlockPos(-4, -10, -3);
 
@@ -452,7 +454,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         return placer;
     }
 
-    /** Returms the offset of the meteor structure, aka how much it's going to be embedded in the terrain.
+    /** Returns the offset of the meteor structure, aka how much it's going to be embedded in the terrain.
      * it's based on its size and the distance from the terrain that would be left from the imapct point, and
      * the direction of the meteor
      *
@@ -516,7 +518,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
      *
      * @param sizeClass The size of the meteors that we want to spawn, can be "small" "medium" "big" "huge"
      * */
-    public ResourceLocation getStructureToPlace(String sizeClass){
+    public ResourceLocation getStructureToPlace(MeteorSizeClass sizeClass){
         AtomicBoolean hasSpecial = new AtomicBoolean(false);
 
         if(METEOR_STRUCTURES.isEmpty() && !this.level().isClientSide()){
@@ -530,13 +532,13 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
         List<ResourceLocation> structs = METEOR_STRUCTURES.stream().filter(identifier -> {
 
-            if(!identifier.getPath().startsWith(sizeClass)){
+            if(!identifier.getPath().startsWith(sizeClass.getSerializedName())){
                 return false;
             }
 
             if (!hasSpecial.get()) { //saves on checks
                 //This allows me to see if this size has at least a special meteor
-                if (identifier.getPath().startsWith(sizeClass+"/special")) {
+                if (identifier.getPath().startsWith(sizeClass.getSerializedName()+"/special")) {
                     hasSpecial.set(true);
                     return true;
                 }
@@ -546,14 +548,14 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }).toList();
 
         if (structs.isEmpty()){
-            OhMyMeteors.LOGGER.error("The list of structures for size class '" + sizeClass + "' is empty! Check that your structures are valid ones!");
+            OhMyMeteors.LOGGER.error("The list of structures for size class '" + sizeClass.getSerializedName() + "' is empty! Check that your structures are valid ones!");
             structs = List.of(OhMyMeteors.getIdentifier("error"));
         }
 
         ResourceLocation structure_id = structs.get(this.level().getRandom().nextIntBetweenInclusive(0,structs.size()-1));
         //This is to prevent special structures from spawning "before" they should
         //TODO make sure it's not too much of a performance issue
-        while(structure_id.getPath().startsWith(sizeClass+"/special")){
+        while(structure_id.getPath().startsWith(sizeClass.getSerializedName()+"/special")){
             structure_id = structs.get(this.level().getRandom().nextIntBetweenInclusive(0,structs.size()-1));
         }
 
@@ -561,7 +563,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         if(hasSpecial.get()){
             int i = random.nextIntBetweenInclusive(0, Config.SPECIAL_METEORS_CHANCE);
             if(i == 1){
-                List<ResourceLocation> specials = structs.stream().filter(id -> id.getPath().startsWith(sizeClass+"/special")).toList();
+                List<ResourceLocation> specials = structs.stream().filter(id -> id.getPath().startsWith(sizeClass.getSerializedName()+"/special")).toList();
                 structure_id = specials.get(this.level().getRandom().nextIntBetweenInclusive(0,specials.size()-1));
             }
         }
@@ -744,11 +746,28 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     }
 
     /** This method can be used by other mods to add their own custom meteors and spawn their version of the meteors*/
-    public void copy(MeteorProjectileEntity newMeteor){
+    @SuppressWarnings("unused")
+    public MeteorProjectileEntity copy(MeteorProjectileEntity newMeteor){
         newMeteor.setPos(this.position());
         newMeteor.setDeltaMovement(this.getDeltaMovement());
         newMeteor.setSize(this.getSize());
         newMeteor.setScatterMeteor(this.isScatterMeteor());
         newMeteor.setSilenced(this.isSilenced());
+        return newMeteor;
+    }
+
+    /** Returns the size class of this meteor, based on the values of the config file*/
+    @SuppressWarnings("unused")
+    public MeteorSizeClass getSizeClass(){
+        if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
+            return MeteorSizeClass.SMALL;
+        }
+        if(this.getSize() <= Config.MAX_MEDIUM_METEOR_SIZE){
+            return MeteorSizeClass.MEDIUM;
+        }
+        if(this.getSize() <= Config.MAX_BIG_METEOR_SIZE){
+            return MeteorSizeClass.BIG;
+        }
+        return MeteorSizeClass.HUGE;
     }
 }

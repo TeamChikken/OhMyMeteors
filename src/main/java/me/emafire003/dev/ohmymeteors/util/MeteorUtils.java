@@ -44,7 +44,7 @@ public class MeteorUtils {
     /**Used to get a random meteor position and velocity oriented downwards
      *
      * @return a Pair, where the first value is the Position and teh second one the Velocity*/
-    private static Tuple<Vec3, Vec3> getDownwardsMeteorPosAndVelocity(Vec3 originPos, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height){
+    public static Tuple<Vec3, Vec3> getDownwardsMeteorPosAndVelocity(Vec3 originPos, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height){
         //The invert is to also have a chance at having negative coordinates, otherwise they would always be positive
         int invert_x = 1;
         if(world.getRandom().nextBoolean()){
