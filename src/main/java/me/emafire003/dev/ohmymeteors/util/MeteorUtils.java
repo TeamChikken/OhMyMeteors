@@ -86,13 +86,13 @@ public class MeteorUtils {
 
         meteor.setPosRaw(pos_vel.getA().x, pos_vel.getA().y, pos_vel.getA().z);
 
+        //TODO add variable or config mor max meteor size
         meteor.setSize(world.getRandom().nextIntBetweenInclusive(Math.max(0, min_size), Math.min(50, max_size)));
 
-        meteor.setDeltaMovement(pos_vel.getB());
-
         if(homing){
-            //TODO maybe just go with 1,1,1 as velocity multiplier
-            meteor.setDeltaMovement(originPos.subtract(meteor.position()).normalize().multiply(meteor.getDeltaMovement().x(), meteor.getDeltaMovement().y()*-1, meteor.getDeltaMovement().z()));
+            meteor.setDeltaMovement(originPos.subtract(meteor.position()).normalize().multiply(1,1,1).add(0, Config.DOWNWARDS_SPEED_MODIFIER, 0));
+        }else{
+            meteor.setDeltaMovement(pos_vel.getB());
         }
 
         return meteor;
