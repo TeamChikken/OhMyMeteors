@@ -139,6 +139,7 @@ public class Config {
     public static int METEOR_SHOWER_DELAY_TICKS = 15;
     public static boolean METEOR_SKYGLOW = true;
     public static String METEOR_SKYGLOW_COLOR = "#048da5";
+    public static boolean EXPLODE_ON_ENTITY_COLLISION = false;
 
     public static void handleVersionChange(){
         int version_found = CONFIG.getOrDefault("version", ver);
@@ -220,6 +221,9 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("explosion_power_modifier", 0), "A factor to ADD to the explosion power (by default, the power is equal to the meteor size), thus increasing the damage and radius of the explosion. Also supports negative numbers");
         //V3
         configs.addKeyValuePair(new Pair<>("downwards_speed_modifier", 0), "A factor to ADD to the speed at which the meteor falls downwards. It is added to a randomly generated number between 1 and 0. Also supports negative numbers");
+        //V6
+        configs.addKeyValuePair(new Pair<>("explode_on_entity_collision", false), "Should meteors explode when they come into contact with an entity? (if true you could use an arrow to make the meteor explode for example)");
+
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
@@ -305,7 +309,7 @@ public class Config {
         //V6
         configs.addKeyValuePair(new Pair<>("meteor_shower_delay_ticks", 15),"The delay (in ticks) between each meteor that gets spawned in delayed and direction delayed meteor showers");
         configs.addKeyValuePair(new Pair<>("meteor_skyglow", true),"If true, makes the sky glow a certain color when a meteor passes by. This only applies if the meteor is in rendering range and not world or server wide.");
-        configs.addKeyValuePair(new Pair<>("meteor_skyglow_color", "#048da5"),"The color to apply to the sky when a meteor passes by if it's enabled. By default it's a lightblue-cyan color. Bear in mind that Minecraft still aplies its own colors, so some shades (like green) work less well than others (blue)");
+        configs.addKeyValuePair(new Pair<>("meteor_skyglow_color", "#048da5"),"The color to apply to the sky when a meteor passes by if it's enabled. By default it's a lightblue-cyan color. Bear in mind that Minecraft still applies its own colors, so some shades (like green) work less well than others (blue)");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
     }
@@ -402,6 +406,7 @@ public class Config {
         METEOR_SHOWER_DELAY_TICKS = CONFIG.getOrDefault("meteor_shower_delay_ticks", 15);
         METEOR_SKYGLOW = CONFIG.getOrDefault("meteor_skyglow", true);
         METEOR_SKYGLOW_COLOR = CONFIG.getOrDefault("meteor_skyglow_color", "#048da5");
+        EXPLODE_ON_ENTITY_COLLISION = CONFIG.getOrDefault("explode_on_entity_collision", false);
     }
 }
 

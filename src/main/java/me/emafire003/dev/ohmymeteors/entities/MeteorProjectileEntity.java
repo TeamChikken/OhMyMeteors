@@ -15,6 +15,7 @@ import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.projectile.*;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
@@ -40,17 +41,13 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.ChatFormatting;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.util.math.*;
+import net.minecraft.world.phys.*;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -276,7 +273,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         this.level().addParticle(ColorParticleOption.create(ParticleTypes.FLASH, 14867408), Config.USE_FORCED_PARTICLES, true, d, e + 0.5, f, 0.0, 0.0, 0.0);
         this.level().addParticle(ParticleTypes.EXPLOSION, Config.USE_FORCED_PARTICLES, true, d, e + 0.5, f, 0.0, 0.0, 0.0);
 
-        if(this.level() instanceof ServerLevel world){
+        if(this.level() instanceof ServerLevel world && !this.getDeltaMovement().equals(Vec3.ZERO)){
             world.players().forEach(p -> {
                 world.sendParticles(p, ParticleTypes.FLAME, Config.USE_FORCED_PARTICLES, Config.USE_FORCED_PARTICLES,  d,e,f, 30+this.getSize()*5, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.1);
                 world.sendParticles(p, ParticleTypes.SMOKE, Config.USE_FORCED_PARTICLES, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.1);
@@ -631,7 +628,6 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         if(exploded){
             return;
         }
-        //TODO make sure it is like 1/3 of its size inside a block maybe
         super.onHitBlock(blockHitResult);
         BlockState state = this.level().getBlockState(blockHitResult.getBlockPos());
 
@@ -680,37 +676,70 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
             this.setPosRaw(explosionPos.x, explosionPos.y, explosionPos.z);
 
-            this.discard(); //So it doesn't trigger again hitting the next block
-            exploded = true;
-            if(!this.level().isClientSide()){
-                if(this.isScatterMeteor()){
-                    if(Config.SCATTER_METEOR_STRUCTURE){
-                        if(Config.SCATTER_ONLY_REPALCE_AIR){
-                            this.detonateWithStructureOnlyAir();
-                        }else{
-                            this.detonateWithStructure();
-                        }
-                        return;
-                    }else{
-                        this.detonateSimple();
-                        return;
-                    }
-                }
+            explodeMeteor();
+        }
+    }
 
-                if(Config.METEOR_STRUCTURE){
-                    if(Config.ONLY_REPLACE_AIR){
+    @Override
+    protected void onHitEntity(EntityHitResult entityHitResult) {
+        if(exploded || !Config.EXPLODE_ON_ENTITY_COLLISION){
+            return;
+        }
+        super.onHitEntity(entityHitResult);
+        BlockPos collisionPos = entityHitResult.getEntity().getOnPos();
+        if(FabricLoader.getInstance().isModLoaded("flan") && !this.level().isClientSide()){
+            if(!FlanCompat.canSpawnHere(null, collisionPos)){
+                this.discard();
+                OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by a Flan claim, it has been discarded!");
+                return;
+            }
+        }
+
+        if(FabricLoader.getInstance().isModLoaded("yawp") && !this.level().isClientSide()){
+            if(!YawpCompat.canSpawnHere((ServerLevel) this.level(), collisionPos)){
+                this.discard();
+                OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by YetAnotherWorldProtector 'EXPLOSION_ENTITY' flag, it has been discarded!");
+                return;
+            }
+        }
+        explodeMeteor();
+    }
+
+    @Override
+    protected boolean canHitEntity(Entity target) {
+        return super.canHitEntity(target) || target instanceof Projectile;
+    }
+
+    /**Actually makes the meteor explode and disappear, and spawn stuff if it needs to. It's used when hitting a block or an entity*/
+    public void explodeMeteor(){
+        this.discard(); //So it doesn't trigger again hitting the next block
+        exploded = true;
+        if(!this.level().isClientSide()){
+            if(this.isScatterMeteor()){
+                if(Config.SCATTER_METEOR_STRUCTURE){
+                    if(Config.SCATTER_ONLY_REPALCE_AIR){
                         this.detonateWithStructureOnlyAir();
                     }else{
                         this.detonateWithStructure();
                     }
-
+                    return;
                 }else{
                     this.detonateSimple();
-                    this.discard();
+                    return;
                 }
             }
 
+            if(Config.METEOR_STRUCTURE){
+                if(Config.ONLY_REPLACE_AIR){
+                    this.detonateWithStructureOnlyAir();
+                }else{
+                    this.detonateWithStructure();
+                }
 
+            }else{
+                this.detonateSimple();
+                this.discard();
+            }
         }
     }
 
