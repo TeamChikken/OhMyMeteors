@@ -72,12 +72,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     protected boolean isSilenced = false;
 
     public MeteorProjectileEntity(EntityType<? extends AbstractHurtingProjectile> entityType, Level world) {
-        super(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), world);
-        initialize();
-    }
-
-    public MeteorProjectileEntity(Level world) {
-        super(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), world);
+        super(entityType, world);
         initialize();
     }
 
@@ -665,7 +660,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
         super.onHitEntity(entityHitResult);
         BlockPos collisionPos = entityHitResult.getEntity().getOnPos();
-        if(FabricLoader.getInstance().isModLoaded("flan") && !this.level().isClientSide()){
+        if(ModList.get().isLoaded("flan") && !this.level().isClientSide()){
             if(!FlanCompat.canSpawnHere(null, collisionPos)){
                 this.discard();
                 OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by a Flan claim, it has been discarded!");
@@ -673,7 +668,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             }
         }
 
-        if(FabricLoader.getInstance().isModLoaded("yawp") && !this.level().isClientSide()){
+        if(ModList.get().isLoaded("yawp") && !this.level().isClientSide()){
             if(!YawpCompat.canSpawnHere((ServerLevel) this.level(), collisionPos)){
                 this.discard();
                 OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by YetAnotherWorldProtector 'EXPLOSION_ENTITY' flag, it has been discarded!");
