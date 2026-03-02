@@ -3,6 +3,7 @@ package me.emafire003.dev.ohmymeteors.util;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
+import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerLevel;
@@ -80,7 +81,7 @@ public class MeteorUtils {
      * Gets a meteor object to be spawned in, with a velocity oriented downwards and a spawn position already set up
      * */
     public static MeteorProjectileEntity getDownwardsMeteor(Vec3 originPos, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height, int min_size, int max_size, boolean homing){
-        MeteorProjectileEntity meteor = new MeteorProjectileEntity(world);
+        MeteorProjectileEntity meteor = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
 
         Tuple<Vec3, Vec3> pos_vel = getDownwardsMeteorPosAndVelocity(originPos, world, min_spawn_d, max_spawn_d, spawn_height);
 
@@ -103,7 +104,7 @@ public class MeteorUtils {
      * Returns a new meteor object with a general direction similar to the specified one, but slightly different origin and velocity
      * The spawn distances are for the new spread, so keep the generally low*/
     public static MeteorProjectileEntity getDownwardsMeteorSameDirection(Vec3 prev_origin, Vec3 prev_vel, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height, int min_size, int max_size, boolean homing){
-        MeteorProjectileEntity meteor = new MeteorProjectileEntity(world);
+        MeteorProjectileEntity meteor = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
 
         //The invert is to also have a chance at having negative coordinates, otherwise they would always be positive
         int invert_x = 1;
