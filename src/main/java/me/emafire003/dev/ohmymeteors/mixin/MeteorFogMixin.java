@@ -8,18 +8,15 @@ import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.List;
 
-@Debug(export = true)
 @Mixin(FogRenderer.class)
 public abstract class MeteorFogMixin {
 

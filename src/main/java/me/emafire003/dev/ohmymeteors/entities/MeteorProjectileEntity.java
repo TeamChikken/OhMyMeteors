@@ -73,12 +73,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     protected boolean isSilenced = false;
 
     public MeteorProjectileEntity(EntityType<? extends AbstractHurtingProjectile> entityType, Level world) {
-        super(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
-        initialize();
-    }
-
-    public MeteorProjectileEntity(Level world) {
-        super(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
+        super(entityType, world);
         initialize();
     }
 
