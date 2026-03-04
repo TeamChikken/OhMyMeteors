@@ -11,7 +11,6 @@ import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.projectile.*;
 import net.minecraft.world.level.ChunkPos;
@@ -21,10 +20,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.entity.*;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -43,7 +38,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.*;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.*;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.Level;
@@ -153,7 +147,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         //TODO this doesn't really make sense tbh
         MeteorSpawnEvent.EVENT.invoker().meteorSpawned(this);
 
-        if(this.level().isClientSide()){
+        if(this.getLevel().isClientSide()){
             MeteorUtils.addAliveMeteor(this.getUUID());
         }
     }
@@ -254,9 +248,9 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
         if(this.getLevel() instanceof ServerLevel world && !this.getDeltaMovement().equals(Vec3.ZERO)){
             world.players().forEach(p -> {
-                world.sendParticles(p, ParticleTypes.FLAME, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
-                world.sendParticles(p, ParticleTypes.SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
-                world.sendParticles(p, ParticleTypes.CAMPFIRE_COSY_SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 10+this.getSize()*2, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
+                world.sendParticles(p, ParticleTypes.FLAME, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.1);
+                world.sendParticles(p, ParticleTypes.SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.1);
+                world.sendParticles(p, ParticleTypes.CAMPFIRE_COSY_SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 10+this.getSize()*2, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.1);
 
             });
         }
@@ -281,7 +275,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
         ExplosionDamageCalculator safeExplosion = new ExplosionDamageCalculator() {
             @Override
-            public Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter world, BlockPos pos, BlockState blockState, FluidState fluidState) {
+            public @NotNull Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter world, BlockPos pos, BlockState blockState, FluidState fluidState) {
                 return Optional.of(Blocks.BEDROCK.getExplosionResistance());
             }
         };
@@ -358,13 +352,13 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             StructurePlacerAPI placer = getPlacer();
             //it means the meteor was too small for the structure, placing a single block instead
             if(placer == null){
-                int r = this.getRandom().nextIntBetweenInclusive(1,3);
+                int r = this.getLevel().getRandom().nextIntBetweenInclusive(1,3);
                 if(r == 1){
-                    this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.defaultBlockState());
+                    this.getLevel().setBlockAndUpdate(this.blockPosition(), OMMBlocks.METEORIC_ROCK.defaultBlockState());
                 }else if(r == 2){
-                    this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.SMOOTH_BASALT.defaultBlockState());
+                    this.getLevel().setBlockAndUpdate(this.blockPosition(), Blocks.SMOOTH_BASALT.defaultBlockState());
                 }else{
-                    this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.BLACKSTONE.defaultBlockState());
+                    this.getLevel().setBlockAndUpdate(this.blockPosition(), Blocks.BLACKSTONE.defaultBlockState());
                 }
                 return;
             }
@@ -382,16 +376,16 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 if(this.getLevel().getBlockState(this.blockPosition()).isAir()){
                     int r = this.getLevel().getRandom().nextIntBetweenInclusive(1,3);
                     if(r == 1){
-                        this.getLevel().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.defaultBlockState());
+                        this.getLevel().setBlockAndUpdate(this.blockPosition(), OMMBlocks.METEORIC_ROCK.defaultBlockState());
                     }else if(r == 2){
-                        this.getLevel().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.SMOOTH_BASALT.defaultBlockState());
+                        this.getLevel().setBlockAndUpdate(this.blockPosition(), Blocks.SMOOTH_BASALT.defaultBlockState());
                     }else{
-                        this.getLevel().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.BLACKSTONE.defaultBlockState());
+                        this.getLevel().setBlockAndUpdate(this.blockPosition(), Blocks.BLACKSTONE.defaultBlockState());
                     }
                 }
                 return;
             }
-            placer.setOnlyReplaceTaggedBlocks(true, BlockTags.AIR);
+            placer.setOnlyReplaceTaggedBlocks(true, OhMyMeteors.AIR_BLOCKS);
             placer.loadStructure();
         }
     }
@@ -679,7 +673,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     public void explodeMeteor(){
         this.discard(); //So it doesn't trigger again hitting the next block
         exploded = true;
-        if(!this.level().isClientSide()){
+        if(!this.getLevel().isClientSide()){
             if(this.isScatterMeteor()){
                 if(Config.SCATTER_METEOR_STRUCTURE){
                     if(Config.SCATTER_ONLY_REPALCE_AIR){
