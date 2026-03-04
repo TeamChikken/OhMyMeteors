@@ -2,8 +2,8 @@ package me.emafire003.dev.ohmymeteors.config;
 
 import com.mojang.datafixers.util.Pair;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
-import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.dimension.DimensionTypes;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -83,24 +83,24 @@ public class Config {
 
     //V3
     public static double DOWNWARDS_SPEED_MODIFIER = 0;
-    public static List<String> SPAWN_DIMENSIONS = List.of(DimensionTypes.OVERWORLD_ID.toString(), DimensionTypes.THE_END_ID.toString());
+    public static List<String> SPAWN_DIMENSIONS = List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString());
     public static Map<String, Integer> DIMENSION_CHANCES = Map.of(
-            DimensionTypes.OVERWORLD_ID.toString(), METEOR_SPAWN_CHANCE,
-            DimensionTypes.THE_END_ID.toString(), METEOR_SPAWN_CHANCE*10
+            BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), METEOR_SPAWN_CHANCE,
+            BuiltinDimensionTypes.END_EFFECTS.toString(), METEOR_SPAWN_CHANCE*10
     );
     public static Map<String, Integer> DIMENSION_NIGHT_CHANCES = Map.of(
-            DimensionTypes.OVERWORLD_ID.toString(), METEOR_NIGHT_SPAWN_CHANCE,
-            DimensionTypes.THE_END_ID.toString(), METEOR_NIGHT_SPAWN_CHANCE*10
+            BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), METEOR_NIGHT_SPAWN_CHANCE,
+            BuiltinDimensionTypes.END_EFFECTS.toString(), METEOR_NIGHT_SPAWN_CHANCE*10
     );
 
     public static boolean BIOME_LIST_MODE = false;
-    public static List<String> BIOME_SPAWN_LIST = List.of(BiomeKeys.BADLANDS.getValue().toString(), BiomeKeys.SOUL_SAND_VALLEY.getValue().toString(), "modname:modbiome");
+    public static List<String> BIOME_SPAWN_LIST = List.of(Biomes.BADLANDS.location().toString(), Biomes.SOUL_SAND_VALLEY.location().toString(), "modname:modbiome");
     public static Map<String, Integer> BIOME_CHANCES = Map.of(
-            BiomeKeys.DESERT.getValue().toString(), METEOR_SPAWN_CHANCE+10,
+            Biomes.DESERT.location().toString(), METEOR_SPAWN_CHANCE+10,
             "modname:modbiome", 2025
     );
     public static Map<String, Integer> BIOME_NIGHT_CHANCES = Map.of(
-            BiomeKeys.DESERT.getValue().toString(), METEOR_NIGHT_SPAWN_CHANCE+5,
+            Biomes.DESERT.location().toString(), METEOR_NIGHT_SPAWN_CHANCE+5,
             "modname:modbiome", 2025
     );
 
@@ -110,21 +110,21 @@ public class Config {
 
 
     private static final Map<String, Integer> DIMENSION_CHANCES_default = Map.of(
-            DimensionTypes.THE_END_ID.toString(), METEOR_SPAWN_CHANCE*10
+            BuiltinDimensionTypes.END_EFFECTS.toString(), METEOR_SPAWN_CHANCE*10
     );
     private static final Map<String, Integer> DIMENSION_NIGHT_CHANCES_default = Map.of(
-            DimensionTypes.THE_END_ID.toString(), METEOR_NIGHT_SPAWN_CHANCE*10
+            BuiltinDimensionTypes.END_EFFECTS.toString(), METEOR_NIGHT_SPAWN_CHANCE*10
     );
 
     private static final Map<String, Integer> BIOME_CHANCES_default = Map.of(
-            BiomeKeys.DESERT.getValue().toString(), METEOR_SPAWN_CHANCE-10,
+            Biomes.DESERT.location().toString(), METEOR_SPAWN_CHANCE-10,
             "modname:modbiome", 2025
     );
     private static final Map<String, Integer> BIOME_NIGHT_CHANCES_default = Map.of(
-            BiomeKeys.DESERT.getValue().toString(), METEOR_NIGHT_SPAWN_CHANCE-5,
+            Biomes.DESERT.location().toString(), METEOR_NIGHT_SPAWN_CHANCE-5,
             "modname:modbiome", 2025
     );
-    private static final List<String> BIOME_SPAWN_LIST_default =  List.of(BiomeKeys.BADLANDS.getValue().toString(), BiomeKeys.SOUL_SAND_VALLEY.getValue().toString(), "modname:modbiome");
+    private static final List<String> BIOME_SPAWN_LIST_default =  List.of(Biomes.BADLANDS.location().toString(), Biomes.SOUL_SAND_VALLEY.location().toString(), "modname:modbiome");
 
     //V5
     public static boolean METEOR_SHOWERS_ENABLED = true;
@@ -276,7 +276,7 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
         //V3
-        configs.addKeyValuePair(new Pair<>("spawn_dimensions", List.of(DimensionTypes.OVERWORLD_ID.toString(), DimensionTypes.THE_END_ID.toString())),"A list of the IDs of the dimensions in which meteors can naturally spawn in, vanilla or not.");
+        configs.addKeyValuePair(new Pair<>("spawn_dimensions", List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString())),"A list of the IDs of the dimensions in which meteors can naturally spawn in, vanilla or not.");
         configs.addKeyValuePair(new Pair<>("dimension_chances", DIMENSION_CHANCES_default), "A map consisting of dimension=chance of spawning. The dimension must be present in the list above, otherwise meteors won't spawn at all. This chance will ALWAYS ovveride the default if present. The spawn chance works as described above.");
         configs.addKeyValuePair(new Pair<>("dimension_night_chances", DIMENSION_NIGHT_CHANCES_default), "The same as above but with a possibly different chance at night if enabled");
         configs.addKeyValuePair(new Pair<>("biome_list_mode", false),"If set to false will behave like a blacklist, aka meteors won't spawn in those biomes. If true will behave like a whitelist, meteors will spawn ONLY in those biomes.");
@@ -369,7 +369,7 @@ public class Config {
 
         //V3
         DOWNWARDS_SPEED_MODIFIER = CONFIG.getOrDefault("downwards_speed_modifier", 0);
-        SPAWN_DIMENSIONS = CONFIG.getOrDefault("spawn_dimensions", List.of(DimensionTypes.OVERWORLD_ID.toString(), DimensionTypes.THE_END_ID.toString()));
+        SPAWN_DIMENSIONS = CONFIG.getOrDefault("spawn_dimensions", List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString()));
         DIMENSION_CHANCES = CONFIG.getOrDefault("dimension_chances", DIMENSION_CHANCES_default);
         DIMENSION_NIGHT_CHANCES = CONFIG.getOrDefault("dimension_night_chances", DIMENSION_NIGHT_CHANCES_default);
         BIOME_LIST_MODE = CONFIG.getOrDefault("biome_list_mode", false);

@@ -11,110 +11,110 @@ import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentT
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.util.MeteorShowerType;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.dimension.DimensionType;
 
 import java.util.Objects;
 
 public class SpawnMeteorCommand implements OMMCommand {
 
-    private int spawnRandom(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
+    private int spawnRandom(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
 
         try{
 
-            if(!source.isExecutedByPlayer()){
-                source.sendMessage(Text.literal("Must be executed by player"));
+            if(!source.isPlayer()){
+                source.sendSystemMessage(Component.literal("Must be executed by player"));
                 return 0;
             }
 
-            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(source.getWorld());
-            meteorProjectile.setPos(
-                    source.getPlayer().getX()+source.getPlayer().getRandom().nextBetween(0, 50)*source.getPlayer().getRandom().nextBetween(-1, 1),
-                    source.getPlayer().getEyeY()+source.getPlayer().getRandom().nextBetween(0, 50)*source.getPlayer().getRandom().nextBetween(-1, 1),
-                    source.getPlayer().getZ()+source.getPlayer().getRandom().nextBetween(0, 50)*source.getPlayer().getRandom().nextBetween(-1, 1)
+            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(source.getLevel());
+            meteorProjectile.setPosRaw(
+                    source.getPlayer().getX()+source.getPlayer().getRandom().nextIntBetweenInclusive(0, 50)*source.getPlayer().getRandom().nextIntBetweenInclusive(-1, 1),
+                    source.getPlayer().getEyeY()+source.getPlayer().getRandom().nextIntBetweenInclusive(0, 50)*source.getPlayer().getRandom().nextIntBetweenInclusive(-1, 1),
+                    source.getPlayer().getZ()+source.getPlayer().getRandom().nextIntBetweenInclusive(0, 50)*source.getPlayer().getRandom().nextIntBetweenInclusive(-1, 1)
             );
 
-            source.sendMessage(Text.literal("Spawning meteor at " + meteorProjectile.getPos()));
+            source.sendSystemMessage(Component.literal("Spawning meteor at " + meteorProjectile.position()));
 
-            meteorProjectile.setSize(source.getPlayer().getRandom().nextBetween(0, 20));
-            source.getWorld().spawnEntity(meteorProjectile);
+            meteorProjectile.setSize(source.getPlayer().getRandom().nextIntBetweenInclusive(0, 20));
+            source.getLevel().addFreshEntity(meteorProjectile);
 
             return 1;
         }catch(Exception e){
             e.printStackTrace();
-            source.sendFeedback( Text.literal("Error: " + e),false);
+            source.sendSuccess( Component.literal("Error: " + e),false);
             return 0;
         }
     }
 
-    private int spawnSize(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
+    private int spawnSize(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
 
         try{
 
-            if(!source.isExecutedByPlayer()){
-                source.sendMessage(Text.literal("Must be executed by player"));
+            if(!source.isPlayer()){
+                source.sendSystemMessage(Component.literal("Must be executed by player"));
                 return 0;
             }
 
-            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(source.getWorld());
-            meteorProjectile.setPos(source.getPlayer().getX(), source.getPlayer().getEyeY(), source.getPlayer().getZ());
+            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(source.getLevel());
+            meteorProjectile.setPosRaw(source.getPlayer().getX(), source.getPlayer().getEyeY(), source.getPlayer().getZ());
 
-            meteorProjectile.setVelocity(source.getPlayer(), source.getPlayer().getPitch(), source.getPlayer().getYaw(), 0f, 0.2f, 0f);
+            meteorProjectile.shootFromRotation(source.getPlayer(), source.getPlayer().getXRot(), source.getPlayer().getYRot(), 0f, 0.2f, 0f);
             meteorProjectile.setSize(IntegerArgumentType.getInteger(context, "size"));
-            source.getWorld().spawnEntity(meteorProjectile);
+            source.getLevel().addFreshEntity(meteorProjectile);
 
             return 1;
         }catch(Exception e){
             e.printStackTrace();
-            source.sendFeedback( Text.literal("Error: " + e),false);
+            source.sendSuccess( Component.literal("Error: " + e),false);
             return 0;
         }
     }
 
-    private int spawnSpeed(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
+    private int spawnSpeed(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
 
         try{
 
-            if(!source.isExecutedByPlayer()){
-                source.sendMessage(Text.literal("Must be executed by player"));
+            if(!source.isPlayer()){
+                source.sendSystemMessage(Component.literal("Must be executed by player"));
                 return 0;
             }
 
-            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(source.getWorld());
-            meteorProjectile.setPos(source.getPlayer().getX(), source.getPlayer().getEyeY(), source.getPlayer().getZ());
+            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(source.getLevel());
+            meteorProjectile.setPosRaw(source.getPlayer().getX(), source.getPlayer().getEyeY(), source.getPlayer().getZ());
 
-            meteorProjectile.setVelocity(source.getPlayer(), source.getPlayer().getPitch(), source.getPlayer().getYaw(), 0f, FloatArgumentType.getFloat(context, "speed"), 0f);
+            meteorProjectile.shootFromRotation(source.getPlayer(), source.getPlayer().getXRot(), source.getPlayer().getYRot(), 0f, FloatArgumentType.getFloat(context, "speed"), 0f);
             //necessary in 1.19.2 apparently
-            meteorProjectile.setVelocity(meteorProjectile.getVelocity().multiply(2));
+            meteorProjectile.setDeltaMovement(meteorProjectile.getDeltaMovement().scale(2));
             meteorProjectile.setSize(IntegerArgumentType.getInteger(context, "size"));
-            source.getWorld().spawnEntity(meteorProjectile);
+            source.getLevel().addFreshEntity(meteorProjectile);
 
             return 1;
         }catch(Exception e){
             e.printStackTrace();
-            source.sendFeedback( Text.literal("Error: " + e),false);
+            source.sendSuccess( Component.literal("Error: " + e),false);
             return 0;
         }
     }
 
-    private boolean spawnChecks(ServerPlayerEntity p){
+    private boolean spawnChecks(ServerPlayer p){
 
-        RegistryEntry<DimensionType> current_dim = p.getWorld().getDimensionEntry();
+        Holder<DimensionType> current_dim = p.getLevel().dimensionTypeRegistration();
 
         if(!MeteorUtils.canSpawnInDimension(current_dim)){
             return false;
         }
 
-        RegistryEntry<Biome> current_biome = p.getWorld().getBiome(p.getBlockPos());
+        Holder<Biome> current_biome = p.getLevel().getBiome(p.blockPosition());
 
         if(!MeteorUtils.canSpawnInBiome(current_biome)){
             return false;
@@ -123,87 +123,87 @@ public class SpawnMeteorCommand implements OMMCommand {
     }
 
     /**Spawns a meteor exactly like the natural spawns. Gives an error if there are no players online*/
-    private int spawnNatural(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
+    private int spawnNatural(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
 
         try{
 
-           if(source.getWorld().getPlayers().isEmpty()){
-               source.sendFeedback( Text.literal("Could not spawn a natural meteor since there are no players online!"),true);
+           if(source.getLevel().players().isEmpty()){
+               source.sendSuccess( Component.literal("Could not spawn a natural meteor since there are no players online!"),true);
                return -1;
            }
 
 
-           ServerPlayerEntity p = source.getWorld().getRandomAlivePlayer();
+           ServerPlayer p = source.getLevel().getRandomPlayer();
            if(spawnChecks(p)){
-               MeteorUtils.spawnMeteor(source.getWorld(), p, false);
+               MeteorUtils.spawnMeteor(source.getLevel(), p, false);
            }else{
-               source.sendError(Text.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
+               source.sendFailure(Component.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
                return 0;
            }
 
             return 1;
         }catch(Exception e){
             e.printStackTrace();
-            source.sendFeedback( Text.literal("Error: " + e),false);
+            source.sendSuccess( Component.literal("Error: " + e),false);
             return 0;
         }
     }
 
     /**Spawns a meteor shower exactly like the natural spawns. Gives an error if there are no players online*/
-    private int spawnShower(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
+    private int spawnShower(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
         MeteorShowerType type = MeteorShowerTypeArgumentType.getMeteorShowerType(context, "type");
         try{
-            if(source.getWorld().getPlayers().isEmpty()){
-                source.sendFeedback(Text.literal("Could not spawn a natural meteor since there are no players online!"),true);
+            if(source.getLevel().players().isEmpty()){
+                source.sendSuccess(Component.literal("Could not spawn a natural meteor since there are no players online!"),true);
                 return -1;
             }
-            ServerPlayerEntity p = source.getWorld().getRandomAlivePlayer();
+            ServerPlayer p = source.getLevel().getRandomPlayer();
             if(spawnChecks(p)){
                 if(type.equals(MeteorShowerType.DELAYED)){
-                    MeteorUtils.spawnMeteorShowerDelayed(source.getWorld(), p);
+                    MeteorUtils.spawnMeteorShowerDelayed(source.getLevel(), p);
                 }else if(type.equals(MeteorShowerType.DELAYED_DIRECTION)){
-                    MeteorUtils.spawnMeteorShowerDelayedDirection(source.getWorld(), Objects.requireNonNull(p));
+                    MeteorUtils.spawnMeteorShowerDelayedDirection(source.getLevel(), Objects.requireNonNull(p));
                 }else{
-                    MeteorUtils.spawnMeteorShowerInstant(source.getWorld(), p);
+                    MeteorUtils.spawnMeteorShowerInstant(source.getLevel(), p);
                 }
             }else{
-                source.sendError(Text.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
+                source.sendFailure(Component.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
                 return 0;
             }
 
             return 1;
         }catch(Exception e){
             e.printStackTrace();
-            source.sendFeedback(Text.literal("Error: " + e),false);
+            source.sendSuccess(Component.literal("Error: " + e),false);
             return 0;
         }
     }
 
 
-    public LiteralCommandNode<ServerCommandSource> getNode(CommandRegistryAccess registryAccess) {
-        return CommandManager
+    public LiteralCommandNode<CommandSourceStack> getNode(CommandBuildContext registryAccess) {
+        return Commands
                 .literal("spawn")
                 .requires(PermissionsChecker.hasPerms(OhMyMeteors.MOD_ID+".commands.spawn", 2))
                 .then(
-                        CommandManager.literal("random")
+                        Commands.literal("random")
                                 .executes(this::spawnRandom)
                 )
                 .then(
-                        CommandManager.literal("natural")
+                        Commands.literal("natural")
                                 .executes(this::spawnNatural)
                 )
                 .then(
-                        CommandManager.argument("size", IntegerArgumentType.integer(0, 50))
+                        Commands.argument("size", IntegerArgumentType.integer(0, 50))
                                 .then(
-                                        CommandManager.argument("speed", FloatArgumentType.floatArg(0, 10))
+                                        Commands.argument("speed", FloatArgumentType.floatArg(0, 10))
                                                 .executes(this::spawnSpeed)
                                 )
                                 .executes(this::spawnSize)
                 ).then(
-                        CommandManager.literal("shower")
-                                .then(CommandManager.argument("type", MeteorShowerTypeArgumentType.meteorShowerType())
+                        Commands.literal("shower")
+                                .then(Commands.argument("type", MeteorShowerTypeArgumentType.meteorShowerType())
                                         .executes(this::spawnShower)
                                 )
 

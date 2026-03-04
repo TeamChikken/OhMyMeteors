@@ -8,37 +8,47 @@ import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.ExplosionUtils;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.entity.*;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.projectile.ExplosiveProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileUtil;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ChunkTicketType;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.ChatFormatting;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.util.math.*;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.*;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
-import net.minecraft.world.explosion.ExplosionBehavior;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,10 +62,10 @@ import static me.emafire003.dev.ohmymeteors.OhMyMeteors.METEOR_STRUCTURES;
  * The projectile entity that gets spawned as a meteor.
  * Upon hitting a block which is not air, it will execute the on-hit actions
  * such as creating an explosion and spawning the structure of blocks of the meteor thing*/
-public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
+public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
-    private static final TrackedData<Integer> SIZE = DataTracker.registerData(MeteorProjectileEntity.class, TrackedDataHandlerRegistry.INTEGER);
-    private static final ChunkTicketType<Vec3i> METEOR_CHUCK_TICKET = ChunkTicketType.create("meteor", Vec3i::compareTo, 5*20);
+    private static final EntityDataAccessor<Integer> SIZE = SynchedEntityData.defineId(MeteorProjectileEntity.class, EntityDataSerializers.INT);
+    private static final TicketType<Vec3i> METEOR_CHUCK_TICKET = TicketType.create("meteor", Vec3i::compareTo, 5*20);
 
     /// Aka a meteor that is a result of the {@link #detonateScatter()} method
     protected boolean isScatterMeteor = false;
@@ -65,70 +75,70 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     /// Weather or not the meteor should be announced in chat (used for example in the meteor showers)
     protected boolean isSilenced = false;
 
-    public MeteorProjectileEntity(EntityType<? extends ExplosiveProjectileEntity> entityType, World world) {
+    public MeteorProjectileEntity(EntityType<? extends AbstractHurtingProjectile> entityType, Level world) {
         super(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
         initialize();
     }
 
-    public MeteorProjectileEntity(World world) {
+    public MeteorProjectileEntity(Level world) {
         super(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
         initialize();
     }
 
     @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.dataTracker.startTracking(SIZE, 1);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(SIZE, 1);
     }
 
 
     @VisibleForTesting
     public void setSize(int size) {
-        int i = MathHelper.clamp(size, 1, 50);
-        this.dataTracker.set(SIZE, i);
-        this.refreshPosition();
-        this.calculateDimensions();
+        int i = Mth.clamp(size, 1, 50);
+        this.entityData.set(SIZE, i);
+        this.reapplyPosition();
+        this.refreshDimensions();
     }
 
     public int getSize() {
-        return this.dataTracker.get(SIZE);
+        return this.entityData.get(SIZE);
     }
 
     @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
+    public void addAdditionalSaveData(CompoundTag nbt) {
+        super.addAdditionalSaveData(nbt);
         nbt.putInt("Size", this.getSize() - 1);
     }
 
     @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
+    public void readAdditionalSaveData(CompoundTag nbt) {
         this.setSize(nbt.getInt("Size") + 1);
-        super.readCustomDataFromNbt(nbt);
+        super.readAdditionalSaveData(nbt);
     }
     @Override
-    public void calculateDimensions() {
+    public void refreshDimensions() {
         double d = this.getX();
         double e = this.getY();
         double f = this.getZ();
-        super.calculateDimensions();
-        this.setPosition(d, e, f);
+        super.refreshDimensions();
+        this.setPos(d, e, f);
     }
 
     @Override
-    public void onTrackedDataSet(TrackedData<?> data) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
         if (SIZE.equals(data)) {
-            this.calculateDimensions();
-            this.setYaw(this.getYaw());
-            if (this.isTouchingWater() && this.random.nextInt(20) == 0) {
-                this.onSwimmingStart();
+            this.refreshDimensions();
+            this.setYRot(this.getYRot());
+            if (this.isInWater() && this.random.nextInt(20) == 0) {
+                this.doWaterSplashEffect();
             }
         }
 
-        super.onTrackedDataSet(data);
+        super.onSyncedDataUpdated(data);
     }
 
     @Override
-    protected float getDrag() {
+    protected float getInertia() {
         return 1f;
     }
 
@@ -137,7 +147,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
      * Called along with the constructor method
      * */
     public void initialize() {
-        Random random = this.getWorld().getRandom();
+        RandomSource random = this.getLevel().getRandom();
         int i = random.nextInt(3);
         if (i < 2 && random.nextFloat() < 0.5f) {
             i++;
@@ -149,8 +159,8 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
 
 
     @Override
-    public final EntityDimensions getDimensions(EntityPose pose) {
-        return super.getDimensions(pose).scaled(this.getSize());
+    public final EntityDimensions getDimensions(Pose pose) {
+        return super.getDimensions(pose).scale(this.getSize());
     }
 
     /// these things are used to keep track of a chunk load, in order to not send a loading ticket each tick
@@ -166,69 +176,69 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             this.discard();
         }
         //Every 100 seconds or every time the meteor enters a new chunk, the meteor loads the chunk it's in for 10 seconds or 200 ticks
-        if(this.getWorld() instanceof ServerWorld world){
+        if(this.getLevel() instanceof ServerLevel world){
             if(loadingChuckTicks > 0){
-                if(currentlyLoadedChunk == null || !currentlyLoadedChunk.equals(this.getChunkPos())){
-                    world.getChunkManager().addTicket(METEOR_CHUCK_TICKET,  this.getChunkPos(), 3, this.getBlockPos());
-                    currentlyLoadedChunk = this.getChunkPos();
+                if(currentlyLoadedChunk == null || !currentlyLoadedChunk.equals(this.chunkPosition())){
+                    world.getChunkSource().addRegionTicket(METEOR_CHUCK_TICKET,  this.chunkPosition(), 3, this.blockPosition());
+                    currentlyLoadedChunk = this.chunkPosition();
                     loadingChuckTicks = 10*20;
                     chunksLoaded++;
                 }
                 //So it avoids loading chunks forever and slowing down the game
                 if(chunksLoaded > 100){
-                    OhMyMeteors.LOGGER.warn("Discarded meteor projectile at " + this.getPos() + " after having loaded too many chunks (" + chunksLoaded + ")");
+                    OhMyMeteors.LOGGER.warn("Discarded meteor projectile at " + this.position() + " after having loaded too many chunks (" + chunksLoaded + ")");
                     this.discard();
                 }
                 loadingChuckTicks++;
                 return;
             }
 
-            world.getChunkManager().addTicket(METEOR_CHUCK_TICKET,  this.getChunkPos(), 2, this.getBlockPos());
-            currentlyLoadedChunk = this.getChunkPos();
+            world.getChunkSource().addRegionTicket(METEOR_CHUCK_TICKET,  this.chunkPosition(), 2, this.blockPosition());
+            currentlyLoadedChunk = this.chunkPosition();
             loadingChuckTicks = 5*20;
         }
     }
 
 
-    private Vec3d collisionPos = null;
+    private Vec3 collisionPos = null;
 
     @Override
     public void tick() {
         loadChunk();
         Entity entity = this.getOwner();
-        if (this.getWorld().isClient || (entity == null || !entity.isRemoved()) && this.getWorld().isChunkLoaded(this.getBlockPos())) {
+        if (this.getLevel().isClientSide || (entity == null || !entity.isRemoved()) && this.getLevel().hasChunkAt(this.blockPosition())) {
             //super.tick(); //TODO use a bunch of accessor for the supertick maybe
-            if (this.isBurning()) {
-                this.setOnFireFor(1);
+            if (this.shouldBurn()) {
+                this.setSecondsOnFire(1);
             }
-            HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);
+            HitResult hitResult = ProjectileUtil.getHitResult(this, this::canHitEntity);
             if (hitResult.getType() != HitResult.Type.MISS) {
-                this.onCollision(hitResult);
+                this.onHit(hitResult);
             }
 
-            this.checkBlockCollision();
-            Vec3d vec3d = this.getVelocity();
+            this.checkInsideBlocks();
+            Vec3 vec3d = this.getDeltaMovement();
             double d = this.getX() + vec3d.x;
             double e = this.getY() + vec3d.y;
             double f = this.getZ() + vec3d.z;
-            ProjectileUtil.setRotationFromVelocity(this, 0.2F);
+            ProjectileUtil.rotateTowardsMovement(this, 0.2F);
             float h;
-            if (this.isTouchingWater()) {
+            if (this.isInWater()) {
                 for (int i = 0; i < 4; i++) {
                     float g = 0.25F;
-                    this.getWorld().addParticle(ParticleTypes.BUBBLE, d - vec3d.x * 0.25, e - vec3d.y * 0.25, f - vec3d.z * 0.25, vec3d.x, vec3d.y, vec3d.z);
+                    this.getLevel().addParticle(ParticleTypes.BUBBLE, d - vec3d.x * 0.25, e - vec3d.y * 0.25, f - vec3d.z * 0.25, vec3d.x, vec3d.y, vec3d.z);
                 }
 
                 h = 0.8f;
             } else {
-                h = this.getDrag();
+                h = this.getInertia();
             }
-            this.setVelocity(vec3d.add(vec3d.normalize().multiply(this.accelerationPower)).multiply(h));
+            this.setDeltaMovement(vec3d.add(vec3d.normalize().scale(this.accelerationPower)).scale(h));
 
 
             particleAnimation(d, e, f);
 
-            this.setPosition(d, e, f);
+            this.setPos(d, e, f);
         } else {
             this.discard();
         }
@@ -238,14 +248,14 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     /**
      * Spawns the particle effects behind the meteor*/
     public void particleAnimation(double d, double e, double f){
-        this.getWorld().addParticle(ParticleTypes.FLASH, Config.USE_FORCED_PARTICLES, d, e + 0.5, f, 0.0, 0.0, 0.0);
-        this.getWorld().addParticle(ParticleTypes.EXPLOSION, Config.USE_FORCED_PARTICLES, d, e + 0.5, f, 0.0, 0.0, 0.0);
+        this.getLevel().addParticle(ParticleTypes.FLASH, Config.USE_FORCED_PARTICLES, d, e + 0.5, f, 0.0, 0.0, 0.0);
+        this.getLevel().addParticle(ParticleTypes.EXPLOSION, Config.USE_FORCED_PARTICLES, d, e + 0.5, f, 0.0, 0.0, 0.0);
 
-        if(this.getWorld() instanceof ServerWorld world){
-            world.getPlayers().forEach(p -> {
-                world.spawnParticles(p, ParticleTypes.FLAME, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
-                world.spawnParticles(p, ParticleTypes.SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
-                world.spawnParticles(p, ParticleTypes.CAMPFIRE_COSY_SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 10+this.getSize()*2, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
+        if(this.getLevel() instanceof ServerLevel world){
+            world.players().forEach(p -> {
+                world.sendParticles(p, ParticleTypes.FLAME, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
+                world.sendParticles(p, ParticleTypes.SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
+                world.sendParticles(p, ParticleTypes.CAMPFIRE_COSY_SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 10+this.getSize()*2, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.02+this.getSize()/100, 0.1);
 
             });
         }
@@ -266,36 +276,36 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     /** Makes this entity explode without creating any structures on impact
      * and then discards this entity*/
     public void detonateSimple(){
-        ExplosionBehavior explosionBehavior = new ExplosionBehavior();
+        ExplosionDamageCalculator explosionBehavior = new ExplosionDamageCalculator();
 
-        ExplosionBehavior safeExplosion = new ExplosionBehavior() {
+        ExplosionDamageCalculator safeExplosion = new ExplosionDamageCalculator() {
             @Override
-            public Optional<Float> getBlastResistance(Explosion explosion, BlockView world, BlockPos pos, BlockState blockState, FluidState fluidState) {
-                return Optional.of(Blocks.BEDROCK.getBlastResistance());
+            public Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter world, BlockPos pos, BlockState blockState, FluidState fluidState) {
+                return Optional.of(Blocks.BEDROCK.getExplosionResistance());
             }
         };
         //Only needed for the damage source
-        Explosion e = new Explosion(this.getWorld(), this, this.getX(), this.getY(), this.getZ(), this.getSize(), true, Explosion.DestructionType.DESTROY);
+        Explosion e = new Explosion(this.getLevel(), this, this.getX(), this.getY(), this.getZ(), this.getSize(), true, Explosion.BlockInteraction.DESTROY);
 
         if(isScatterMeteor()){
             if(Config.SCATTER_METEOR_GRIEFING){
                 if(Config.USE_BETTER_EXPLOSIONS){
-                    ExplosionUtils.createExplosion(this.getWorld(), this, DamageSource.explosion(e), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), true, Explosion.DestructionType.DESTROY);
+                    ExplosionUtils.createExplosion(this.getLevel(), this, DamageSource.explosion(e), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), true, Explosion.BlockInteraction.DESTROY);
                 }else{
-                    this.getWorld().createExplosion(this, DamageSource.explosion(e), explosionBehavior, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, Explosion.DestructionType.DESTROY);
+                    this.getLevel().explode(this, DamageSource.explosion(e), explosionBehavior, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, Explosion.BlockInteraction.DESTROY);
                 }
             }else{
                 if(Config.USE_BETTER_EXPLOSIONS){
-                    ExplosionUtils.createExplosion(this.getWorld(), this, DamageSource.explosion(e), safeExplosion, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), false, Explosion.DestructionType.DESTROY);
+                    ExplosionUtils.createExplosion(this.getLevel(), this, DamageSource.explosion(e), safeExplosion, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), false, Explosion.BlockInteraction.DESTROY);
                 }else{
-                    this.getWorld().createExplosion(this, DamageSource.explosion(e), safeExplosion, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, Explosion.DestructionType.DESTROY);
+                    this.getLevel().explode(this, DamageSource.explosion(e), safeExplosion, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, Explosion.BlockInteraction.DESTROY);
                 }
             }
 
             if(Config.ANNOUNCE_METEOR_SPAWN && !this.isSilenced()){
                 if(Config.ANNOUNCE_LOCATION){
-                    String meteorPos = this.getBlockPos().getX() + " x, " + this.getBlockPos().getZ() + " z!";
-                    this.getWorld().getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_impacted.localized", meteorPos).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                    String meteorPos = this.blockPosition().getX() + " x, " + this.blockPosition().getZ() + " z!";
+                    this.getLevel().players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_impacted.localized", meteorPos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
                 }
             }
 
@@ -307,33 +317,33 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             //TODO add custom  explosion source type
             //this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, World.ExplosionSourceType.TNT);
             if(Config.USE_BETTER_EXPLOSIONS){
-                ExplosionUtils.createExplosion(this.getWorld(), this, DamageSource.explosion(e), explosionBehavior, this.getPos(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), true, Explosion.DestructionType.DESTROY);
+                ExplosionUtils.createExplosion(this.getLevel(), this, DamageSource.explosion(e), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), true, Explosion.BlockInteraction.DESTROY);
             }else {
-                this.getWorld().createExplosion(this, DamageSource.explosion(e), explosionBehavior, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, Explosion.DestructionType.DESTROY);
+                this.getLevel().explode(this, DamageSource.explosion(e), explosionBehavior, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, Explosion.BlockInteraction.DESTROY);
             }
         }else{
-            this.getWorld().createExplosion(this, DamageSource.explosion(e), safeExplosion, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, Explosion.DestructionType.DESTROY);
+            this.getLevel().explode(this, DamageSource.explosion(e), safeExplosion, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, Explosion.BlockInteraction.DESTROY);
         }
 
-        if(!this.getWorld().isClient()){
-            ((ServerWorld)this.getWorld()).getPlayers().forEach(serverPlayerEntity -> {
+        if(!this.getLevel().isClientSide()){
+            ((ServerLevel)this.getLevel()).players().forEach(serverPlayerEntity -> {
                 //If it should play a sound for every player, do it, unless the player is close enough to the original one
-                if(Config.GLOBAL_EXPLOSION_SOUND && (serverPlayerEntity.getPos().distanceTo(this.getPos()) > 60)){
-                    serverPlayerEntity.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 0.5f, 0.8f);
+                if(Config.GLOBAL_EXPLOSION_SOUND && (serverPlayerEntity.position().distanceTo(this.position()) > 60)){
+                    serverPlayerEntity.playNotifySound(SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, 0.5f, 0.8f);
                 }else if(Config.AREA_EXPLOSION_SOUND){
-                    double dist = serverPlayerEntity.getPos().distanceTo(this.getPos());
+                    double dist = serverPlayerEntity.position().distanceTo(this.position());
                     if(dist < Config.AREA_EXPLOSION_SOUND_RADIUS && dist > 60){
-                        serverPlayerEntity.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 0.5f, 0.8f);
+                        serverPlayerEntity.playNotifySound(SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, 0.5f, 0.8f);
                     }
                 }
-                ((ServerWorld)this.getWorld()).spawnParticles(serverPlayerEntity, ParticleTypes.EXPLOSION_EMITTER, true, this.getX(), this.getY(), this.getZ(), 1, 0.1, 0.1, 0.1, 0.1);
+                ((ServerLevel)this.getLevel()).sendParticles(serverPlayerEntity, ParticleTypes.EXPLOSION_EMITTER, true, this.getX(), this.getY(), this.getZ(), 1, 0.1, 0.1, 0.1, 0.1);
             });
         }
 
         if(Config.ANNOUNCE_METEOR_SPAWN && !this.isSilenced()){
             if(Config.ANNOUNCE_LOCATION){
-                String meteorPos = this.getBlockPos().getX() + " x, " + this.getBlockPos().getZ() + " z!";
-                this.getWorld().getPlayers().forEach(player -> player.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("message.ohmymeteors.meteor_impacted.localized", meteorPos).formatted(Formatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                String meteorPos = this.blockPosition().getX() + " x, " + this.blockPosition().getZ() + " z!";
+                this.getLevel().players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_impacted.localized", meteorPos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }
         }
         //entity.getWorld().addParticle(ParticleTypes.FLASH, pos.getX(), pos.getY(), pos.getZ(), 0,0,0);
@@ -343,7 +353,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     /** Like {@link #detonateSimple()} but will also spawn the structure of the meteor*/
     public void detonateWithStructure(){
         detonateSimple();
-        if(!this.getWorld().isClient()){
+        if(!this.getLevel().isClientSide()){
             StructurePlacerAPI placer = getPlacer();
             //it means the meteor was too small for the structure, a single block has been placed instead
             if(placer == null){
@@ -356,7 +366,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     /** Like {@link #detonateWithStructure()} but will only replace air blocks*/
     public void detonateWithStructureOnlyAir(){
         detonateSimple();
-        if(!this.getWorld().isClient()){
+        if(!this.getLevel().isClientSide()){
             StructurePlacerAPI placer = getPlacer();
             //it means the meteor was too small for the structure, a single block has been placed instead
             if(placer == null){
@@ -371,31 +381,31 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     public StructurePlacerAPI getPlacer(){
         //If the dimension is even lower than 2, just spawn one block
         if(this.getSize() < 2){
-            int r = this.getWorld().getRandom().nextBetween(1,3);
+            int r = this.getLevel().getRandom().nextIntBetweenInclusive(1,3);
             if(r == 1){
-                this.getWorld().setBlockState(new BlockPos(this.getPos()), OMMBlocks.METEORIC_ROCK.getDefaultState());
+                this.getLevel().setBlockAndUpdate(new BlockPos(this.position()), OMMBlocks.METEORIC_ROCK.defaultBlockState());
             }else if(r == 2){
-                this.getWorld().setBlockState(new BlockPos(this.getPos()), Blocks.SMOOTH_BASALT.getDefaultState());
+                this.getLevel().setBlockAndUpdate(new BlockPos(this.position()), Blocks.SMOOTH_BASALT.defaultBlockState());
             }else{
-                this.getWorld().setBlockState(new BlockPos(this.getPos()), Blocks.BLACKSTONE.getDefaultState());
+                this.getLevel().setBlockAndUpdate(new BlockPos(this.position()), Blocks.BLACKSTONE.defaultBlockState());
             }
             return null;
         }
 
-        BlockPos m_pos_offset = new BlockPos(this.getVelocity()).add(-1, 0, -1);//new BlockPos(-1, -2, -1);
+        BlockPos m_pos_offset = new BlockPos(this.getDeltaMovement()).offset(-1, 0, -1);//new BlockPos(-1, -2, -1);
         //Checks for at most 5 blocks of Air below where the meteor should spawn, which could be a result of the explosion
 
         StructurePlacerAPI placer =
-                new StructurePlacerAPI((StructureWorldAccess) this.getWorld(), OhMyMeteors.getIdentifier("small/small_meteor_0"), this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
+                new StructurePlacerAPI((WorldGenLevel) this.getLevel(), OhMyMeteors.getIdentifier("small/small_meteor_0"), this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
 
         if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
-            Identifier tobeplaced = getStructureToPlace("small");
+            ResourceLocation tobeplaced = getStructureToPlace("small");
             m_pos_offset = getOffset(new BlockPos(-1, 0, -1), tobeplaced);
 
 
-            placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
+            placer = new StructurePlacerAPI((WorldGenLevel) this.getLevel(),
                     tobeplaced,
-                    this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
+                    this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
 
             if(Config.ONLY_REPLACE_AIR){
                 placer.setOnlyReplaceTaggedBlocks(true, OhMyMeteors.AIR_BLOCKS);
@@ -405,38 +415,38 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }
 
         if(this.getSize() <= Config.MAX_MEDIUM_METEOR_SIZE){
-            Identifier tobeplaced = getStructureToPlace("medium");
+            ResourceLocation tobeplaced = getStructureToPlace("medium");
             m_pos_offset = getOffset(new BlockPos(-2, +1, -2), tobeplaced);
 
 
-            placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
+            placer = new StructurePlacerAPI((WorldGenLevel) this.getLevel(),
                     tobeplaced,
-                    this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
+                    this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
             return placer;
         }
 
         if(this.getSize() <= Config.MAX_BIG_METEOR_SIZE){
-            Identifier tobeplaced = getStructureToPlace("big");
+            ResourceLocation tobeplaced = getStructureToPlace("big");
             m_pos_offset = getOffset(new BlockPos(-3, 0, -3), tobeplaced);
 
             //m_pos_offset = new BlockPos(-4, -6, -3);
 
-            placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
+            placer = new StructurePlacerAPI((WorldGenLevel) this.getLevel(),
                     tobeplaced,
-                    this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
+                    this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
 
             return placer;
         }
 
         //If it's not in the sizes above, then it's a huge one:
 
-        Identifier tobeplaced = getStructureToPlace("huge");
+        ResourceLocation tobeplaced = getStructureToPlace("huge");
         m_pos_offset = getOffset(new BlockPos(-4, 0, -4), tobeplaced);
         //m_pos_offset = new BlockPos(-4, -10, -3);
 
-        placer = new StructurePlacerAPI((StructureWorldAccess) this.getWorld(),
+        placer = new StructurePlacerAPI((WorldGenLevel) this.getLevel(),
                 tobeplaced,
-                this.getBlockPos(), BlockMirror.NONE, BlockRotation.NONE, false, 1f, m_pos_offset);
+                this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
 
         return placer;
     }
@@ -449,17 +459,17 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
      * @param tobeplaced the id of the meteor that is going to be placed
      * @return the blockpos offset
      */
-    private BlockPos getOffset(BlockPos m_pos_offset, Identifier tobeplaced){
+    private BlockPos getOffset(BlockPos m_pos_offset, ResourceLocation tobeplaced){
         //If it's an error structure it should be as visible as possible
         if(tobeplaced.getPath().startsWith("error")){
-            return m_pos_offset.add(0, 5, 0);
+            return m_pos_offset.offset(0, 5, 0);
         }
 
-        Vec3d size_factors = Vec3d.of(StructurePlacerAPI.getTemplatePreview((ServerWorld) this.getWorld(), tobeplaced).get().getSize());
+        Vec3 size_factors = Vec3.atLowerCornerOf(StructurePlacerAPI.getTemplatePreview((ServerLevel) this.getLevel(), tobeplaced).get().getSize());
         //size_factors = size_factors.multiply(0.2, -0.2, 0.2);
         //size_factors = new Vec3d(size_factors.getZ(), size_factors.getY(), size_factors.getX());
 
-        m_pos_offset = new BlockPos(this.getVelocity()).add(m_pos_offset);
+        m_pos_offset = new BlockPos(this.getDeltaMovement()).offset(m_pos_offset);
 
         /*if(false && this.getPitch() < 25 && !(tobeplaced.getPath().startsWith("big") || tobeplaced.getPath().startsWith("huge"))){
             OhMyMeteors.LOGGER.error("Meteor fell diagonally, embedding laterally, the pitch is: " + this.getPitch());
@@ -469,35 +479,35 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         }*/
 
         //This is the one used for "small" meteors
-        BlockPos nonair_pos = new BlockPos(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
+        BlockPos nonair_pos = new BlockPos(this.position()).offset(0, -(int) size_factors.y()/3, 0);
         //BlockPos nonair_pos = new BlockPos(this.getPos()).add(0, -(int) size_factors.getY()/3, 0);
         if(tobeplaced.getPath().startsWith("big")){
-            nonair_pos = new BlockPos(this.getPos()).add(0, -(int) size_factors.getY()/10, 0);
-            if(this.getPitch() < 27){
-                nonair_pos.add((int) (this.getVelocity().getX()*5), 0, (int) (this.getVelocity().getZ()*5));
+            nonair_pos = new BlockPos(this.position()).offset(0, -(int) size_factors.y()/10, 0);
+            if(this.getXRot() < 27){
+                nonair_pos.offset((int) (this.getDeltaMovement().x()*5), 0, (int) (this.getDeltaMovement().z()*5));
             }
         }
 
         if(tobeplaced.getPath().startsWith("medium")){
-            if(this.getPitch() < 27){
-                nonair_pos.add((int) (this.getVelocity().getX()*2), 0, (int) (this.getVelocity().getZ()*2));
+            if(this.getXRot() < 27){
+                nonair_pos.offset((int) (this.getDeltaMovement().x()*2), 0, (int) (this.getDeltaMovement().z()*2));
             }
         }
         if(tobeplaced.getPath().startsWith("huge")){
-            nonair_pos = new BlockPos(this.getPos()).add(0, -(int) size_factors.getY()/37, 0);
+            nonair_pos = new BlockPos(this.position()).offset(0, -(int) size_factors.y()/37, 0);
         }
-        BlockState state = this.getWorld().getBlockState(nonair_pos);
+        BlockState state = this.getLevel().getBlockState(nonair_pos);
         int dist_to_floor = 0;
-        while(state.isAir() || state.isOf(Blocks.FIRE)){
-            nonair_pos = nonair_pos.down();
-            state = this.getWorld().getBlockState(nonair_pos);
+        while(state.isAir() || state.is(Blocks.FIRE)){
+            nonair_pos = nonair_pos.below();
+            state = this.getLevel().getBlockState(nonair_pos);
             dist_to_floor++;
         }
 
         //get the distance to floor, get the height and stuff and the place half of it underground?
 
         /*+(size_factors.getY()/2)*/
-        m_pos_offset = m_pos_offset.add(0, - dist_to_floor, 0);
+        m_pos_offset = m_pos_offset.offset(0, - dist_to_floor, 0);
         return m_pos_offset;
     }
 
@@ -506,11 +516,11 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
      *
      * @param sizeClass The size of the meteors that we want to spawn, can be "small" "medium" "big" "huge"
      * */
-    public Identifier getStructureToPlace(String sizeClass){
+    public ResourceLocation getStructureToPlace(String sizeClass){
         AtomicBoolean hasSpecial = new AtomicBoolean(false);
 
-        if(METEOR_STRUCTURES.isEmpty() && !this.getWorld().isClient()){
-            OhMyMeteors.reInitStructures((ServerWorld) this.getWorld());
+        if(METEOR_STRUCTURES.isEmpty() && !this.getLevel().isClientSide()){
+            OhMyMeteors.reInitStructures((ServerLevel) this.getLevel());
         }
 
         //In case there was a problem and the only meteor spawnable is that one
@@ -518,7 +528,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             return METEOR_STRUCTURES.get(0);
         }
 
-        List<Identifier> structs = METEOR_STRUCTURES.stream().filter(identifier -> {
+        List<ResourceLocation> structs = METEOR_STRUCTURES.stream().filter(identifier -> {
 
             if(!identifier.getPath().startsWith(sizeClass)){
                 return false;
@@ -540,19 +550,19 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
             structs = List.of(OhMyMeteors.getIdentifier("error"));
         }
 
-        Identifier structure_id = structs.get(this.getWorld().getRandom().nextBetween(0,structs.size()-1));
+        ResourceLocation structure_id = structs.get(this.getLevel().getRandom().nextIntBetweenInclusive(0,structs.size()-1));
         //This is to prevent special structures from spawning "before" they should
         //TODO make sure it's not too much of a performance issue
         while(structure_id.getPath().startsWith(sizeClass+"/special")){
-            structure_id = structs.get(this.getWorld().getRandom().nextBetween(0,structs.size()-1));
+            structure_id = structs.get(this.getLevel().getRandom().nextIntBetweenInclusive(0,structs.size()-1));
         }
 
         //If there is at least a special meteor structure, and the chance is hit, the structs list should only have those
         if(hasSpecial.get()){
-            int i = random.nextBetween(0, Config.SPECIAL_METEORS_CHANCE);
+            int i = random.nextIntBetweenInclusive(0, Config.SPECIAL_METEORS_CHANCE);
             if(i == 1){
-                List<Identifier> specials = structs.stream().filter(id -> id.getPath().startsWith(sizeClass+"/special")).toList();
-                structure_id = specials.get(this.getWorld().getRandom().nextBetween(0,specials.size()-1));
+                List<ResourceLocation> specials = structs.stream().filter(id -> id.getPath().startsWith(sizeClass+"/special")).toList();
+                structure_id = specials.get(this.getLevel().getRandom().nextIntBetweenInclusive(0,specials.size()-1));
             }
         }
         return structure_id;
@@ -564,12 +574,12 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
      * Meteors will be smaller and be oriented randomly from that point on, but will still go down.
      * */
     public void detonateScatter(){
-        if(this.getWorld().isClient() || this.getSize() <= 1){
+        if(this.getLevel().isClientSide() || this.getSize() <= 1){
             return;
         }
 
         //Can generate a minimum of 1 new meteor up to a number equal half of the size of this meteor
-        int scatter_into = this.getWorld().getRandom().nextBetween(1, Math.max(this.getSize()/2, 1));
+        int scatter_into = this.getLevel().getRandom().nextIntBetweenInclusive(1, Math.max(this.getSize()/2, 1));
         //this is used to determine the size of the new meteors, which will be smaller than the original
         //each new meteor is going to take up some of the "mass" of the parent one, leaving the rest for the next one
         //and so on.
@@ -578,67 +588,67 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
         List<MeteorProjectileEntity> newMeteors = new ArrayList<>();
         for(int i = 0; i<scatter_into; i++){
             //Gets a random number between 1 and the remaining size, making sure to leave at least one size for each new meteor yet to generate)
-            int size =  this.getWorld().getRandom().nextBetween(1, Math.max(remainingSize-(scatter_into-i), 1));
-            MeteorProjectileEntity m = MeteorUtils.getDownwardsMeteor(this.getPos(), (ServerWorld) this.getWorld(), 1, 10+this.getSize() /2, this.getPos().getY(), size, size, false);
+            int size =  this.getLevel().getRandom().nextIntBetweenInclusive(1, Math.max(remainingSize-(scatter_into-i), 1));
+            MeteorProjectileEntity m = MeteorUtils.getDownwardsMeteor(this.position(), (ServerLevel) this.getLevel(), 1, 10+this.getSize() /2, this.position().y(), size, size, false);
             m.setScatterMeteor(true);
             newMeteors.add(m);
         }
 
         this.detonateSimple();
 
-        newMeteors.forEach( meteorProjectileEntity -> this.getWorld().spawnEntity(meteorProjectileEntity));
+        newMeteors.forEach( meteorProjectileEntity -> this.getLevel().addFreshEntity(meteorProjectileEntity));
 
     }
 
     /// Since it likes to explode more times instead of just one, i'll put this here so it won't explode twice
     private boolean exploded = false;
     private int travelledBlocks = 0;
-    private Vec3d explosionPos = null;
+    private Vec3 explosionPos = null;
 
     /// This is the main method which does the meteor stuff on impact
     @Override
-    protected void onBlockHit(BlockHitResult blockHitResult) {
+    protected void onHitBlock(BlockHitResult blockHitResult) {
         if(exploded){
             return;
         }
         //TODO make sure it is like 1/3 of its size inside a block maybe
-        super.onBlockHit(blockHitResult);
-        BlockState state = this.getWorld().getBlockState(blockHitResult.getBlockPos());
+        super.onHitBlock(blockHitResult);
+        BlockState state = this.getLevel().getBlockState(blockHitResult.getBlockPos());
 
         //It also registers Air blocks as a collision so we need to avoid such cases
         if(!state.isAir()){
 
             //Checks if the block should be bypassed or not
-            if(state.isIn(OhMyMeteors.METEOR_BYPASSES)){
+            if(state.is(OhMyMeteors.METEOR_BYPASSES)){
                 //Early return so the rest of the code doesn't run if the meteor hits a leaves block and the config option is there
-                if(state.isIn(OhMyMeteors.METEOR_BYPASSES_AND_DESTROY)){
-                    Box box = this.getBoundingBox();
-                    BlockPos.stream(box).forEach((blockPos -> {
-                        if(this.getWorld().getBlockState(blockPos).isIn(OhMyMeteors.METEOR_BYPASSES_AND_DESTROY)){
-                            this.getWorld().setBlockState(blockPos, Blocks.AIR.getDefaultState());
-                            this.getWorld().addParticle(ParticleTypes.EXPLOSION, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0, 0,0 );
+                if(state.is(OhMyMeteors.METEOR_BYPASSES_AND_DESTROY)){
+                    AABB box = this.getBoundingBox();
+                    BlockPos.betweenClosedStream(box).forEach((blockPos -> {
+                        if(this.getLevel().getBlockState(blockPos).is(OhMyMeteors.METEOR_BYPASSES_AND_DESTROY)){
+                            this.getLevel().setBlockAndUpdate(blockPos, Blocks.AIR.defaultBlockState());
+                            this.getLevel().addParticle(ParticleTypes.EXPLOSION, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0, 0,0 );
                         }
                     }));
                 }
                 return;
             }
-            collisionPos = Vec3d.ofCenter(getBlockPos());
+            collisionPos = Vec3.atCenterOf(blockPosition());
             //this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), 10, World.ExplosionSourceType.NONE);
 
             //this section makes the meteor entity appear as if it's going into the terrain, which is nicer instead of exploding as soon as the hitbox gets a block especially at high dimensions
             if(explosionPos == null){
-                explosionPos = this.getPos();
+                explosionPos = this.position();
             }
             travelledBlocks++;
             if(this.getSize()/2 > travelledBlocks){
                 return;
             }
 
-            this.setPos(explosionPos.x, explosionPos.y, explosionPos.z);
+            this.setPosRaw(explosionPos.x, explosionPos.y, explosionPos.z);
 
             this.discard(); //So it doesn't trigger again hitting the next block
             exploded = true;
-            if(!this.getWorld().isClient()){
+            if(!this.getLevel().isClientSide()){
                 if(this.isScatterMeteor()){
                     if(Config.SCATTER_METEOR_STRUCTURE){
                         if(Config.SCATTER_ONLY_REPALCE_AIR){
@@ -684,7 +694,7 @@ public class MeteorProjectileEntity extends ExplosiveProjectileEntity {
     }
 
     @Override
-    public boolean shouldRender(double distance) {
+    public boolean shouldRenderAtSqrDistance(double distance) {
         return true;
     }
 

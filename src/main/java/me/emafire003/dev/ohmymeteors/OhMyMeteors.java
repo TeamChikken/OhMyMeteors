@@ -15,11 +15,11 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.Block;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.tag.TagKey;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +37,8 @@ public class OhMyMeteors implements ModInitializer {
 
 	public static String PREFIX = "§8[Oh My, Meteors!] §r";
 
-	public static Identifier getIdentifier(String path){
-		return Identifier.of(MOD_ID, path);
+	public static ResourceLocation getIdentifier(String path){
+		return ResourceLocation.tryBuild(MOD_ID, path);
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class OhMyMeteors implements ModInitializer {
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((minecraftServer, lifecycledResourceManager, b) -> {
 			//yes reloads for each dimension
 			//TODO maybe just pick one? Datapacks aren't per-dimension right? But multiverse and stuff exists so idk
-			minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
+			minecraftServer.getAllLevels().forEach(OhMyMeteors::reInitStructures);
 		});
 
 		//loads the config file on server startup and the scheduler
@@ -79,14 +79,14 @@ public class OhMyMeteors implements ModInitializer {
 	}
 
 
-	public static final TagKey<Block> METEOR_BYPASSES = TagKey.of(Registry.BLOCK_KEY, getIdentifier("meteor_bypasses"));
-	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.of(Registry.BLOCK_KEY, getIdentifier("meteor_bypasses_and_destroy"));
-    public static final TagKey<Block> AIR_BLOCKS = TagKey.of(Registry.BLOCK_KEY, getIdentifier("air"));
+	public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registry.BLOCK_REGISTRY, getIdentifier("meteor_bypasses"));
+	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.create(Registry.BLOCK_REGISTRY, getIdentifier("meteor_bypasses_and_destroy"));
+    public static final TagKey<Block> AIR_BLOCKS = TagKey.create(Registry.BLOCK_REGISTRY, getIdentifier("air"));
 
-	public static List<Identifier> METEOR_STRUCTURES = new ArrayList<>();
+	public static List<ResourceLocation> METEOR_STRUCTURES = new ArrayList<>();
 
-	public static void reInitStructures(ServerWorld world){
-		 METEOR_STRUCTURES = new ArrayList<>(world.getStructureTemplateManager().streamTemplates().filter(
+	public static void reInitStructures(ServerLevel world){
+		 METEOR_STRUCTURES = new ArrayList<>(world.getStructureManager().listTemplates().filter(
 				identifier -> identifier.getNamespace().equals(OhMyMeteors.MOD_ID)
 		).toList());
 
@@ -94,19 +94,19 @@ public class OhMyMeteors implements ModInitializer {
 
 		//this allows to have "ignore_<structure>" to "remove" a default structure with a datapack
 		//or "ignoredefault" to have it remove all the structures
-		List<Identifier> structures_copy = new ArrayList<>(METEOR_STRUCTURES);
+		List<ResourceLocation> structures_copy = new ArrayList<>(METEOR_STRUCTURES);
 
 		//the stream is to avoid concurrent modification exception
 		structures_copy.forEach(id -> {
 			if(id.getPath().contains("ignore_")){
 				//If in the root folder, adjust the thingy
 				if(id.getPath().startsWith("ignore_")){
-					METEOR_STRUCTURES.remove(Identifier.of(id.getNamespace(),
+					METEOR_STRUCTURES.remove(ResourceLocation.tryBuild(id.getNamespace(),
 							id.getPath().replaceAll("ignore_", "").split("_")[0]+"/"+id.getPath().replaceAll("ignore_", "")));
 					METEOR_STRUCTURES.remove(id);
 				}else{
 					//Removes the targeted structure
-					METEOR_STRUCTURES.remove(Identifier.of(id.getNamespace(), id.getPath().replaceAll("ignore_", "")));
+					METEOR_STRUCTURES.remove(ResourceLocation.tryBuild(id.getNamespace(), id.getPath().replaceAll("ignore_", "")));
 					METEOR_STRUCTURES.remove(id);//Since this ignore_structure also needs to be removed
 				}
 

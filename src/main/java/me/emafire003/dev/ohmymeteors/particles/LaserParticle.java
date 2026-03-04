@@ -3,48 +3,52 @@ package me.emafire003.dev.ohmymeteors.particles;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particle.DefaultParticleType;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.core.particles.SimpleParticleType;
 
-public class LaserParticle extends SpriteBillboardParticle {
+public class LaserParticle extends TextureSheetParticle {
     
-    LaserParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
+    LaserParticle(ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
         super(clientWorld, d, e, f, g, h, i);
         float j = this.random.nextFloat() * 0.1F + 0.2F;
-        this.red = j;
-        this.green = j;
-        this.blue = j;
-        this.setBoundingBoxSpacing(0.02F, 0.02F);
-        this.scale = this.scale * (this.random.nextFloat() * 0.5F + 0.5F);
-        this.velocityX *= 0.02F;
-        this.velocityY *= 0.02F;
-        this.velocityZ *= 0.02F;
-        this.maxAge = 1*20; //aka 1 second
+        this.rCol = j;
+        this.gCol = j;
+        this.bCol = j;
+        this.setSize(0.02F, 0.02F);
+        this.quadSize = this.quadSize * (this.random.nextFloat() * 0.5F + 0.5F);
+        this.xd *= 0.02F;
+        this.yd *= 0.02F;
+        this.zd *= 0.02F;
+        this.lifetime = 1*20; //aka 1 second
     }
 
     @Override
-    public ParticleTextureSheet getType() {
-        return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     @Override
     public void move(double dx, double dy, double dz) {
-        this.setBoundingBox(this.getBoundingBox().offset(dx, dy, dz));
-        this.repositionFromBoundingBox();
+        this.setBoundingBox(this.getBoundingBox().move(dx, dy, dz));
+        this.setLocationFromBoundingbox();
     }
 
     @Override
     public void tick() {
-        this.prevPosX = this.x;
-        this.prevPosY = this.y;
-        this.prevPosZ = this.z;
-        if (this.maxAge-- <= 0) {
-            this.markDead();
+        this.xo = this.x;
+        this.yo = this.y;
+        this.zo = this.z;
+        if (this.lifetime-- <= 0) {
+            this.remove();
         } else {
-            this.move(this.velocityX, this.velocityY, this.velocityZ);
-            this.velocityX *= 0.99;
-            this.velocityY *= 0.99;
-            this.velocityZ *= 0.99;
+            this.move(this.xd, this.yd, this.zd);
+            this.xd *= 0.99;
+            this.yd *= 0.99;
+            this.zd *= 0.99;
         }
     }
 
@@ -67,16 +71,16 @@ public class LaserParticle extends SpriteBillboardParticle {
     }*/
 
     @Environment(EnvType.CLIENT)
-    public static class EggCrackFactory implements ParticleFactory<DefaultParticleType> {
-        private final SpriteProvider spriteProvider;
+    public static class EggCrackFactory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet spriteProvider;
 
-        public EggCrackFactory(SpriteProvider spriteProvider) {
+        public EggCrackFactory(SpriteSet spriteProvider) {
             this.spriteProvider = spriteProvider;
         }
 
-        public Particle createParticle(DefaultParticleType simpleParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
+        public Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
             LaserParticle suspendParticle = new LaserParticle(clientWorld, d, e, f, g, h, i);
-            suspendParticle.setSprite(this.spriteProvider);
+            suspendParticle.pickSprite(this.spriteProvider);
             suspendParticle.setColor(1.0F, 1.0F, 1.0F);
             return suspendParticle;
         }
