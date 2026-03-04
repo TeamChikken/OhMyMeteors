@@ -352,7 +352,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             StructurePlacerAPI placer = getPlacer();
             //it means the meteor was too small for the structure, placing a single block instead
             if(placer == null){
-                int r = this.getRandom().nextIntBetweenInclusive(1,3);
+                int r = this.level().getRandom().nextIntBetweenInclusive(1,3);
                 if(r == 1){
                     this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.defaultBlockState());
                 }else if(r == 2){
@@ -385,7 +385,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 }
                 return;
             }
-            placer.setOnlyReplaceTaggedBlocks(true, BlockTags.AIR);
+            placer.setOnlyReplaceTaggedBlocks(true, OhMyMeteors.AIR_BLOCKS);
             placer.loadStructure();
         }
     }
