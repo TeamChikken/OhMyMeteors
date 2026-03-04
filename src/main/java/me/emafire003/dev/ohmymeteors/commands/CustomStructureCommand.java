@@ -16,13 +16,13 @@ import me.emafire003.dev.ohmymeteors.util.MeteorSizeClass;
 import me.emafire003.dev.ohmymeteors.util.packutils.PackMeta;
 import me.emafire003.dev.ohmymeteors.util.packutils.PackUtilThing;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -36,55 +36,55 @@ import java.nio.file.Path;
 
 public class CustomStructureCommand implements OMMCommand {
 
-    private int addStructure(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private int addStructure(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
-            Identifier structureId = IdentifierArgumentType.getIdentifier(context, "structureId");
+            Identifier structureId = IdentifierArgument.getId(context, "structureId");
             MeteorSizeClass size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "sizeClass");
             boolean special = BoolArgumentType.getBool(context, "special");
 
             //Generates the datapack folders
-            generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS));
+            generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getStorageSource().getLevelPath(LevelResource.DATAPACK_DIR));
 
-            String struct_id = "/"+size.asString()+"/"+ structureId.getPath()+".nbt";
+            String struct_id = "/"+size.getSerializedName()+"/"+ structureId.getPath()+".nbt";
             if(special){
-                struct_id = "/"+size.asString()+"/special/"+ structureId.getPath()+".nbt";
+                struct_id = "/"+size.getSerializedName()+"/special/"+ structureId.getPath()+".nbt";
             }
 
             //The path of the "generated" folder where structures are saved
-            String generated_path = ((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.GENERATED).toString();
+            String generated_path = ((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getStorageSource().getLevelPath(LevelResource.GENERATED_DIR).toString();
 
             //copies the structure file from the generated directory into the datapack folder. sends error if the file already exists
             try{
                 if(!Files.exists(Path.of(generated_path+"/minecraft/structures/" + structureId.getPath()+".nbt"))){
-                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.origin_not_found", structureId.getPath()+".nbt")));
+                    context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed.origin_not_found", structureId.getPath()+".nbt")));
                     OhMyMeteors.LOGGER.warn("The path in which the file was searched: " + Path.of(generated_path+"/minecraft/structures/" + structureId.getPath()+".nbt"));
                     return 0;
                 }
                 Files.copy(Path.of(generated_path+"/minecraft/structures/" + structureId.getPath()+".nbt"),
                         Path.of(PACK_DIR_STRUCTURE + struct_id));
             }catch (FileAlreadyExistsException e){
-                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", structureId.getPath())));
-                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.already_present")));
+                context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", structureId.getPath())));
+                context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed.already_present")));
                 return 0;
             }
 
             if(special){
-                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.success", structureId.getPath(), size.asString()).append(Text.translatable("command.ohmymeteors.custom.special"))));
+                context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.success", structureId.getPath(), size.getSerializedName()).append(Component.translatable("command.ohmymeteors.custom.special"))));
             }else{
-                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.success", structureId.getPath(), size.asString())));
+                context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.success", structureId.getPath(), size.getSerializedName())));
             }
-            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.reload")));
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.reload")));
 
             return 1;
         }catch (Exception e){
-            Identifier structureId = IdentifierArgumentType.getIdentifier(context, "structureId");
-            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", structureId.getPath())));
+            Identifier structureId = IdentifierArgument.getId(context, "structureId");
+            context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", structureId.getPath())));
             e.printStackTrace();
             return 0;
         }
     }
 
-    private int addStructureWE(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private int addStructureWE(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
             String schemId = StringArgumentType.getString(context, "schemId");
             MeteorSizeClass size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "sizeClass");
@@ -95,59 +95,59 @@ public class CustomStructureCommand implements OMMCommand {
 
             schemId = schemId.replaceAll("\\.schem", "");
 
-            String struct_id = "/"+size.asString()+"/"+ schemId.toLowerCase()+".nbt";
+            String struct_id = "/"+size.getSerializedName()+"/"+ schemId.toLowerCase()+".nbt";
             if(special){
-                struct_id = "/"+size.asString()+"/special/"+ schemId.toLowerCase()+".nbt";
+                struct_id = "/"+size.getSerializedName()+"/special/"+ schemId.toLowerCase()+".nbt";
             }
 
             //Generates the datapack folders
             try {
-                generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS));
+                generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getStorageSource().getLevelPath(LevelResource.DATAPACK_DIR));
             } catch (IOException e) {
                 e.printStackTrace();
-                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", schemId)));
                 return 0;
             }
 
             //copies the structure file from the generated directory into the datapack folder. sends error if the file already exists
             try{
                 if(Files.exists(Path.of(PACK_DIR_STRUCTURE + struct_id))){
-                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
-                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.already_present")));
+                    context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                    context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed.already_present")));
                     return 0;
                 }
                 if(!Files.exists(Path.of(we_schempath+ "/" +schemId+".schem"))){
-                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.origin_not_found", schemId+".schem")));
+                    context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed.origin_not_found", schemId+".schem")));
                     OhMyMeteors.LOGGER.warn("The path in which the file was searched: " + Path.of(we_schempath+ "/" +schemId+".schem"));
                     return 0;
                 }
                 SchemConvertCompat.convertToNbt(new File(we_schempath+ "/" +schemId+".schem"), Path.of(PACK_DIR_STRUCTURE + struct_id).toFile());
             }catch (FileAlreadyExistsException e){
-                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
-                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.already_present")));
+                context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed.already_present")));
                 return 0;
             } catch (IOException e) {
                 e.printStackTrace();
-                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", schemId)));
             }
 
             if(special){
-                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.success", schemId, size.asString()).append(Text.translatable("command.ohmymeteors.custom.special"))));
+                context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.success", schemId, size.getSerializedName()).append(Component.translatable("command.ohmymeteors.custom.special"))));
             }else{
-                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.success", schemId, size.asString())));
+                context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.success", schemId, size.getSerializedName())));
             }
-            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.reload")));
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.reload")));
 
             return 1;
         }catch (Exception e){
             String schemId = StringArgumentType.getString(context, "schemId");
-            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+            context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", schemId)));
             e.printStackTrace();
             return 0;
         }
     }
 
-    private int addStructureLitematica(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private int addStructureLitematica(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
             String schemId = StringArgumentType.getString(context, "schemId");
             MeteorSizeClass size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "sizeClass");
@@ -158,86 +158,86 @@ public class CustomStructureCommand implements OMMCommand {
 
             schemId = schemId.replaceAll("\\.litematic", "");
 
-            String struct_id = "/"+size.asString()+"/"+ schemId.toLowerCase()+".nbt";
+            String struct_id = "/"+size.getSerializedName()+"/"+ schemId.toLowerCase()+".nbt";
             if(special){
-                struct_id = "/"+size.asString()+"/special/"+ schemId.toLowerCase()+".nbt";
+                struct_id = "/"+size.getSerializedName()+"/special/"+ schemId.toLowerCase()+".nbt";
             }
 
             //Generates the datapack folders
             try {
-                generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS));
+                generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getStorageSource().getLevelPath(LevelResource.DATAPACK_DIR));
             } catch (IOException e) {
                 e.printStackTrace();
-                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", schemId)));
                 return 0;
             }
 
             //copies the structure file from the generated directory into the datapack folder. sends error if the file already exists
             try{
                 if(Files.exists(Path.of(PACK_DIR_STRUCTURE + struct_id))){
-                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
-                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.already_present")));
+                    context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                    context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed.already_present")));
                     return 0;
                 }
                 if(!Files.exists(Path.of(lm_schempath+ "/" +schemId+".litematic"))){
-                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.origin_not_found", schemId+".litematic")));
+                    context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed.origin_not_found", schemId+".litematic")));
                     OhMyMeteors.LOGGER.warn("The path in which the file was searched: " + Path.of(lm_schempath+ "/" +schemId+".litematic"));
                     return 0;
                 }
                 SchemConvertCompat.convertToNbt(new File(lm_schempath+ "/" +schemId+".litematic"), Path.of(PACK_DIR_STRUCTURE + struct_id).toFile());
             }catch (FileAlreadyExistsException e){
-                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
-                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed.already_present")));
+                context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed.already_present")));
                 return 0;
             } catch (IOException e) {
                 e.printStackTrace();
-                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+                context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", schemId)));
             }
 
             if(special){
-                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.success", schemId, size.asString()).append(Text.translatable("command.ohmymeteors.custom.special"))));
+                context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.success", schemId, size.getSerializedName()).append(Component.translatable("command.ohmymeteors.custom.special"))));
             }else{
-                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.success", schemId, size.asString())));
+                context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.success", schemId, size.getSerializedName())));
             }
-            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.reload")));
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.reload")));
 
             return 1;
         }catch (Exception e){
             String schemId = StringArgumentType.getString(context, "schemId");
-            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.add.failed", schemId)));
+            context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", schemId)));
             e.printStackTrace();
             return 0;
         }
     }
 
 
-    private int removeStructure(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private int removeStructure(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
-            Identifier structureId = IdentifierArgumentType.getIdentifier(context, "structureId");
+            Identifier structureId = IdentifierArgument.getId(context, "structureId");
             MeteorSizeClass size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "sizeClass");
             boolean special = BoolArgumentType.getBool(context, "special");
 
-            String struct_id = "/"+size.asString()+"/"+ structureId.getPath()+".nbt";
+            String struct_id = "/"+size.getSerializedName()+"/"+ structureId.getPath()+".nbt";
             if(special){
-                struct_id = "/"+size.asString()+"/special/"+ structureId.getPath()+".nbt";
+                struct_id = "/"+size.getSerializedName()+"/special/"+ structureId.getPath()+".nbt";
             }
 
             //deletes the file (if it exists)
             Files.deleteIfExists(Path.of(PACK_DIR_STRUCTURE + struct_id));
 
-            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.remove.success", structureId.getPath())));
-            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.reload")));
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.remove.success", structureId.getPath())));
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.reload")));
 
             return 1;
         }catch (Exception e){
-            Identifier structureId = IdentifierArgumentType.getIdentifier(context, "structureId");
-            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.remove.failed", structureId.getPath())));
+            Identifier structureId = IdentifierArgument.getId(context, "structureId");
+            context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.remove.failed", structureId.getPath())));
             e.printStackTrace();
             return 0;
         }
     }
 
-    private int edit(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private int edit(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
             String og_structureId = StringArgumentType.getString(context, "originalName");
             MeteorSizeClass og_size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "ogSizeClass");
@@ -247,23 +247,23 @@ public class CustomStructureCommand implements OMMCommand {
             boolean new_special = BoolArgumentType.getBool(context, "newSpecial");
 
             //Generates the datapack folders
-            generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS));
+            generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getStorageSource().getLevelPath(LevelResource.DATAPACK_DIR));
 
-            String og_struct_id = "/"+og_size.asString()+"/"+ og_structureId+".nbt";
+            String og_struct_id = "/"+og_size.getSerializedName()+"/"+ og_structureId+".nbt";
             if(og_special){
-                og_struct_id = "/"+og_size.asString()+"/special/"+ og_structureId+".nbt";
+                og_struct_id = "/"+og_size.getSerializedName()+"/special/"+ og_structureId+".nbt";
             }
 
-            String new_struct_id = "/"+new_size.asString()+"/"+ new_structureId+".nbt";
+            String new_struct_id = "/"+new_size.getSerializedName()+"/"+ new_structureId+".nbt";
             if(new_special){
-                new_struct_id = "/"+new_size.asString()+"/special/"+ new_structureId+".nbt";
+                new_struct_id = "/"+new_size.getSerializedName()+"/special/"+ new_structureId+".nbt";
             }
 
             if(!Files.exists(Path.of(PACK_DIR_STRUCTURE + og_struct_id))){
                 if(og_special){
-                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.file_not_found", og_structureId, og_size.toString(), "✔")));
+                    context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.edit.file_not_found", og_structureId, og_size.toString(), "✔")));
                 }else{
-                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.file_not_found", og_structureId, og_size.toString(), "x")));
+                    context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.edit.file_not_found", og_structureId, og_size.toString(), "x")));
                 }
                 return 0;
             }
@@ -273,35 +273,35 @@ public class CustomStructureCommand implements OMMCommand {
                 Files.move(Path.of(PACK_DIR_STRUCTURE + og_struct_id),
                         Path.of(PACK_DIR_STRUCTURE + new_struct_id));
                 if(new_special){
-                    context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.success", og_structureId, new_structureId, new_size.toString())
-                            .append(Text.translatable("command.ohmymeteors.custom.special"))));
+                    context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.edit.success", og_structureId, new_structureId, new_size.toString())
+                            .append(Component.translatable("command.ohmymeteors.custom.special"))));
                 }else{
-                    context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.success", og_structureId, new_structureId, new_size.toString())
-                            .append(Text.translatable("command.ohmymeteors.custom.not_special"))));
+                    context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.edit.success", og_structureId, new_structureId, new_size.toString())
+                            .append(Component.translatable("command.ohmymeteors.custom.not_special"))));
                 }
 
             }catch (FileAlreadyExistsException e){
-                context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.dest_file_already_exists", new_structureId)));
+                context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.edit.dest_file_already_exists", new_structureId)));
                 return 0;
             }
 
-            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.reload")));
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.reload")));
 
             return 1;
         }catch (Exception e){
             String name = StringArgumentType.getString(context, "originalName");
-            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.edit.failed", name)));
+            context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.edit.failed", name)));
             e.printStackTrace();
             return 0;
         }
     }
 
-    private int ignoreDefaults(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private int ignoreDefaults(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
             boolean activate = BoolArgumentType.getBool(context, "ignore");
 
             //Generates the datapack folders
-            generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS));
+            generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getStorageSource().getLevelPath(LevelResource.DATAPACK_DIR));
 
             if(activate){
                 //TODO note (so not actually a todo): this could also be used to get the path of a structure file.
@@ -310,41 +310,41 @@ public class CustomStructureCommand implements OMMCommand {
                 //TODO write in the changelog/wiki that the ignore_thing can just be any file. aslo maybe update the default datapack thingy
                 try{
                     Files.createFile(Path.of(PACK_DIR_STRUCTURE + "/ignoredefault.nbt"));
-                    context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.ignoredefaults.on")));
+                    context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.ignoredefaults.on")));
                 }catch (FileAlreadyExistsException e){
-                    context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.ignoredefaults.already_on")));
+                    context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.ignoredefaults.already_on")));
                     return 0;
                 }
             }else{
                 Files.deleteIfExists(Path.of(PACK_DIR_STRUCTURE + "/ignoredefault.nbt"));
-                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.ignoredefaults.off")));
+                context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.ignoredefaults.off")));
             }
             return 1;
         }catch (Exception e){
-            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.ignoredefaults.failed")));
+            context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.ignoredefaults.failed")));
             e.printStackTrace();
             return 0;
         }
     }
 
-    private int displayCurrent(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private int displayCurrent(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
-            generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getSession().getDirectory(WorldSavePath.DATAPACKS));
+            generateDatapack(((MinecraftServerSessionAccessor) context.getSource().getServer()).ohmymeteors$getStorageSource().getLevelPath(LevelResource.DATAPACK_DIR));
 
             //Cheks and lists small meteors
             Path smalls = Path.of(PACK_DIR_STRUCTURE+"/small/");
-            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.small").append(Text.literal(": "))));
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.display.small").append(Component.literal(": "))));
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(smalls)) {
                 for (Path file : stream) {
                     if(file.getFileName().toString().equals("special")){
-                        context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.small").append(Text.literal(" ")).append(Text.translatable("command.ohmymeteors.custom.display.special")).append(Text.literal(": "))));
+                        context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.display.small").append(Component.literal(" ")).append(Component.translatable("command.ohmymeteors.custom.display.special")).append(Component.literal(": "))));
                         try (DirectoryStream<Path> stream_s = Files.newDirectoryStream(file)) {
                             for (Path file_s : stream_s) {
-                                context.getSource().sendMessage(Text.literal("§7-§r "+ file_s.getFileName()));
+                                context.getSource().sendSystemMessage(Component.literal("§7-§r "+ file_s.getFileName()));
                             }
                         }
                     }else{
-                        context.getSource().sendMessage(Text.literal("§7-§r "+ file.getFileName()));
+                        context.getSource().sendSystemMessage(Component.literal("§7-§r "+ file.getFileName()));
                     }
 
                 }
@@ -353,53 +353,53 @@ public class CustomStructureCommand implements OMMCommand {
 
             //Medium ones
             Path mediums = Path.of(PACK_DIR_STRUCTURE+"/medium/");
-            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.medium").append(Text.literal(": "))));
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.display.medium").append(Component.literal(": "))));
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(mediums)) {
                 for (Path file : stream) {
                     if(file.getFileName().toString().equals("special")){
-                        context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.medium").append(Text.literal(" ")).append(Text.translatable("command.ohmymeteors.custom.display.special")).append(Text.literal(": "))));
+                        context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.display.medium").append(Component.literal(" ")).append(Component.translatable("command.ohmymeteors.custom.display.special")).append(Component.literal(": "))));
                         try (DirectoryStream<Path> stream_s = Files.newDirectoryStream(file)) {
                             for (Path file_s : stream_s) {
-                                context.getSource().sendMessage(Text.literal("§7-§r "+ file_s.getFileName()));
+                                context.getSource().sendSystemMessage(Component.literal("§7-§r "+ file_s.getFileName()));
                             }
                         }
                     }else{
-                        context.getSource().sendMessage(Text.literal("§7-§r "+ file.getFileName()));
+                        context.getSource().sendSystemMessage(Component.literal("§7-§r "+ file.getFileName()));
                     }
                 }
             }
 
             Path bigs = Path.of(PACK_DIR_STRUCTURE+"/big/");
-            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.big").append(Text.literal(": "))));
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.display.big").append(Component.literal(": "))));
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(bigs)) {
                 for (Path file : stream) {
                     if(file.getFileName().toString().equals("special")){
-                        context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.big").append(Text.literal(" ")).append(Text.translatable("command.ohmymeteors.custom.display.special")).append(Text.literal(": "))));
+                        context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.display.big").append(Component.literal(" ")).append(Component.translatable("command.ohmymeteors.custom.display.special")).append(Component.literal(": "))));
                         try (DirectoryStream<Path> stream_s = Files.newDirectoryStream(file)) {
                             for (Path file_s : stream_s) {
-                                context.getSource().sendMessage(Text.literal("§7-§r "+ file_s.getFileName()));
+                                context.getSource().sendSystemMessage(Component.literal("§7-§r "+ file_s.getFileName()));
                             }
                         }
                     }else{
-                        context.getSource().sendMessage(Text.literal("§7-§r "+ file.getFileName()));
+                        context.getSource().sendSystemMessage(Component.literal("§7-§r "+ file.getFileName()));
                     }
 
                 }
             }
 
             Path huges = Path.of(PACK_DIR_STRUCTURE+"/huge/");
-            context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.huge").append(Text.literal(": "))));
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.display.huge").append(Component.literal(": "))));
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(huges)) {
                 for (Path file : stream) {
                     if(file.getFileName().toString().equals("special")){
-                        context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.huge").append(Text.literal(" ")).append(Text.translatable("command.ohmymeteors.custom.display.special")).append(Text.literal(": "))));
+                        context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.display.huge").append(Component.literal(" ")).append(Component.translatable("command.ohmymeteors.custom.display.special")).append(Component.literal(": "))));
                         try (DirectoryStream<Path> stream_s = Files.newDirectoryStream(file)) {
                             for (Path file_s : stream_s) {
-                                context.getSource().sendMessage(Text.literal("§7-§r "+ file_s.getFileName()));
+                                context.getSource().sendSystemMessage(Component.literal("§7-§r "+ file_s.getFileName()));
                             }
                         }
                     }else{
-                        context.getSource().sendMessage(Text.literal("§7-§r "+ file.getFileName()));
+                        context.getSource().sendSystemMessage(Component.literal("§7-§r "+ file.getFileName()));
                     }
 
                 }
@@ -407,13 +407,13 @@ public class CustomStructureCommand implements OMMCommand {
 
             //Ignoredefaults
             if(Files.exists(Path.of(PACK_DIR_STRUCTURE+"/ignoredefault.nbt"))){
-                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.ignoredefaults.on")));
+                context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.display.ignoredefaults.on")));
             }else{
-                context.getSource().sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.ignoredefaults.off")));
+                context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.display.ignoredefaults.off")));
             }
             return 1;
         }catch (Exception e){
-            context.getSource().sendError(Text.literal(OhMyMeteors.PREFIX).append(Text.translatable("command.ohmymeteors.custom.display.failed")));
+            context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.display.failed")));
             e.printStackTrace();
             return 0;
         }
@@ -450,31 +450,31 @@ public class CustomStructureCommand implements OMMCommand {
     }
 
     @Override
-    public LiteralCommandNode<ServerCommandSource> getNode(CommandRegistryAccess registryAccess) {
-        return CommandManager
+    public LiteralCommandNode<CommandSourceStack> getNode(CommandBuildContext registryAccess) {
+        return Commands
                 .literal("custom")
                 .requires(PermissionsChecker.hasPerms(OhMyMeteors.MOD_ID+".commands.custom", 2))
                 .then(
-                        CommandManager.literal("add")
+                        Commands.literal("add")
                                 .then(
-                                        CommandManager.literal("structureblock").then(
-                                                CommandManager.argument("structureId", IdentifierArgumentType.identifier()
+                                        Commands.literal("structureblock").then(
+                                                Commands.argument("structureId", IdentifierArgument.id()
                                                         )
                                                         .then(
-                                                                CommandManager.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
-                                                                        .then(CommandManager.argument("special", BoolArgumentType.bool())
+                                                                Commands.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
+                                                                        .then(Commands.argument("special", BoolArgumentType.bool())
                                                                                 .executes(this::addStructure)
                                                                         )
                                                         )
                                         )
                                 )
                                 .then(
-                                        CommandManager.literal("worldedit_schematic")
+                                        Commands.literal("worldedit_schematic")
                                                 .then(
-                                                        CommandManager.argument("schemId", StringArgumentType.string())
+                                                        Commands.argument("schemId", StringArgumentType.string())
                                                                 .then(
-                                                                        CommandManager.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
-                                                                                .then(CommandManager.argument("special", BoolArgumentType.bool())
+                                                                        Commands.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
+                                                                                .then(Commands.argument("special", BoolArgumentType.bool())
                                                                                         .executes(this::addStructureWE)
                                                                         )
                                                         )
@@ -482,12 +482,12 @@ public class CustomStructureCommand implements OMMCommand {
 
                                 )
                                 .then(
-                                        CommandManager.literal("litematica_schematic")
+                                        Commands.literal("litematica_schematic")
                                                 .then(
-                                                        CommandManager.argument("schemId", StringArgumentType.string())
+                                                        Commands.argument("schemId", StringArgumentType.string())
                                                                 .then(
-                                                                        CommandManager.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
-                                                                                .then(CommandManager.argument("special", BoolArgumentType.bool())
+                                                                        Commands.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
+                                                                                .then(Commands.argument("special", BoolArgumentType.bool())
                                                                                         .executes(this::addStructureLitematica)
                                                                                 )
                                                                 )
@@ -496,39 +496,39 @@ public class CustomStructureCommand implements OMMCommand {
                                 )
                 )
                 .then(
-                        CommandManager.literal("remove")
+                        Commands.literal("remove")
                                 .then(
-                                        CommandManager.argument("structureId", IdentifierArgumentType.identifier()
+                                        Commands.argument("structureId", IdentifierArgument.id()
                                                 )
                                                 .then(
-                                                        CommandManager.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
-                                                                .then(CommandManager.argument("special", BoolArgumentType.bool())
+                                                        Commands.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
+                                                                .then(Commands.argument("special", BoolArgumentType.bool())
                                                                         .executes(this::removeStructure)
                                                                 )
                                                 )
                                 )
                 )
                 .then(
-                        CommandManager.literal("ignoredefaults")
+                        Commands.literal("ignoredefaults")
                                 .then(
-                                        CommandManager.argument("ignore", BoolArgumentType.bool())
+                                        Commands.argument("ignore", BoolArgumentType.bool())
                                                 .executes(this::ignoreDefaults)
                                 )
                 )
                 .then(
-                        CommandManager.literal("display_current")
+                        Commands.literal("display_current")
                                 .executes(this::displayCurrent)
                 )
                 .then(
-                        CommandManager.literal("edit")
+                        Commands.literal("edit")
                                 .then(
-                                        CommandManager.argument("originalName", StringArgumentType.string())
+                                        Commands.argument("originalName", StringArgumentType.string())
                                                 .then(
-                                                        CommandManager.argument("ogSizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
-                                                                .then(CommandManager.argument("ogSpecial", BoolArgumentType.bool())
-                                                                        .then(CommandManager.argument("newName", StringArgumentType.string())
-                                                                                .then(CommandManager.argument("newSizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
-                                                                                        .then(CommandManager.argument("newSpecial", BoolArgumentType.bool())
+                                                        Commands.argument("ogSizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
+                                                                .then(Commands.argument("ogSpecial", BoolArgumentType.bool())
+                                                                        .then(Commands.argument("newName", StringArgumentType.string())
+                                                                                .then(Commands.argument("newSizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
+                                                                                        .then(Commands.argument("newSpecial", BoolArgumentType.bool())
                                                                                                 .executes(this::edit)
                                                                                         )
                                                                                 )

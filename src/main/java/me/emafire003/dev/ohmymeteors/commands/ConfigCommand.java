@@ -8,55 +8,55 @@ import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import net.minecraft.util.Util;
 
 public class ConfigCommand implements OMMCommand {
 
-    private int openConfig(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private int openConfig(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
-            ServerCommandSource source = context.getSource();
+            CommandSourceStack source = context.getSource();
             if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.SERVER)){
-                source.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.literal("Warning! The config file is located on the server, go to your server's config folder and edit '").formatted(Formatting.GOLD).append(Text.literal(Config.FILEPATH.toFile().toString()).formatted(Formatting.LIGHT_PURPLE).append(Text.literal("'").formatted(Formatting.GOLD)))));
+                source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Warning! The config file is located on the server, go to your server's config folder and edit '").withStyle(ChatFormatting.GOLD).append(Component.literal(Config.FILEPATH.toFile().toString()).withStyle(ChatFormatting.LIGHT_PURPLE).append(Component.literal("'").withStyle(ChatFormatting.GOLD)))));
                 return 2;
             }
 
-            Util.getOperatingSystem().open(Config.FILEPATH.toFile());
+            Util.getPlatform().openFile(Config.FILEPATH.toFile());
 
-            source.sendMessage(Text.literal(OhMyMeteors.PREFIX).append(Text.literal("Make sure to use ").append(Text.literal("/omm config reload").formatted(Formatting.BLUE).append(Text.literal(" when you have finished editing the config file!").formatted(Formatting.RESET)))));
+            source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Make sure to use ").append(Component.literal("/omm config reload").withStyle(ChatFormatting.BLUE).append(Component.literal(" when you have finished editing the config file!").withStyle(ChatFormatting.RESET)))));
             return 1;
         }catch (Exception e){
-            context.getSource().sendError(Text.literal("[Oh My, Meteors!] ").append("§cThere has been an error while reloading the config, check the logs"));
+            context.getSource().sendFailure(Component.literal("[Oh My, Meteors!] ").append("§cThere has been an error while reloading the config, check the logs"));
             e.printStackTrace();
             return 0;
         }
     }
 
-    private int reloadConfig(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private int reloadConfig(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
             Config.reloadConfig();
-            context.getSource().sendMessage(Text.literal("[Oh My, Meteors!] Config reloaded!"));
+            context.getSource().sendSystemMessage(Component.literal("[Oh My, Meteors!] Config reloaded!"));
             return 1;
         }catch (Exception e){
-            context.getSource().sendError(Text.literal("[Oh My, Meteors!] ").append("§cThere has been an error while reloading the config, check the logs"));
+            context.getSource().sendFailure(Component.literal("[Oh My, Meteors!] ").append("§cThere has been an error while reloading the config, check the logs"));
             e.printStackTrace();
             return 0;
         }
     }
 
     @Override
-    public LiteralCommandNode<ServerCommandSource> getNode(CommandRegistryAccess registryAccess) {
-        return CommandManager
+    public LiteralCommandNode<CommandSourceStack> getNode(CommandBuildContext registryAccess) {
+        return Commands
                 .literal("config")
                 .requires(PermissionsChecker.hasPerms(OhMyMeteors.MOD_ID+".commands.config", 2))
                 .then(
-                        CommandManager.literal("reload").executes(this::reloadConfig)
+                        Commands.literal("reload").executes(this::reloadConfig)
                 ).then(
-                        CommandManager.literal("open").executes(this::openConfig)
+                        Commands.literal("open").executes(this::openConfig)
                 )
 
                 .build();

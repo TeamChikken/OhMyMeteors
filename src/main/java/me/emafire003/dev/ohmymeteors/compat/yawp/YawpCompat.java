@@ -5,13 +5,13 @@ import de.z0rdak.yawp.api.events.region.FlagCheckEvent;
 import de.z0rdak.yawp.api.events.region.FlagCheckResult;
 import de.z0rdak.yawp.core.flag.FlagState;
 import de.z0rdak.yawp.core.flag.RegionFlag;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
 
 public class YawpCompat {
 
-    public static boolean canSpawnHere(ServerWorld world, BlockPos pos){
-        FlagCheckEvent flagCheckEvent = new FlagCheckEvent(pos, RegionFlag.EXPLOSION_ENTITY, world.getRegistryKey());
+    public static boolean canSpawnHere(ServerLevel world, BlockPos pos){
+        FlagCheckEvent flagCheckEvent = new FlagCheckEvent(pos, RegionFlag.EXPLOSION_ENTITY, world.dimension());
         FlagCheckResult flagCheckResult = FlagEvaluator.evaluate(flagCheckEvent);
         FlagState flagState = flagCheckResult.getFlagState();
         if(flagState.equals(FlagState.DENIED)){

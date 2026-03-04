@@ -23,59 +23,64 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package me.emafire003.dev.ohmymeteors.util;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.entity.*;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Util;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.profiler.Profiler;
-import net.minecraft.util.profiler.Profilers;
-import net.minecraft.world.RaycastContext;
-import net.minecraft.world.event.GameEvent;
-import net.minecraft.world.explosion.EntityExplosionBehavior;
-import net.minecraft.world.explosion.Explosion;
-import net.minecraft.world.explosion.ExplosionBehavior;
-import net.minecraft.world.rule.GameRules;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.util.profiling.Profiler;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.EntityBasedExplosionDamageCalculator;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.level.gamerules.GameRules;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 
 public class SphereExplosion implements Explosion {
-    private static final ExplosionBehavior DEFAULT_BEHAVIOR = new ExplosionBehavior();
+    private static final ExplosionDamageCalculator DEFAULT_BEHAVIOR = new ExplosionDamageCalculator();
     private static final int field_52618 = 16;
     private static final float field_52619 = 2.0F;
     private final boolean createFire;
-    private final Explosion.DestructionType destructionType;
-    private final ServerWorld world;
-    private final Vec3d pos;
+    private final Explosion.BlockInteraction destructionType;
+    private final ServerLevel world;
+    private final Vec3 pos;
     @Nullable
     private final Entity entity;
     private final float power;
     private final DamageSource damageSource;
-    private final ExplosionBehavior behavior;
-    private final Map<PlayerEntity, Vec3d> knockbackByPlayer = new HashMap<>();
+    private final ExplosionDamageCalculator behavior;
+    private final Map<Player, Vec3> knockbackByPlayer = new HashMap<>();
 
     public SphereExplosion(
-            ServerWorld world,
+            ServerLevel world,
             @Nullable Entity entity,
             @Nullable DamageSource damageSource,
-            @Nullable ExplosionBehavior behavior,
-            Vec3d pos,
+            @Nullable ExplosionDamageCalculator behavior,
+            Vec3 pos,
             float power,
             boolean createFire,
-            Explosion.DestructionType destructionType
+            Explosion.BlockInteraction destructionType
     ) {
         this.world = world;
         this.entity = entity;
@@ -83,16 +88,16 @@ public class SphereExplosion implements Explosion {
         this.pos = pos;
         this.createFire = createFire;
         this.destructionType = destructionType;
-        this.damageSource = damageSource == null ? world.getDamageSources().explosion(this) : damageSource;
+        this.damageSource = damageSource == null ? world.damageSources().explosion(this) : damageSource;
         this.behavior = behavior == null ? this.makeBehavior(entity) : behavior;
     }
 
-    private ExplosionBehavior makeBehavior(@Nullable Entity entity) {
-        return (ExplosionBehavior)(entity == null ? DEFAULT_BEHAVIOR : new EntityExplosionBehavior(entity));
+    private ExplosionDamageCalculator makeBehavior(@Nullable Entity entity) {
+        return (ExplosionDamageCalculator)(entity == null ? DEFAULT_BEHAVIOR : new EntityBasedExplosionDamageCalculator(entity));
     }
 
-    public static float calculateReceivedDamage(Vec3d pos, Entity entity) {
-        Box box = entity.getBoundingBox();
+    public static float calculateReceivedDamage(Vec3 pos, Entity entity) {
+        AABB box = entity.getBoundingBox();
         double d = 1.0 / ((box.maxX - box.minX) * 2.0 + 1.0);
         double e = 1.0 / ((box.maxY - box.minY) * 2.0 + 1.0);
         double f = 1.0 / ((box.maxZ - box.minZ) * 2.0 + 1.0);
@@ -105,11 +110,11 @@ public class SphereExplosion implements Explosion {
             for (double k = 0.0; k <= 1.0; k += d) {
                 for (double l = 0.0; l <= 1.0; l += e) {
                     for (double m = 0.0; m <= 1.0; m += f) {
-                        double n = MathHelper.lerp(k, box.minX, box.maxX);
-                        double o = MathHelper.lerp(l, box.minY, box.maxY);
-                        double p = MathHelper.lerp(m, box.minZ, box.maxZ);
-                        Vec3d vec3d = new Vec3d(n + g, o, p + h);
-                        if (entity.getEntityWorld().raycast(new RaycastContext(vec3d, pos, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, entity)).getType()
+                        double n = Mth.lerp(k, box.minX, box.maxX);
+                        double o = Mth.lerp(l, box.minY, box.maxY);
+                        double p = Mth.lerp(m, box.minZ, box.maxZ);
+                        Vec3 vec3d = new Vec3(n + g, o, p + h);
+                        if (entity.level().clip(new ClipContext(vec3d, pos, net.minecraft.world.level.ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType()
                                 == HitResult.Type.MISS) {
                             i++;
                         }
@@ -126,12 +131,12 @@ public class SphereExplosion implements Explosion {
     }
 
     @Override
-    public float getPower() {
+    public float radius() {
         return this.power;
     }
 
     @Override
-    public Vec3d getPosition() {
+    public Vec3 center() {
         return this.pos;
     }
 
@@ -155,19 +160,19 @@ public class SphereExplosion implements Explosion {
                     double o = this.pos.z;
 
                     for (float p = 0.3F; h > 0.0F; h -= 0.22500001F) {
-                        BlockPos blockPos = BlockPos.ofFloored(m, n, o);
+                        BlockPos blockPos = BlockPos.containing(m, n, o);
                         BlockState blockState = this.world.getBlockState(blockPos);
                         FluidState fluidState = this.world.getFluidState(blockPos);
-                        if (!this.world.isInBuildLimit(blockPos)) {
+                        if (!this.world.isInWorldBounds(blockPos)) {
                             break;
                         }
 
-                        Optional<Float> optional = this.behavior.getBlastResistance(this, this.world, blockPos, blockState, fluidState);
+                        Optional<Float> optional = this.behavior.getBlockExplosionResistance(this, this.world, blockPos, blockState, fluidState);
                         if (optional.isPresent()) {
                             h -= (optional.get() + 0.3F) * 0.3F;
                         }
 
-                        if (h > 0.0F && this.behavior.canDestroyBlock(this, this.world, blockPos, blockState, h)) {
+                        if (h > 0.0F && this.behavior.shouldBlockExplode(this, this.world, blockPos, blockState, h)) {
                             set.add(blockPos);
                         }
 
@@ -184,36 +189,36 @@ public class SphereExplosion implements Explosion {
 
     private void damageEntities() {
         float f = this.power * 2.0F;
-        int i = MathHelper.floor(this.pos.x - f - 1.0);
-        int j = MathHelper.floor(this.pos.x + f + 1.0);
-        int k = MathHelper.floor(this.pos.y - f - 1.0);
-        int l = MathHelper.floor(this.pos.y + f + 1.0);
-        int m = MathHelper.floor(this.pos.z - f - 1.0);
-        int n = MathHelper.floor(this.pos.z + f + 1.0);
+        int i = Mth.floor(this.pos.x - f - 1.0);
+        int j = Mth.floor(this.pos.x + f + 1.0);
+        int k = Mth.floor(this.pos.y - f - 1.0);
+        int l = Mth.floor(this.pos.y + f + 1.0);
+        int m = Mth.floor(this.pos.z - f - 1.0);
+        int n = Mth.floor(this.pos.z + f + 1.0);
 
-        for (Entity entity : this.world.getOtherEntities(this.entity, new Box(i, k, m, j, l, n))) {
-            if (!entity.isImmuneToExplosion(this)) {
-                double d = Math.sqrt(entity.squaredDistanceTo(this.pos)) / f;
+        for (Entity entity : this.world.getEntities(this.entity, new AABB(i, k, m, j, l, n))) {
+            if (!entity.ignoreExplosion(this)) {
+                double d = Math.sqrt(entity.distanceToSqr(this.pos)) / f;
                 if (d <= 1.0) {
                     double e = entity.getX() - this.pos.x;
-                    double g = (entity instanceof TntEntity ? entity.getY() : entity.getEyeY()) - this.pos.y;
+                    double g = (entity instanceof PrimedTnt ? entity.getY() : entity.getEyeY()) - this.pos.y;
                     double h = entity.getZ() - this.pos.z;
                     double o = Math.sqrt(e * e + g * g + h * h);
                     if (o != 0.0) {
                         e /= o;
                         g /= o;
                         h /= o;
-                        boolean bl = this.behavior.shouldDamage(this, entity);
-                        float p = this.behavior.getKnockbackModifier(entity);
+                        boolean bl = this.behavior.shouldDamageEntity(this, entity);
+                        float p = this.behavior.getKnockbackMultiplier(entity);
                         float q = !bl && p == 0.0F ? 0.0F : calculateReceivedDamage(this.pos, entity);
                         if (bl) {
-                            entity.damage(this.world, this.damageSource, this.behavior.calculateDamage(this, entity, q));
+                            entity.hurtServer(this.world, this.damageSource, this.behavior.getEntityDamageAmount(this, entity, q));
                         }
 
                         double r = (1.0 - d) * q * p;
                         double s;
                         if (entity instanceof LivingEntity livingEntity) {
-                            s = r * (1.0 - livingEntity.getAttributeValue(EntityAttributes.EXPLOSION_KNOCKBACK_RESISTANCE));
+                            s = r * (1.0 - livingEntity.getAttributeValue(Attributes.EXPLOSION_KNOCKBACK_RESISTANCE));
                         } else {
                             s = r;
                         }
@@ -221,13 +226,13 @@ public class SphereExplosion implements Explosion {
                         e *= s;
                         g *= s;
                         h *= s;
-                        Vec3d vec3d = new Vec3d(e, g, h);
-                        entity.addVelocity(vec3d);
-                        if (entity instanceof PlayerEntity playerEntity && !playerEntity.isSpectator() && (!playerEntity.isCreative() || !playerEntity.getAbilities().flying)) {
+                        Vec3 vec3d = new Vec3(e, g, h);
+                        entity.push(vec3d);
+                        if (entity instanceof Player playerEntity && !playerEntity.isSpectator() && (!playerEntity.isCreative() || !playerEntity.getAbilities().flying)) {
                             this.knockbackByPlayer.put(playerEntity, vec3d);
                         }
 
-                        entity.onExplodedBy(this.entity);
+                        entity.onExplosionHit(this.entity);
                     }
                 }
             }
@@ -239,18 +244,18 @@ public class SphereExplosion implements Explosion {
         Util.shuffle(positions, this.world.random);
 
         for (BlockPos blockPos : positions) {
-            this.world.getBlockState(blockPos).onExploded(this.world, blockPos, this, (item, pos) -> addDroppedItem(list, item, pos));
+            this.world.getBlockState(blockPos).onExplosionHit(this.world, blockPos, this, (item, pos) -> addDroppedItem(list, item, pos));
         }
 
         for (DroppedItem droppedItem : list) {
-            Block.dropStack(this.world, droppedItem.pos, droppedItem.item);
+            Block.popResource(this.world, droppedItem.pos, droppedItem.item);
         }
     }
 
     private void createFire(List<BlockPos> positions) {
         for (BlockPos blockPos : positions) {
-            if (this.world.random.nextInt(3) == 0 && this.world.getBlockState(blockPos).isAir() && this.world.getBlockState(blockPos.down()).isOpaqueFullCube()) {
-                this.world.setBlockState(blockPos, AbstractFireBlock.getState(this.world, blockPos));
+            if (this.world.random.nextInt(3) == 0 && this.world.getBlockState(blockPos).isAir() && this.world.getBlockState(blockPos.below()).isSolidRender()) {
+                this.world.setBlockAndUpdate(blockPos, BaseFireBlock.getState(this.world, blockPos));
             }
         }
     }
@@ -268,27 +273,27 @@ public class SphereExplosion implements Explosion {
     }
 
     private boolean shouldDestroyBlocks() {
-        return this.destructionType != Explosion.DestructionType.KEEP;
+        return this.destructionType != Explosion.BlockInteraction.KEEP;
     }
 
-    public Map<PlayerEntity, Vec3d> getKnockbackByPlayer() {
+    public Map<Player, Vec3> getKnockbackByPlayer() {
         return this.knockbackByPlayer;
     }
 
     @Override
-    public ServerWorld getWorld() {
+    public ServerLevel level() {
         return this.world;
     }
 
     @Nullable
     @Override
-    public LivingEntity getCausingEntity() {
-        return Explosion.getCausingEntity(this.entity);
+    public LivingEntity getIndirectSourceEntity() {
+        return Explosion.getIndirectSourceEntity(this.entity);
     }
 
     @Nullable
     @Override
-    public Entity getEntity() {
+    public Entity getDirectSourceEntity() {
         return this.entity;
     }
 
@@ -297,26 +302,26 @@ public class SphereExplosion implements Explosion {
     }
 
     @Override
-    public Explosion.DestructionType getDestructionType() {
+    public Explosion.BlockInteraction getBlockInteraction() {
         return this.destructionType;
     }
 
     @Override
     public boolean canTriggerBlocks() {
-        if (this.destructionType != Explosion.DestructionType.TRIGGER_BLOCK) {
+        if (this.destructionType != Explosion.BlockInteraction.TRIGGER_BLOCK) {
             return false;
         } else {
             return this.entity != null && this.entity.getType() == EntityType.BREEZE_WIND_CHARGE
-                    ? this.world.getGameRules().getValue(GameRules.DO_MOB_GRIEFING)
+                    ? this.world.getGameRules().get(GameRules.MOB_GRIEFING)
                     : true;
         }
     }
 
     @Override
-    public boolean preservesDecorativeEntities() {
-        boolean bl = this.world.getGameRules().getValue(GameRules.DO_MOB_GRIEFING);
+    public boolean shouldAffectBlocklikeEntities() {
+        boolean bl = this.world.getGameRules().get(GameRules.MOB_GRIEFING);
         boolean bl2 = this.entity == null || this.entity.getType() != EntityType.BREEZE_WIND_CHARGE && this.entity.getType() != EntityType.WIND_CHARGE;
-        return bl ? bl2 : this.destructionType.destroysBlocks() && bl2;
+        return bl ? bl2 : this.destructionType.shouldAffectBlocklikeEntities() && bl2;
     }
 
     public boolean isSmall() {
@@ -333,7 +338,7 @@ public class SphereExplosion implements Explosion {
         }
 
         public void merge(ItemStack other) {
-            if (ItemEntity.canMerge(this.item, other)) {
+            if (ItemEntity.areMergable(this.item, other)) {
                 this.item = ItemEntity.merge(this.item, other, 16);
             }
         }
@@ -354,11 +359,11 @@ public class SphereExplosion implements Explosion {
     }
 
     public int explode() {
-        this.world.emitGameEvent(this.entity, GameEvent.EXPLODE, this.pos);
+        this.world.gameEvent(this.entity, GameEvent.EXPLODE, this.pos);
         List<BlockPos> list = this.getBlocksToDestroy();
         this.damageEntities();
         if (this.shouldDestroyBlocks()) {
-            Profiler profiler = Profilers.get();
+            ProfilerFiller profiler = Profiler.get();
             profiler.push("explosion_blocks");
             this.destroyBlocks(list);
             profiler.pop();

@@ -7,60 +7,60 @@ import me.emafire003.dev.ohmymeteors.blocks.basic_laser.BasicMeteorLaserBlock;
 import me.emafire003.dev.ohmymeteors.blocks.basic_laser.BasicMeteorLaserBlockEntity;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.SoundType;
 
 public class OMMBlocks {
 
     public static final Block BASIC_METEOR_LASER = registerBlock("basic_meteor_laser",
-            new BasicMeteorLaserBlock(AbstractBlock.Settings.create()
-                    .registryKey(RegistryKey.of(RegistryKeys.BLOCK, OhMyMeteors.getIdentifier("basic_meteor_laser")))
+            new BasicMeteorLaserBlock(BlockBehaviour.Properties.of()
+                    .setId(ResourceKey.create(Registries.BLOCK, OhMyMeteors.getIdentifier("basic_meteor_laser")))
                     .strength(1.9f)
-                    .luminance(value -> 1) //Makes a little bit of light
-                    .sounds(BlockSoundGroup.COPPER)
-                    .requiresTool()
-            ), ItemGroups.REDSTONE, Items.REDSTONE_LAMP);
+                    .lightLevel(value -> 1) //Makes a little bit of light
+                    .sound(SoundType.COPPER)
+                    .requiresCorrectToolForDrops()
+            ), CreativeModeTabs.REDSTONE_BLOCKS, Items.REDSTONE_LAMP);
 
     public static final BlockEntityType<BasicMeteorLaserBlockEntity> BASIC_METEOR_LASER_BLOCK_ENTITY =
             register("basic_meteor_laser", BasicMeteorLaserBlockEntity::new, BASIC_METEOR_LASER);
 
     public static final Block ADVANCED_METEOR_LASER = registerBlock("advanced_meteor_laser",
-            new AdvancedMeteorLaserBlock(AbstractBlock.Settings.create()
-                    .registryKey(RegistryKey.of(RegistryKeys.BLOCK, OhMyMeteors.getIdentifier("advanced_meteor_laser")))
+            new AdvancedMeteorLaserBlock(BlockBehaviour.Properties.of()
+                    .setId(ResourceKey.create(Registries.BLOCK, OhMyMeteors.getIdentifier("advanced_meteor_laser")))
                     .strength(2f)
-                    .luminance(value -> 2) //Makes a little bit moreof light
-                    .sounds(BlockSoundGroup.COPPER)
-                    .requiresTool()
-            ), ItemGroups.REDSTONE, Items.REDSTONE_LAMP);
+                    .lightLevel(value -> 2) //Makes a little bit moreof light
+                    .sound(SoundType.COPPER)
+                    .requiresCorrectToolForDrops()
+            ), CreativeModeTabs.REDSTONE_BLOCKS, Items.REDSTONE_LAMP);
 
     public static final BlockEntityType<AdvancedMeteorLaserBlockEntity> ADVANCED_METEOR_LASER_BLOCK_ENTITY =
             register("advanced_meteor_laser", AdvancedMeteorLaserBlockEntity::new, ADVANCED_METEOR_LASER);
 
 
     public static final Block METEORIC_ROCK = registerBlock("meteoric_rock",
-            new MeteoricRockBlock(AbstractBlock.Settings.create().requiresTool().strength(4F).solid()
-                    .registryKey(RegistryKey.of(RegistryKeys.BLOCK, OhMyMeteors.getIdentifier("meteoric_rock")))
+            new MeteoricRockBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops().strength(4F).forceSolidOn()
+                    .setId(ResourceKey.create(Registries.BLOCK, OhMyMeteors.getIdentifier("meteoric_rock")))
             ),
             //new Block(AbstractBlock.Settings.copy(Blocks.DEEPSLATE_IRON_ORE)),
-            ItemGroups.NATURAL, Items.SMOOTH_BASALT);
+            CreativeModeTabs.NATURAL_BLOCKS, Items.SMOOTH_BASALT);
 
 
-    private static Block registerBlock(String name, Block block, RegistryKey<ItemGroup> tab, Item add_after) {
-        Block the_block = Registry.register(Registries.BLOCK, OhMyMeteors.getIdentifier(name), block);
-        Item the_item = Registry.register(Registries.ITEM, OhMyMeteors.getIdentifier(name), new BlockItem(block, new Item.Settings()
-                .registryKey(RegistryKey.of(RegistryKeys.ITEM, OhMyMeteors.getIdentifier(name)))
+    private static Block registerBlock(String name, Block block, ResourceKey<CreativeModeTab> tab, Item add_after) {
+        Block the_block = Registry.register(BuiltInRegistries.BLOCK, OhMyMeteors.getIdentifier(name), block);
+        Item the_item = Registry.register(BuiltInRegistries.ITEM, OhMyMeteors.getIdentifier(name), new BlockItem(block, new net.minecraft.world.item.Item.Properties()
+                .setId(ResourceKey.create(Registries.ITEM, OhMyMeteors.getIdentifier(name)))
         ));
         ItemGroupEvents.modifyEntriesEvent(tab).register(content -> content.addAfter(add_after, the_item));
         return the_block;
@@ -71,7 +71,7 @@ public class OMMBlocks {
             FabricBlockEntityTypeBuilder.Factory<? extends T> entityFactory,
             Block... blocks
     ) {
-        return Registry.register(Registries.BLOCK_ENTITY_TYPE, OhMyMeteors.getIdentifier(name),
+        return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, OhMyMeteors.getIdentifier(name),
 
                 FabricBlockEntityTypeBuilder.<T>create(entityFactory, blocks).build()
         );

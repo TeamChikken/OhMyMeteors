@@ -2,15 +2,15 @@ package me.emafire003.dev.ohmymeteors.entities.client;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.render.state.CameraRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -19,16 +19,16 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
 
     public static final Identifier TEXTURE = OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png");
 
-    public MeteorProjectileEntityRenderer(EntityRendererFactory.Context ctx) {
+    public MeteorProjectileEntityRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
-        this.model = new MeteorProjectileEntityModel(ctx.getPart(MeteorProjectileEntityModel.METEOR));
+        this.model = new MeteorProjectileEntityModel(ctx.bakeLayer(MeteorProjectileEntityModel.METEOR));
     }
 
     @Override
-    public void render(MeteorProjectileRenderState state, MatrixStack matrices, OrderedRenderCommandQueue queue, CameraRenderState cameraState) {
-        matrices.push();
+    public void submit(MeteorProjectileRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
+        matrices.pushPose();
 
-        matrices.translate(0, -state.height/1.5, 0);
+        matrices.translate(0, -state.boundingBoxHeight /1.5, 0);
 
         matrices.scale(state.size, state.size, state.size);
 
@@ -38,25 +38,25 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
 
         // this.model.render(matrices, vertexconsumer, state.light, OverlayTexture.DEFAULT_UV);
 
-        List<RenderLayer> list = ItemRenderer.getGlintRenderLayers(this.model.getLayer(TEXTURE), false, false);
+        List<RenderType> list = ItemRenderer.getFoilRenderTypes(this.model.renderType(TEXTURE), false, false);
 
         for (int i = 0; i < list.size(); i++) {
-            queue.getBatchingQueue(i)
+            queue.order(i)
                     .submitModel(
                             this.model,
                             state,
                             matrices,
                             list.get(i),
-                            state.light,
-                            OverlayTexture.DEFAULT_UV,
+                            state.lightCoords,
+                            OverlayTexture.NO_OVERLAY,
                             state.outlineColor,
                             null
                     );
         }
 
 
-        matrices.pop();
-        super.render(state, matrices, queue, cameraState);
+        matrices.popPose();
+        super.submit(state, matrices, queue, cameraState);
 
     }
 
@@ -83,8 +83,8 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
         return new MeteorProjectileRenderState();
     }
 
-    public void updateRenderState(MeteorProjectileEntity meteorEntity, MeteorProjectileRenderState slimeEntityRenderState, float f) {
-        super.updateRenderState(meteorEntity, slimeEntityRenderState, f);
+    public void extractRenderState(MeteorProjectileEntity meteorEntity, MeteorProjectileRenderState slimeEntityRenderState, float f) {
+        super.extractRenderState(meteorEntity, slimeEntityRenderState, f);
         slimeEntityRenderState.size = meteorEntity.getSize();
     }
 

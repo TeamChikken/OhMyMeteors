@@ -6,25 +6,25 @@ import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentType;
 import me.emafire003.dev.ohmymeteors.commands.argument.MeteorSizeClassArgumentType;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
 
 public class OMMCommands {
 
     //Based on Factions' code https://github.com/ickerio/factions
-    public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
-        LiteralCommandNode<ServerCommandSource> omm_commands = CommandManager
+    public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess, Commands.CommandSelection environment) {
+        LiteralCommandNode<CommandSourceStack> omm_commands = Commands
                 .literal("omm")
-                .requires(CommandManager.requirePermissionLevel(CommandManager.ADMINS_CHECK))
+                .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                 .build();
 
         dispatcher.getRoot().addChild(omm_commands);
 
-        LiteralCommandNode<ServerCommandSource> pal_alias = CommandManager
+        LiteralCommandNode<CommandSourceStack> pal_alias = Commands
                 .literal("ohmymeteors")
-                .requires(CommandManager.requirePermissionLevel(CommandManager.ADMINS_CHECK))
+                .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                 .build();
 
 
@@ -42,8 +42,8 @@ public class OMMCommands {
     }
 
     public static void registerArguments(){
-        ArgumentTypeRegistry.registerArgumentType(OhMyMeteors.getIdentifier("meteor_size_class"), MeteorSizeClassArgumentType.class, ConstantArgumentSerializer.of(MeteorSizeClassArgumentType::meteorSizeClass));
-        ArgumentTypeRegistry.registerArgumentType(OhMyMeteors.getIdentifier("meteor_shower_type"), MeteorShowerTypeArgumentType.class, ConstantArgumentSerializer.of(MeteorShowerTypeArgumentType::meteorShowerType));
+        ArgumentTypeRegistry.registerArgumentType(OhMyMeteors.getIdentifier("meteor_size_class"), MeteorSizeClassArgumentType.class, SingletonArgumentInfo.contextFree(MeteorSizeClassArgumentType::meteorSizeClass));
+        ArgumentTypeRegistry.registerArgumentType(OhMyMeteors.getIdentifier("meteor_shower_type"), MeteorShowerTypeArgumentType.class, SingletonArgumentInfo.contextFree(MeteorShowerTypeArgumentType::meteorShowerType));
 
     }
 }

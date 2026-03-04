@@ -13,7 +13,7 @@ import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.minecraft.client.render.BlockRenderLayer;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 public class OhMyMeteorsClient implements ClientModInitializer {
     @Override
@@ -40,8 +40,8 @@ public class OhMyMeteorsClient implements ClientModInitializer {
     }
 
     public static void registerBlockStuff(){
-        BlockRenderLayerMap.putBlock(OMMBlocks.BASIC_METEOR_LASER, BlockRenderLayer.TRANSLUCENT);
-        BlockRenderLayerMap.putBlock(OMMBlocks.ADVANCED_METEOR_LASER, BlockRenderLayer.TRANSLUCENT);
+        BlockRenderLayerMap.putBlock(OMMBlocks.BASIC_METEOR_LASER, ChunkSectionLayer.TRANSLUCENT);
+        BlockRenderLayerMap.putBlock(OMMBlocks.ADVANCED_METEOR_LASER, ChunkSectionLayer.TRANSLUCENT);
     }
 
 }
