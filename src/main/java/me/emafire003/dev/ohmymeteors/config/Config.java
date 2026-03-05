@@ -309,7 +309,7 @@ public class Config {
         //V6
         configs.addKeyValuePair(new Pair<>("meteor_shower_delay_ticks", 15),"The delay (in ticks) between each meteor that gets spawned in delayed and direction delayed meteor showers");
         configs.addKeyValuePair(new Pair<>("meteor_skyglow", true),"If true, makes the sky glow a certain color when a meteor passes by. This only applies if the meteor is in rendering range and not world or server wide.");
-        configs.addKeyValuePair(new Pair<>("meteor_skyglow_color", "#048da5"),"The color to apply to the sky when a meteor passes by if it's enabled. By default it's a lightblue-cyan color. Bear in mind that Minecraft still applies its own colors, so some shades (like green) work less well than others (blue)");
+        configs.addKeyValuePair(new Pair<>("meteor_skyglow_color", "#048da5"),"The color to apply to the sky when a meteor passes by if it's enabled. By default it's a lightblue-cyan color");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
     }
