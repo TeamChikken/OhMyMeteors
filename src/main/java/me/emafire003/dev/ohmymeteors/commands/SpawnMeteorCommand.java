@@ -96,7 +96,7 @@ public class SpawnMeteorCommand implements OMMCommand {
                 return 0;
             }
 
-            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, source.getLevel());
+            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), source.getLevel());
             meteorProjectile.setPosRaw(source.getPlayer().getX(), source.getPlayer().getEyeY(), source.getPlayer().getZ());
 
             meteorProjectile.shootFromRotation(source.getPlayer(), source.getPlayer().getXRot(), source.getPlayer().getYRot(), 0f, FloatArgumentType.getFloat(context, "speed"), 0f);

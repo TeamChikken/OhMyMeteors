@@ -215,6 +215,12 @@ dependencies {
         // Includes examplelib 2.8.0
         jarJar.pin(it, '2.8.0')
     }*/
+
+    //MixnExtras
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.3"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.5.3")) {
+        jarJar.ranged(it, "[0.5.3,)")
+    }
 }
 
 mixin {

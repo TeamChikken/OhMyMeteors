@@ -12,7 +12,6 @@ import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.projectile.*;
 import net.minecraft.world.level.ChunkPos;
