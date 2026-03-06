@@ -3,6 +3,7 @@ package me.emafire003.dev.ohmymeteors.util;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
+import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.Holder;
@@ -14,14 +15,37 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MeteorUtils {
+
+    /// A list of currently active meteors out and about around the world. Used for the fog effect
+    private static final List<UUID> ALIVE_METEORS = new ArrayList<>();
+
+    public static List<UUID> getAliveMeteors() {
+        return ALIVE_METEORS;
+    }
+
+    /**Must be called client side*/
+    public static void addAliveMeteor(UUID id){
+        ALIVE_METEORS.add(id);
+        SchedulerUtils.runLater(20*60, (server -> ALIVE_METEORS.remove(id)));
+    }
+
+    /**Must be called client side*/
+    public static void removeAliveMeteor(UUID id){
+        ALIVE_METEORS.remove(id);
+    }
+
+
     /**Used to get a random meteor position and velocity oriented downwards
      *
      * @return a Pair, where the first value is the Position and teh second one the Velocity*/
-    private static Tuple<Vec3, Vec3> getDownwardsMeteorPosAndVelocity(Vec3 originPos, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height){
+    public static Tuple<Vec3, Vec3> getDownwardsMeteorPosAndVelocity(Vec3 originPos, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height){
         //The invert is to also have a chance at having negative coordinates, otherwise they would always be positive
         int invert_x = 1;
         if(world.getRandom().nextBoolean()){
@@ -57,19 +81,19 @@ public class MeteorUtils {
      * Gets a meteor object to be spawned in, with a velocity oriented downwards and a spawn position already set up
      * */
     public static MeteorProjectileEntity getDownwardsMeteor(Vec3 originPos, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height, int min_size, int max_size, boolean homing){
-        MeteorProjectileEntity meteor = new MeteorProjectileEntity(world);
+        MeteorProjectileEntity meteor = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
 
         Tuple<Vec3, Vec3> pos_vel = getDownwardsMeteorPosAndVelocity(originPos, world, min_spawn_d, max_spawn_d, spawn_height);
 
         meteor.setPosRaw(pos_vel.getA().x, pos_vel.getA().y, pos_vel.getA().z);
 
+        //TODO add variable or config mor max meteor size
         meteor.setSize(world.getRandom().nextIntBetweenInclusive(Math.max(0, min_size), Math.min(50, max_size)));
 
-        meteor.setDeltaMovement(pos_vel.getB());
-
         if(homing){
-            //TODO maybe just go with 1,1,1 as velocity multiplier
-            meteor.setDeltaMovement(originPos.subtract(meteor.position()).normalize().multiply(meteor.getDeltaMovement().x(), meteor.getDeltaMovement().y()*-1, meteor.getDeltaMovement().z()));
+            meteor.setDeltaMovement(originPos.subtract(meteor.position()).normalize().multiply(1,1,1).add(0, Config.DOWNWARDS_SPEED_MODIFIER, 0));
+        }else{
+            meteor.setDeltaMovement(pos_vel.getB());
         }
 
         return meteor;
@@ -80,7 +104,7 @@ public class MeteorUtils {
      * Returns a new meteor object with a general direction similar to the specified one, but slightly different origin and velocity
      * The spawn distances are for the new spread, so keep the generally low*/
     public static MeteorProjectileEntity getDownwardsMeteorSameDirection(Vec3 prev_origin, Vec3 prev_vel, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height, int min_size, int max_size, boolean homing){
-        MeteorProjectileEntity meteor = new MeteorProjectileEntity(world);
+        MeteorProjectileEntity meteor = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
 
         //The invert is to also have a chance at having negative coordinates, otherwise they would always be positive
         int invert_x = 1;
@@ -170,7 +194,13 @@ public class MeteorUtils {
     /**Spawns a meteor shower where all meteors spawn at the same time in random directions around the point of origin
      * Also check out {@link #spawnMeteorShowerDelayed(ServerLevel, Player)} and {@link #spawnMeteorShowerDelayedDirection(ServerLevel, Player)}*/
     public static void spawnMeteorShowerInstant(ServerLevel world, Player p){
-        int r = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        int r;
+        if(Config.MAX_METEORS_IN_SHOWER < Config.MIN_METEORS_IN_SHOWER){
+            r = world.getRandom().nextIntBetweenInclusive(Math.min(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER), Math.max(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER));
+            OhMyMeteors.LOGGER.warn("The Minimum number of meteors in the meteor shower in the config file is lower than the Maximum!");
+        }else{
+            r = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        }
         for(int i = 0; i < r; i++){
             spawnMeteor(world, p, true);
         }
@@ -189,9 +219,15 @@ public class MeteorUtils {
      * unlike {@link #spawnMeteorShowerInstant(ServerLevel, Player)} where all meteors spawn at the same time.
      * Using {@link #spawnMeteorShowerDelayedDirection(ServerLevel, Player)} will also have them follow the same general direction*/
     public static void spawnMeteorShowerDelayed(ServerLevel world, Player p){
-        int total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        //int total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        int total;
+        if(Config.MAX_METEORS_IN_SHOWER < Config.MIN_METEORS_IN_SHOWER){
+            total = world.getRandom().nextIntBetweenInclusive(Math.min(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER), Math.max(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER));
+            OhMyMeteors.LOGGER.warn("The Minimum number of meteors in the meteor shower in the config file is lower than the Maximum!");
+        }else{
+            total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        }
         AtomicInteger spawned_meteors = new AtomicInteger();
-        int base_spawn_delay = 15;
         AtomicInteger random_spawn_delay = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(-10, +10));
 
         spawnMeteor(world, p, true);
@@ -202,13 +238,13 @@ public class MeteorUtils {
             if(spawned_meteors.get() >= total){
                 return false;
             }
-            if(ticks == base_spawn_delay+random_spawn_delay.get()+last_delay.get()){
+            if(ticks == Math.abs(Config.METEOR_SHOWER_DELAY_TICKS)+random_spawn_delay.get()+last_delay.get()){
                 if(spawned_meteors.get() >= total){
                     return false;
                 }
                 spawnMeteor(world, p, true);
                 spawned_meteors.getAndIncrement();
-                last_delay.set(last_delay.get() + base_spawn_delay + random_spawn_delay.get());
+                last_delay.set(last_delay.get() + Math.abs(Config.METEOR_SHOWER_DELAY_TICKS) + random_spawn_delay.get());
                 random_spawn_delay.set(world.getRandom().nextIntBetweenInclusive(-10, +10));
             }
             return true;
@@ -227,11 +263,16 @@ public class MeteorUtils {
 
     /**Spawns meteor showers that generally go in the same direction each delayed by a bit*/
     public static void spawnMeteorShowerDelayedDirection(ServerLevel world, Player p){
-        int total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        int total;
+        if(Config.MAX_METEORS_IN_SHOWER < Config.MIN_METEORS_IN_SHOWER){
+            total = world.getRandom().nextIntBetweenInclusive(Math.min(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER), Math.max(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER));
+            OhMyMeteors.LOGGER.warn("The Minimum number of meteors in the meteor shower in the config file is lower than the Maximum!");
+        }else{
+            total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        }
         //AtomicInteger ticks = new AtomicInteger();
         AtomicInteger last_delay = new AtomicInteger();
         AtomicInteger spawned_meteors = new AtomicInteger();
-        int base_spawn_delay = 15;
         AtomicInteger random_spawn_delay = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(-10, +10));
 
         Tuple<Vec3, Vec3> prev = getDownwardsMeteorPosAndVelocity(p.position(), world.getLevel(),
@@ -248,7 +289,7 @@ public class MeteorUtils {
             if(spawned_meteors.get() >= total){
                 return false;
             }
-            if(ticks == base_spawn_delay+random_spawn_delay.get()+ last_delay.get()){
+            if(ticks == Math.abs(Config.METEOR_SHOWER_DELAY_TICKS)+random_spawn_delay.get()+ last_delay.get()){
                 if(spawned_meteors.get() >= total){
                     return false;
                 }
@@ -260,7 +301,7 @@ public class MeteorUtils {
                 meteor.setSilenced(true);
                 world.addFreshEntity(meteor);
                 spawned_meteors.getAndIncrement();
-                last_delay.set(last_delay.get() + base_spawn_delay + random_spawn_delay.get());
+                last_delay.set(last_delay.get() + Math.abs(Config.METEOR_SHOWER_DELAY_TICKS) + random_spawn_delay.get());
                 random_spawn_delay.set(world.getRandom().nextIntBetweenInclusive(-10, +10));
             }
             return true;

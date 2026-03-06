@@ -12,6 +12,7 @@ import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
+import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.util.MeteorShowerType;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.minecraft.commands.CommandBuildContext;
@@ -29,6 +30,7 @@ import java.util.Objects;
 
 public class SpawnMeteorCommand implements OMMCommand {
 
+    @Deprecated
     private int spawnRandom(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
 
@@ -39,7 +41,7 @@ public class SpawnMeteorCommand implements OMMCommand {
                 return 0;
             }
 
-            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(source.getLevel());
+            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, source.getLevel());
             meteorProjectile.setPosRaw(
                     source.getPlayer().getX()+source.getPlayer().getRandom().nextIntBetweenInclusive(0, 50)*source.getPlayer().getRandom().nextIntBetweenInclusive(-1, 1),
                     source.getPlayer().getEyeY()+source.getPlayer().getRandom().nextIntBetweenInclusive(0, 50)*source.getPlayer().getRandom().nextIntBetweenInclusive(-1, 1),
@@ -47,7 +49,6 @@ public class SpawnMeteorCommand implements OMMCommand {
             );
 
             source.sendSystemMessage(Component.literal("Spawning meteor at " + meteorProjectile.position()));
-
             meteorProjectile.setSize(source.getPlayer().getRandom().nextIntBetweenInclusive(0, 20));
             source.getLevel().addFreshEntity(meteorProjectile);
 
@@ -69,7 +70,7 @@ public class SpawnMeteorCommand implements OMMCommand {
                 return 0;
             }
 
-            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(source.getLevel());
+            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, source.getLevel());
             meteorProjectile.setPosRaw(source.getPlayer().getX(), source.getPlayer().getEyeY(), source.getPlayer().getZ());
 
             meteorProjectile.shootFromRotation(source.getPlayer(), source.getPlayer().getXRot(), source.getPlayer().getYRot(), 0f, 0.2f, 0f);
@@ -94,7 +95,7 @@ public class SpawnMeteorCommand implements OMMCommand {
                 return 0;
             }
 
-            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(source.getLevel());
+            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, source.getLevel());
             meteorProjectile.setPosRaw(source.getPlayer().getX(), source.getPlayer().getEyeY(), source.getPlayer().getZ());
 
             meteorProjectile.shootFromRotation(source.getPlayer(), source.getPlayer().getXRot(), source.getPlayer().getYRot(), 0f, FloatArgumentType.getFloat(context, "speed"), 0f);
@@ -202,10 +203,6 @@ public class SpawnMeteorCommand implements OMMCommand {
         return Commands
                 .literal("spawn")
                 .requires(PermissionsChecker.hasPerms(OhMyMeteors.MOD_ID+".commands.spawn", 2))
-                .then(
-                        Commands.literal("random")
-                                .executes(this::spawnRandom)
-                )
                 .then(
                         Commands.literal("natural")
                                 .executes(this::spawnNatural)

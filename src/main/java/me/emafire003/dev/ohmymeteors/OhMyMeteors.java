@@ -15,7 +15,6 @@ import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
-
 import net.luckperms.api.LuckPermsProvider;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
@@ -43,6 +42,8 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+//TODO look at meteorutils todo
+//TODO maybe add here or in an addon a buildable siren and a cannon or gun or automatic laser that shoots incoming meteors. Maybe an addon.
 
 @Mod(OhMyMeteors.MOD_ID)
 public class OhMyMeteors {

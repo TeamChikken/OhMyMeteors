@@ -7,11 +7,13 @@ import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.ExplosionUtils;
+import me.emafire003.dev.ohmymeteors.util.MeteorSizeClass;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.projectile.*;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
@@ -22,8 +24,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.particles.ParticleTypes;
@@ -37,16 +37,14 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.*;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
-import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
@@ -72,12 +70,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     protected boolean isSilenced = false;
 
     public MeteorProjectileEntity(EntityType<? extends AbstractHurtingProjectile> entityType, Level world) {
-        super(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), world);
-        initialize();
-    }
-
-    public MeteorProjectileEntity(Level world) {
-        super(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), world);
+        super(entityType, world);
         initialize();
     }
 
@@ -145,11 +138,15 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
         int j = 1 << i;
         this.setSize(j);
+
+        if(this.level().isClientSide()){
+            MeteorUtils.addAliveMeteor(this.getUUID());
+        }
     }
 
 
     @Override
-    public final EntityDimensions getDimensions(Pose pose) {
+    public final @NotNull EntityDimensions getDimensions(Pose pose) {
         return super.getDimensions(pose).scale(this.getSize());
     }
 
@@ -243,7 +240,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         this.level().addParticle(ParticleTypes.FLASH, Config.USE_FORCED_PARTICLES, d, e + 0.5, f, 0.0, 0.0, 0.0);
         this.level().addParticle(ParticleTypes.EXPLOSION, Config.USE_FORCED_PARTICLES, d, e + 0.5, f, 0.0, 0.0, 0.0);
 
-        if(this.level() instanceof ServerLevel world){
+        if(this.level() instanceof ServerLevel world && !this.getDeltaMovement().equals(Vec3.ZERO)){
             world.players().forEach(p -> {
                 world.sendParticles(p, ParticleTypes.FLAME, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.1);
                 world.sendParticles(p, ParticleTypes.SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.1);
@@ -344,8 +341,16 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         detonateSimple();
         if(!this.level().isClientSide()){
             StructurePlacerAPI placer = getPlacer();
-            //it means the meteor was too small for the structure, a single block has been placed instead
+            //it means the meteor was too small for the structure, placing a single block instead
             if(placer == null){
+                int r = this.getRandom().nextIntBetweenInclusive(1,3);
+                if(r == 1){
+                    this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.defaultBlockState());
+                }else if(r == 2){
+                    this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.SMOOTH_BASALT.defaultBlockState());
+                }else{
+                    this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.BLACKSTONE.defaultBlockState());
+                }
                 return;
             }
             placer.loadStructure();
@@ -359,6 +364,16 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             StructurePlacerAPI placer = getPlacer();
             //it means the meteor was too small for the structure, a single block has been placed instead
             if(placer == null){
+                if(level().getBlockState(this.blockPosition()).isAir()){
+                    int r = this.getRandom().nextIntBetweenInclusive(1,3);
+                    if(r == 1){
+                        this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.defaultBlockState());
+                    }else if(r == 2){
+                        this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.SMOOTH_BASALT.defaultBlockState());
+                    }else{
+                        this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.BLACKSTONE.defaultBlockState());
+                    }
+                }
                 return;
             }
             placer.setOnlyReplaceTaggedBlocks(true, BlockTags.AIR);
@@ -370,14 +385,6 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     public StructurePlacerAPI getPlacer(){
         //If the dimension is even lower than 2, just spawn one block
         if(this.getSize() < 2){
-            int r = this.getRandom().nextIntBetweenInclusive(1,3);
-            if(r == 1){
-                this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.get().defaultBlockState());
-            }else if(r == 2){
-                this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.SMOOTH_BASALT.defaultBlockState());
-            }else{
-                this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.BLACKSTONE.defaultBlockState());
-            }
             return null;
         }
 
@@ -388,7 +395,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 new StructurePlacerAPI((WorldGenLevel) this.level(), OhMyMeteors.getIdentifier("small/small_meteor_0"), this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
 
         if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
-            ResourceLocation tobeplaced = getStructureToPlace("small");
+            ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.SMALL);
             m_pos_offset = getOffset(new BlockPos(-1, 0, -1), tobeplaced);
 
 
@@ -404,7 +411,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
 
         if(this.getSize() <= Config.MAX_MEDIUM_METEOR_SIZE){
-            ResourceLocation tobeplaced = getStructureToPlace("medium");
+            ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.MEDIUM);
             m_pos_offset = getOffset(new BlockPos(-2, +1, -2), tobeplaced);
 
 
@@ -415,7 +422,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
 
         if(this.getSize() <= Config.MAX_BIG_METEOR_SIZE){
-            ResourceLocation tobeplaced = getStructureToPlace("big");
+            ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.BIG);
             m_pos_offset = getOffset(new BlockPos(-3, 0, -3), tobeplaced);
 
             //m_pos_offset = new BlockPos(-4, -6, -3);
@@ -429,7 +436,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
         //If it's not in the sizes above, then it's a huge one:
 
-        ResourceLocation tobeplaced = getStructureToPlace("huge");
+        ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.HUGE);
         m_pos_offset = getOffset(new BlockPos(-4, 0, -4), tobeplaced);
         //m_pos_offset = new BlockPos(-4, -10, -3);
 
@@ -440,7 +447,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         return placer;
     }
 
-    /** Returms the offset of the meteor structure, aka how much it's going to be embedded in the terrain.
+    /** Returns the offset of the meteor structure, aka how much it's going to be embedded in the terrain.
      * it's based on its size and the distance from the terrain that would be left from the imapct point, and
      * the direction of the meteor
      *
@@ -504,7 +511,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
      *
      * @param sizeClass The size of the meteors that we want to spawn, can be "small" "medium" "big" "huge"
      * */
-    public ResourceLocation getStructureToPlace(String sizeClass){
+    public ResourceLocation getStructureToPlace(MeteorSizeClass sizeClass){
         AtomicBoolean hasSpecial = new AtomicBoolean(false);
 
         if(METEOR_STRUCTURES.isEmpty() && !this.level().isClientSide()){
@@ -518,13 +525,13 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
         List<ResourceLocation> structs = METEOR_STRUCTURES.stream().filter(identifier -> {
 
-            if(!identifier.getPath().startsWith(sizeClass)){
+            if(!identifier.getPath().startsWith(sizeClass.getSerializedName())){
                 return false;
             }
 
             if (!hasSpecial.get()) { //saves on checks
                 //This allows me to see if this size has at least a special meteor
-                if (identifier.getPath().startsWith(sizeClass+"/special")) {
+                if (identifier.getPath().startsWith(sizeClass.getSerializedName()+"/special")) {
                     hasSpecial.set(true);
                     return true;
                 }
@@ -534,14 +541,14 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }).toList();
 
         if (structs.isEmpty()){
-            OhMyMeteors.LOGGER.error("The list of structures for size class '" + sizeClass + "' is empty! Check that your structures are valid ones!");
+            OhMyMeteors.LOGGER.error("The list of structures for size class '" + sizeClass.getSerializedName() + "' is empty! Check that your structures are valid ones!");
             structs = List.of(OhMyMeteors.getIdentifier("error"));
         }
 
         ResourceLocation structure_id = structs.get(this.level().getRandom().nextIntBetweenInclusive(0,structs.size()-1));
         //This is to prevent special structures from spawning "before" they should
         //TODO make sure it's not too much of a performance issue
-        while(structure_id.getPath().startsWith(sizeClass+"/special")){
+        while(structure_id.getPath().startsWith(sizeClass.getSerializedName()+"/special")){
             structure_id = structs.get(this.getRandom().nextIntBetweenInclusive(0,structs.size()-1));
         }
 
@@ -549,7 +556,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         if(hasSpecial.get()){
             int i = random.nextIntBetweenInclusive(0, Config.SPECIAL_METEORS_CHANCE);
             if(i == 1){
-                List<ResourceLocation> specials = structs.stream().filter(id -> id.getPath().startsWith(sizeClass+"/special")).toList();
+                List<ResourceLocation> specials = structs.stream().filter(id -> id.getPath().startsWith(sizeClass.getSerializedName()+"/special")).toList();
                 structure_id = specials.get(this.getRandom().nextIntBetweenInclusive(0,specials.size()-1));
             }
         }
@@ -599,7 +606,6 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         if(exploded){
             return;
         }
-        //TODO make sure it is like 1/3 of its size inside a block maybe
         super.onHitBlock(blockHitResult);
         BlockState state = this.level().getBlockState(blockHitResult.getBlockPos());
 
@@ -648,39 +654,88 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
             this.setPosRaw(explosionPos.x, explosionPos.y, explosionPos.z);
 
-            this.discard(); //So it doesn't trigger again hitting the next block
-            exploded = true;
-            if(!this.level().isClientSide()){
-                if(this.isScatterMeteor()){
-                    if(Config.SCATTER_METEOR_STRUCTURE){
-                        if(Config.SCATTER_ONLY_REPALCE_AIR){
-                            this.detonateWithStructureOnlyAir();
-                        }else{
-                            this.detonateWithStructure();
-                        }
-                        return;
-                    }else{
-                        this.detonateSimple();
-                        return;
-                    }
-                }
+            explodeMeteor();
+        }
+    }
 
-                if(Config.METEOR_STRUCTURE){
-                    if(Config.ONLY_REPLACE_AIR){
+    @Override
+    protected void onHitEntity(EntityHitResult entityHitResult) {
+        if(exploded || !Config.EXPLODE_ON_ENTITY_COLLISION){
+            return;
+        }
+        super.onHitEntity(entityHitResult);
+        BlockPos collisionPos = entityHitResult.getEntity().getOnPos();
+        if(ModList.get().isLoaded("flan") && !this.level().isClientSide()){
+            if(!FlanCompat.canSpawnHere(null, blockHitResult.getBlockPos())){
+                this.discard();
+                OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by a Flan claim, it has been discarded!");
+                return;
+            }
+        }
+
+        if(ModList.get().isLoaded("yawp") && !this.level().isClientSide()){
+            if(!YawpCompat.canSpawnHere((ServerLevel) this.level(), blockHitResult.getBlockPos())){
+                this.discard();
+                OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by YetAnotherWorldProtector 'EXPLOSION_ENTITY' flag, it has been discarded!");
+                return;
+            }
+        }
+        explodeMeteor();
+    }
+
+    @Override
+    protected boolean canHitEntity(Entity target) {
+        return super.canHitEntity(target) || target instanceof Projectile;
+    }
+
+    /**Actually makes the meteor explode and disappear, and spawn stuff if it needs to. It's used when hitting a block or an entity*/
+    public void explodeMeteor(){
+        this.discard(); //So it doesn't trigger again hitting the next block
+        exploded = true;
+        if(!this.level().isClientSide()){
+            if(this.isScatterMeteor()){
+                if(Config.SCATTER_METEOR_STRUCTURE){
+                    if(Config.SCATTER_ONLY_REPALCE_AIR){
                         this.detonateWithStructureOnlyAir();
                     }else{
                         this.detonateWithStructure();
                     }
-
+                    return;
                 }else{
                     this.detonateSimple();
+                    return;
                 }
             }
 
+            if(Config.METEOR_STRUCTURE){
+                if(Config.ONLY_REPLACE_AIR){
+                    this.detonateWithStructureOnlyAir();
+                }else{
+                    this.detonateWithStructure();
+                }
 
+            }else{
+                this.detonateSimple();
+                this.discard();
+            }
         }
     }
 
+    @Override
+    public void onClientRemoval() {
+        super.onClientRemoval();
+        MeteorUtils.removeAliveMeteor(this.getUUID());
+    }
+/*
+    @Override
+    public void remove(RemovalReason removalReason) {
+        if(this.level().isClientSide()){
+            OhMyMeteors.LOGGER.error("Removing meteor");
+            OhMyMeteors.LOGGER.error("Ok client side remove");
+            MeteorUtils.addAliveMeteor(this.getUUID());
+
+        super.remove(removalReason);
+*/
     /**Returns true if this meteor is classified as huge, as in bigger than the biggest "big" size*/
     public boolean isHuge(){
         return this.getSize() > Config.MAX_BIG_METEOR_SIZE;
@@ -711,5 +766,31 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
     public void setSilenced(boolean silenced) {
         isSilenced = silenced;
+    }
+
+    /** This method can be used by other mods to add their own custom meteors and spawn their version of the meteors*/
+    @SuppressWarnings("unused")
+    public MeteorProjectileEntity copy(MeteorProjectileEntity newMeteor){
+        newMeteor.setPos(this.position());
+        newMeteor.setDeltaMovement(this.getDeltaMovement());
+        newMeteor.setSize(this.getSize());
+        newMeteor.setScatterMeteor(this.isScatterMeteor());
+        newMeteor.setSilenced(this.isSilenced());
+        return newMeteor;
+    }
+
+    /** Returns the size class of this meteor, based on the values of the config file*/
+    @SuppressWarnings("unused")
+    public MeteorSizeClass getSizeClass(){
+        if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
+            return MeteorSizeClass.SMALL;
+        }
+        if(this.getSize() <= Config.MAX_MEDIUM_METEOR_SIZE){
+            return MeteorSizeClass.MEDIUM;
+        }
+        if(this.getSize() <= Config.MAX_BIG_METEOR_SIZE){
+            return MeteorSizeClass.BIG;
+        }
+        return MeteorSizeClass.HUGE;
     }
 }

@@ -23,7 +23,7 @@ public class SchedulerUtils {
                 boolean b = !task.tick(server);
                 if(b){
                     System.gc();
-                    OhMyMeteors.LOGGER.info("running gc");
+                    OhMyMeteors.LOGGER.debug("running gc");
                 }
                 return b;
             });
