@@ -345,7 +345,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             if(placer == null){
                 int r = this.getRandom().nextIntBetweenInclusive(1,3);
                 if(r == 1){
-                    this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.defaultBlockState());
+                    this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.get().defaultBlockState());
                 }else if(r == 2){
                     this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.SMOOTH_BASALT.defaultBlockState());
                 }else{
@@ -367,7 +367,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 if(level().getBlockState(this.blockPosition()).isAir()){
                     int r = this.getRandom().nextIntBetweenInclusive(1,3);
                     if(r == 1){
-                        this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.defaultBlockState());
+                        this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.get().defaultBlockState());
                     }else if(r == 2){
                         this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.SMOOTH_BASALT.defaultBlockState());
                     }else{
@@ -666,7 +666,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         super.onHitEntity(entityHitResult);
         BlockPos collisionPos = entityHitResult.getEntity().getOnPos();
         if(ModList.get().isLoaded("flan") && !this.level().isClientSide()){
-            if(!FlanCompat.canSpawnHere(null, blockHitResult.getBlockPos())){
+            if(!FlanCompat.canSpawnHere(null, collisionPos)){
                 this.discard();
                 OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by a Flan claim, it has been discarded!");
                 return;
@@ -674,7 +674,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
 
         if(ModList.get().isLoaded("yawp") && !this.level().isClientSide()){
-            if(!YawpCompat.canSpawnHere((ServerLevel) this.level(), blockHitResult.getBlockPos())){
+            if(!YawpCompat.canSpawnHere((ServerLevel) this.level(), collisionPos)){
                 this.discard();
                 OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by YetAnotherWorldProtector 'EXPLOSION_ENTITY' flag, it has been discarded!");
                 return;
