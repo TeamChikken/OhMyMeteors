@@ -6,6 +6,7 @@ import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
+import me.emafire003.dev.ohmymeteors.events.PlayerJoinEvent;
 import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
@@ -15,6 +16,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //TODO look at meteorutils todo
 //TODO maybe add here or in an addon a buildable siren and a cannon or gun or automatic laser that shoots incoming meteors. Maybe an addon.
@@ -68,25 +71,33 @@ public class OhMyMeteors implements ModInitializer {
 			minecraftServer.getAllLevels().forEach(OhMyMeteors::reInitStructures);
 		});
 
+		AtomicBoolean shouldWarn = new AtomicBoolean(false);
 		//loads the config file on server startup and the scheduler
 		ServerLifecycleEvents.SERVER_STARTED.register( minecraftServer -> {
 			try{
 				SchedulerUtils.registerOnServerTick();
-				Config.reloadConfig();
+				shouldWarn.set(!Config.reloadConfig());
 				//minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
 			}catch (Exception e){
 				LOGGER.error("There was an error while loading the config files!");
 				e.printStackTrace();
 			}
 		});
+
+		PlayerJoinEvent.EVENT.register(serverPlayer -> {
+			if(serverPlayer.hasPermissions(4) && shouldWarn.get()){
+				serverPlayer.sendSystemMessage(Component.literal(PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something has gone wrong while loading it! A copy of the old file has been created.")));
+			}
+		});
+
 	}
 
-
-	public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registry.BLOCK_REGISTRY, getIdentifier("meteor_bypasses"));
-	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.create(Registry.BLOCK_REGISTRY, getIdentifier("meteor_bypasses_and_destroy"));
+    public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registry.BLOCK_REGISTRY, getIdentifier("meteor_bypasses"));
+    public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.create(Registry.BLOCK_REGISTRY, getIdentifier("meteor_bypasses_and_destroy"));
     public static final TagKey<Block> AIR_BLOCKS = TagKey.create(Registry.BLOCK_REGISTRY, getIdentifier("air"));
+    public static final TagKey<Block> METEOR_EXPLOSION_SAFE = TagKey.create(Registries.BLOCK, getIdentifier("meteor_explosion_safe"));
 
-	public static List<ResourceLocation> METEOR_STRUCTURES = new ArrayList<>();
+    public static List<ResourceLocation> METEOR_STRUCTURES = new ArrayList<>();
 
 	public static void reInitStructures(ServerLevel world){
 		 METEOR_STRUCTURES = new ArrayList<>(world.getStructureManager().listTemplates().filter(

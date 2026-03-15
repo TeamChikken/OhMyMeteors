@@ -2,9 +2,11 @@
   "required": true,
   "package": "me.emafire003.dev.ohmymeteors.mixin",
   "compatibilityLevel": "JAVA_16",
+  "minVersion": "0.8",
   "mixins": [
     "CatCollarInvoker",
     "MinecraftServerSessionAccessor",
+    "PlayerJoinMixin",
     "WorldSpawnMeteorMixin"
   ],
   "injectors": {

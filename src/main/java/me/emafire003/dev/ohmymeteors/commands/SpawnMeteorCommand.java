@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentType;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentType;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
@@ -107,21 +108,6 @@ public class SpawnMeteorCommand implements OMMCommand {
         }
     }
 
-    private boolean spawnChecks(ServerPlayer p){
-
-        Holder<DimensionType> current_dim = p.getLevel().dimensionTypeRegistration();
-
-        if(!MeteorUtils.canSpawnInDimension(current_dim)){
-            return false;
-        }
-
-        Holder<Biome> current_biome = p.getLevel().getBiome(p.blockPosition());
-
-        if(!MeteorUtils.canSpawnInBiome(current_biome)){
-            return false;
-        }
-        return true;
-    }
 
     /**Spawns a meteor exactly like the natural spawns. Gives an error if there are no players online*/
     private int spawnNatural(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -136,10 +122,9 @@ public class SpawnMeteorCommand implements OMMCommand {
 
 
            ServerPlayer p = source.getLevel().getRandomPlayer();
-           if(spawnChecks(p)){
+           if(MeteorUtils.canMeteorSpawnVerbose(p, source)){
                MeteorUtils.spawnMeteor(source.getLevel(), p, false);
            }else{
-               source.sendFailure(Component.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
                return 0;
            }
 
@@ -161,7 +146,7 @@ public class SpawnMeteorCommand implements OMMCommand {
                 return -1;
             }
             ServerPlayer p = source.getLevel().getRandomPlayer();
-            if(spawnChecks(p)){
+            if(MeteorUtils.canMeteorSpawnVerbose(p, source)){
                 if(type.equals(MeteorShowerType.DELAYED)){
                     MeteorUtils.spawnMeteorShowerDelayed(source.getLevel(), p);
                 }else if(type.equals(MeteorShowerType.DELAYED_DIRECTION)){
@@ -170,7 +155,6 @@ public class SpawnMeteorCommand implements OMMCommand {
                     MeteorUtils.spawnMeteorShowerInstant(source.getLevel(), p);
                 }
             }else{
-                source.sendFailure(Component.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
                 return 0;
             }
 
