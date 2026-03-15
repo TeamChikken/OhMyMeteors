@@ -254,7 +254,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     }
 
     /** The sphere explosion is a little weaker than the vanilla one, so adjustment may be needed to have a niceer effect*/
-    private int sphereExplosionAdjuster(){
+    protected int sphereExplosionAdjuster(){
         int adjust = 0;
         if(this.getSize() > 3){
             adjust = 2;
@@ -268,6 +268,11 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     /** Makes this entity explode without creating any structures on impact
      * and then discards this entity*/
     public void detonateSimple(){
+        detonateSimple(0);
+    }
+
+
+    public void detonateSimple(int extraPower){
         ExplosionDamageCalculator explosionBehavior = new ExplosionDamageCalculator();
 
         ExplosionDamageCalculator safeExplosion = new ExplosionDamageCalculator() {
@@ -280,13 +285,13 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         if(isScatterMeteor()){
             if(Config.SCATTER_METEOR_GRIEFING){
                 if(Config.USE_BETTER_EXPLOSIONS){
-                    ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), true, Level.ExplosionInteraction.TNT);
+                    ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, true, Level.ExplosionInteraction.TNT);
                 }else{
                     this.level().explode(this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, Level.ExplosionInteraction.TNT);
                 }
             }else{
                 if(Config.USE_BETTER_EXPLOSIONS){
-                    ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), safeExplosion, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), false, Level.ExplosionInteraction.TNT);
+                    ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), safeExplosion, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, false, Level.ExplosionInteraction.TNT);
                 }else{
                     this.level().explode(this, this.damageSources().explosion(this, this), safeExplosion, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, Level.ExplosionInteraction.TNT);
                 }
@@ -305,12 +310,12 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
         if(Config.METEOR_GRIEFING){
             if(Config.USE_BETTER_EXPLOSIONS){
-                ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster(), true, Level.ExplosionInteraction.TNT);
+                ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, true, Level.ExplosionInteraction.TNT);
             }else {
-                this.level().explode(this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, Level.ExplosionInteraction.TNT);
+                this.level().explode(this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+extraPower, true, Level.ExplosionInteraction.TNT);
             }
         }else{
-            this.level().explode(this, this.damageSources().explosion(this, this), safeExplosion, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, Level.ExplosionInteraction.TNT);
+            this.level().explode(this, this.damageSources().explosion(this, this), safeExplosion, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+extraPower, false, Level.ExplosionInteraction.TNT);
         }
 
         if(!this.level().isClientSide()){
@@ -458,7 +463,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
      * @param tobeplaced the id of the meteor that is going to be placed
      * @return the blockpos offset
      */
-    private BlockPos getOffset(BlockPos m_pos_offset, ResourceLocation tobeplaced){
+    protected BlockPos getOffset(BlockPos m_pos_offset, ResourceLocation tobeplaced){
         //If it's an error structure it should be as visible as possible
         if(tobeplaced.getPath().startsWith("error")){
             return m_pos_offset.offset(0, 5, 0);
@@ -599,9 +604,9 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     }
 
     /// Since it likes to explode more times instead of just one, i'll put this here so it won't explode twice
-    private boolean exploded = false;
-    private int travelledBlocks = 0;
-    private Vec3 explosionPos = null;
+    protected boolean exploded = false;
+    protected int travelledBlocks = 0;
+    protected Vec3 explosionPos = null;
 
     /// This is the main method which does the meteor stuff on impact
     @Override
@@ -686,6 +691,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         explodeMeteor();
     }
 
+    //TODO make configurable?
     @Override
     protected boolean canHitEntity(Entity target) {
         return super.canHitEntity(target) || target instanceof Projectile;
