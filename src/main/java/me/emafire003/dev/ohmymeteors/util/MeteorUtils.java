@@ -71,7 +71,7 @@ public class MeteorUtils {
         if(world.getRandom().nextBoolean()){
             invert_z = -1;
         }
-        Vec3 vel = new Vec3((world.getRandom().nextFloat()/2)*invert_x, -1.0f*(world.getRandom().nextFloat()+ Config.DOWNWARDS_SPEED_MODIFIER), (world.getRandom().nextFloat()/2)*invert_z);
+        Vec3 vel = new Vec3((world.getRandom().nextFloat()/Config.METEOR_DISPERSION_FACTOR)*invert_x, -1.0f*(world.getRandom().nextFloat()+ Config.DOWNWARDS_SPEED_MODIFIER), (world.getRandom().nextFloat()/Config.METEOR_DISPERSION_FACTOR)*invert_z);
 
         return new Tuple<>(pos, vel);
 
