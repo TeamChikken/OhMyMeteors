@@ -1,12 +1,13 @@
 package me.emafire003.dev.ohmymeteors.util;
 
 import net.minecraft.util.StringRepresentable;
+import org.jetbrains.annotations.NotNull;
 
 public enum MeteorSizeClass implements StringRepresentable {
-    SMALL("small"),
-    MEDIUM("medium"),
-    BIG("big"),
-    HUGE("huge");
+    SMALL("SMALL"),
+    MEDIUM("MEDIUM"),
+    BIG("BIG"),
+    HUGE("HUGE");
 
     private final String name;
     MeteorSizeClass(final String name){
@@ -16,7 +17,7 @@ public enum MeteorSizeClass implements StringRepresentable {
     public static final EnumCodec<MeteorSizeClass> CODEC = StringRepresentable.fromEnum(MeteorSizeClass::values);
 
     @Override
-    public String getSerializedName() {
-        return this.name;
+    public @NotNull String getSerializedName() {
+        return this.name.toLowerCase();
     }
 }
