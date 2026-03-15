@@ -15,8 +15,11 @@ import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.TicketType;
@@ -28,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //TODO look at meteorutils todo
 //TODO maybe add here or in an addon a buildable siren and a cannon or gun or automatic laser that shoots incoming meteors. Maybe an addon.
@@ -78,25 +82,37 @@ public class OhMyMeteors implements ModInitializer {
 			minecraftServer.getAllLevels().forEach(OhMyMeteors::reInitStructures);
 		});
 
+		AtomicBoolean shouldWarn = new AtomicBoolean(false);
 		//loads the config file on server startup and the scheduler
 		ServerLifecycleEvents.SERVER_STARTED.register( minecraftServer -> {
 			try{
 				SchedulerUtils.registerOnServerTick();
-				Config.reloadConfig();
+				shouldWarn.set(!Config.reloadConfig());
 				//minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
 			}catch (Exception e){
 				LOGGER.error("There was an error while loading the config files!");
 				e.printStackTrace();
 			}
 		});
+
+		ServerPlayerEvents.JOIN.register((serverPlayer -> {
+			if(serverPlayer.hasPermissions(4) && shouldWarn.get()){
+				serverPlayer.sendSystemMessage(Component.literal(PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something has gone wrong while loading it! A copy of the old file has been created.")));
+			}
+		}));
+
 	}
 
 	/*public static final TagKey<Block> METEOR_BYPASSES = TagKey.of(RegistryKeys.BLOCK, getIdentifier("meteor_bypasses"));
 	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.of(RegistryKeys.BLOCK, getIdentifier("meteor_bypasses_and_destroy"));
+    public static final TagKey<Block> METEOR_EXPLOSION_SAFE = TagKey.create(Registries.BLOCK, getIdentifier("meteor_explosion_safe"));
 */
 	@SuppressWarnings("unused")
 	/*public static void registerTags(){
 		Registries.BLOCK.iterateEntries(METEOR_BYPASSES).forEach(blockRegistryEntry -> registerTags());
+HolderSet.Named<Block> METEOR_BYPASSES_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_BYPASSES);
+		HolderSet.Named<Block> METEOR_BYPASSES_AND_DESTROY_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_BYPASSES_AND_DESTROY);
+		HolderSet.Named<Block> METEOR_EXPLOSION_SAFE_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_EXPLOSION_SAFE);
 
 
 		/*RegistryEntryList.Named<Block> METEOR_BYPASSES_AND_DESTROY_TAG = Registries.BLOCK.iterateEntries(METEOR_BYPASSES_AND_DESTROY).forEach(blockRegistryEntry -> registerTags());

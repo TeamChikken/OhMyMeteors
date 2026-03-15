@@ -10,18 +10,19 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import com.mojang.blaze3d.vertex.PoseStack;
+import org.jetbrains.annotations.NotNull;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
-public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProjectileEntity, MeteorProjectileRenderState> {
-    protected MeteorProjectileEntityModel model;
+public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> extends EntityRenderer<T> {
+    protected MeteorProjectileEntityModel<?> model;
 
     public static final Identifier TEXTURE = OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png");
 
     public MeteorProjectileEntityRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
-        this.model = new MeteorProjectileEntityModel(ctx.bakeLayer(MeteorProjectileEntityModel.METEOR));
+        this.model = new MeteorProjectileEntityModel<>(ctx.bakeLayer(MeteorProjectileEntityModel.METEOR));
     }
 
     @Override
@@ -101,6 +102,35 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
 
     /*@Override
     public Identifier getTexture(MeteorProjectileRenderState state) {
+        return OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png");
+    }*/
+
+    ///  //////////////
+    /*
+    * @Override
+    public void render(T entity, float yaw, float tickDelta, PoseStack matrices,
+                       MultiBufferSource vertexConsumers, int light) {
+
+        matrices.pushPose();
+
+        VertexConsumer vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+
+        matrices.translate(0, -entity.getDimensions(entity.getPose()).height()/1.5, 0);
+
+        matrices.scale(entity.getSize(), entity.getSize(), entity.getSize());
+
+        //yay it finally works, it needed the entity tickCount as well :D
+        model.setupAnim(entity, 0f, 0f, entity.tickCount + tickDelta, 0f, 0f);
+
+        this.model.renderToBuffer(matrices, vertexconsumer, light, OverlayTexture.NO_OVERLAY);
+        matrices.popPose();
+
+        super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
+    }
+
+    @Override
+    public @NotNull ResourceLocation getTextureLocation(T entity) {
         return OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png");
     }*/
 }
