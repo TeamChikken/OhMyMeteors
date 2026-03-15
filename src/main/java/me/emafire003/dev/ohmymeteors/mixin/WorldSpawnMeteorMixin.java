@@ -1,7 +1,5 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
-import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
-import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.minecraft.world.entity.Entity;
@@ -10,7 +8,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.level.WorldGenLevel;
@@ -19,6 +16,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.fml.ModList;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,15 +40,20 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
 
     //@Shadow public abstract ChunkSource getChunkSource();
 
-    @Shadow public abstract ServerLevel getLevel();
+    @Shadow public abstract @NotNull ServerLevel getLevel();
 
-    @Shadow public abstract List<ServerPlayer> players();
+    @Shadow public abstract @NotNull List<ServerPlayer> players();
 
     @Unique
     int meteorCooldown = 0;
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
     public void tickSpawnMeteor(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
+
+        //If chance is negative, it means that no natural meteor should spawn so return early
+        if(Config.METEOR_SPAWN_CHANCE < 0){
+            return;
+        }
 
         if(Config.SHOULD_COOLDOWN_BETWEEN_METEORS && meteorCooldown > 0){
             meteorCooldown = meteorCooldown - 1;
@@ -64,34 +67,18 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
         }
 
         /// As for spawning, region overrides biome overrides dimension
-        if(ModList.get().isLoaded("flan")){
-            if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
-                return;
-            }
-        }
-
-        if(ModList.get().isLoaded("yawp")){
-            //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere(((ServerLevel) (Object) this), p.blockPosition()) || YawpCompat.canSpawnHere(((ServerLevel) (Object) this), new BlockPos(p.blockPosition().getX(), Config.METEOR_SPAWN_HEIGHT, p.blockPosition().getZ())))){
-                return;
-            }
-        }
-
         Holder<DimensionType> current_dim = p.level().dimensionTypeRegistration();
-
-        if(!MeteorUtils.canSpawnInDimension(current_dim)){
-            return;
-        }
-
         Holder<Biome> current_biome = p.level().getBiome(p.blockPosition());
-
-        if(!MeteorUtils.canSpawnInBiome(current_biome)){
+        if(!MeteorUtils.canMeteorSpawn(p, current_dim, current_biome)){
             return;
         }
+
 
         /// For the chance, biome > dim > global
         /// Aka the biome chance overrides the dimension chance which in turn overrides the global parameter
         int chance = Config.METEOR_SPAWN_CHANCE;
+
+        //If chance is negative, it means that no natural meteor should spawn
 
         //If the current dimension is in the map, it will override the chance thing
         if(Config.DIMENSION_CHANCES.containsKey(current_dim.unwrapKey().get().location().toString())){

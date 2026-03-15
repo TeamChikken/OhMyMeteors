@@ -7,16 +7,12 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentType;
-import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
-import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
-import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.util.MeteorShowerType;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.minecraft.commands.CommandBuildContext;
-import net.minecraft.core.Holder;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
@@ -153,10 +149,9 @@ public class SpawnMeteorCommand implements OMMCommand {
 
 
            ServerPlayer p = source.getLevel().getRandomPlayer();
-           if(spawnChecks(p)){
+           if(MeteorUtils.canMeteorSpawnVerbose(p, source)){
                MeteorUtils.spawnMeteor(source.getLevel(), p, false);
            }else{
-               source.sendFailure(Component.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
                return 0;
            }
 
@@ -178,7 +173,7 @@ public class SpawnMeteorCommand implements OMMCommand {
                 return -1;
             }
             ServerPlayer p = source.getLevel().getRandomPlayer();
-            if(spawnChecks(p)){
+            if(MeteorUtils.canMeteorSpawnVerbose(p, source)){
                 if(type.equals(MeteorShowerType.DELAYED)){
                     MeteorUtils.spawnMeteorShowerDelayed(source.getLevel(), p);
                 }else if(type.equals(MeteorShowerType.DELAYED_DIRECTION)){
@@ -187,7 +182,6 @@ public class SpawnMeteorCommand implements OMMCommand {
                     MeteorUtils.spawnMeteorShowerInstant(source.getLevel(), p);
                 }
             }else{
-                source.sendFailure(Component.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
                 return 0;
             }
 

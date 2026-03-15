@@ -13,6 +13,7 @@ import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
+import me.emafire003.dev.ohmymeteors.events.PlayerJoinEvent;
 import me.emafire003.dev.ohmymeteors.items.OMMItemTab;
 import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.LaserFlashParticle;
@@ -21,7 +22,7 @@ import me.emafire003.dev.ohmymeteors.particles.LaserParticleSmall;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
-
+import net.minecraft.network.chat.Component;
 import net.luckperms.api.LuckPermsProvider;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
@@ -55,6 +56,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //TODO look at meteorutils todo
 //TODO maybe add here or in an addon a buildable siren and a cannon or gun or automatic laser that shoots incoming meteors. Maybe an addon.
@@ -135,6 +137,13 @@ public class OhMyMeteors {
 			e.printStackTrace();
 		}
 	}
+    /*TODO
+    *
+    * PlayerJoinEvent.EVENT.register(serverPlayer -> {
+			if(serverPlayer.hasPermissions(4) && shouldWarn.get()){
+				serverPlayer.sendSystemMessage(Component.literal(PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something has gone wrong while loading it! A copy of the old file has been created.")));
+			}
+		});*/
 
 	// Wow this looks like a stupid way to do this
 	@SubscribeEvent
@@ -190,6 +199,7 @@ public class OhMyMeteors {
 	public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses"));
 	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses_and_destroy"));
 	public static final TagKey<Block> AIR_BLOCKS = TagKey.create(Registries.BLOCK, getIdentifier("air"));
+	public static final TagKey<Block> METEOR_EXPLOSION_SAFE = TagKey.create(Registries.BLOCK, getIdentifier("meteor_explosion_safe"));
 
 
 	@SuppressWarnings("unused")
@@ -197,6 +207,7 @@ public class OhMyMeteors {
 		HolderSet.Named<Block> METEOR_BYPASSES_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_BYPASSES);
 		HolderSet.Named<Block> METEOR_BYPASSES_AND_DESTROY_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_BYPASSES_AND_DESTROY);
 		HolderSet.Named<Block> AIR_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(AIR_BLOCKS);
+		HolderSet.Named<Block> METEOR_EXPLOSION_SAFE_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_EXPLOSION_SAFE);
 
 	}
 

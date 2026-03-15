@@ -11,6 +11,13 @@ import java.util.function.Supplier;
 
 public class OMMParticles {
 
+    public static final SimpleParticleType LASER_PARTICLE = FabricParticleTypes.simple();
+    public static final SimpleParticleType LASER_PARTICLE_SMALL = FabricParticleTypes.simple();
+    public static final SimpleParticleType LASER_FLASH_PARTICLE = FabricParticleTypes.simple();
+    public static final ParticleType<MeteorSmokeScaledOptions> METEOR_SMOKE_COSY = FabricParticleTypes.complex(MeteorSmokeScaledOptions.DESERIALIZER);
+    //public static final ParticleType<SmokeScaleParticleOptions> METEOR_SMOKE_SIGNAL = FabricParticleTypes.complex(SmokeScaleParticleOptions.CODEC, SmokeScaleParticleOptions.STREAM_CODEC);
+    public static final ParticleType<FlashScaleParticleOptions> METEOR_FLASH = FabricParticleTypes.complex(FlashScaleParticleOptions.DESERIALIZER);
+
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES =
             DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, OhMyMeteors.MOD_ID);
 
