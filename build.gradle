@@ -178,7 +178,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
     //StructurePlacerAPI (to spawn the meteor structure on impact)
     implementation fg.deobf("maven.modrinth:structureplacerapi:${project.structureplacerapi_version}")
-    jarJar(group: 'com.github.Emafire003', name: 'StructurePlacerAPI', version: '[2.0]')
+    jarJar(group: 'com.github.Emafire003', name: 'StructurePlacerAPI', version: '[2.1]')
     //jarJar("maven.modrinth:structureplacerapi:${project.structureplacerapi_version}")
 
     //implementation fg.deobf('com.github.Emafire003:StructurePlacerAPI:forge-SNAPSHOT')
