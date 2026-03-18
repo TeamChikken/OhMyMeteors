@@ -390,70 +390,91 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     }
 
     /**If the meteor is micro size (<2) will just spawn a block and return null*/
-    public StructurePlacerAPI getPlacer(){
+    public StructurePlacerAPI getPlacer(MeteorSizeClass sizeClass){
         //If the dimension is even lower than 2, just spawn one block
         if(this.getSize() < 2){
             return null;
         }
-
         BlockPos m_pos_offset = BlockPos.containing(this.getDeltaMovement()).offset(-1, 0, -1);//new BlockPos(-1, -2, -1);
         //Checks for at most 5 blocks of Air below where the meteor should spawn, which could be a result of the explosion
 
         StructurePlacerAPI placer =
                 new StructurePlacerAPI((WorldGenLevel) this.level(), OhMyMeteors.getIdentifier("small/small_meteor_0"), this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
 
-        if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
-            ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.SMALL);
-            m_pos_offset = getOffset(new BlockPos(-1, 0, -1), tobeplaced);
+        switch (sizeClass){
+            case SMALL -> {
+                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.SMALL);
+                m_pos_offset = getOffset(new BlockPos(-1, 0, -1), tobeplaced);
 
 
-            placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
-                    tobeplaced,
-                    this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
+                placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
+                        tobeplaced,
+                        this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
 
-            if(Config.ONLY_REPLACE_AIR){
-                placer.setOnlyReplaceTaggedBlocks(true, BlockTags.AIR);
+                if(Config.ONLY_REPLACE_AIR){
+                    placer.setOnlyReplaceTaggedBlocks(true, BlockTags.AIR);
+                }
+
+                return placer;
             }
+            case MEDIUM -> {
+                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.MEDIUM);
+                m_pos_offset = getOffset(new BlockPos(-2, +1, -2), tobeplaced);
 
-            return placer;
+
+                placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
+                        tobeplaced,
+                        this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
+                return placer;
+            }
+            case BIG -> {
+                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.BIG);
+                m_pos_offset = getOffset(new BlockPos(-3, 0, -3), tobeplaced);
+
+                //m_pos_offset = new BlockPos(-4, -6, -3);
+
+                placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
+                        tobeplaced,
+                        this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
+
+                return placer;
+            } //If it's not in the sizes above, then it's a huge one:
+            default -> {
+                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.HUGE);
+                m_pos_offset = getOffset(new BlockPos(-4, 0, -4), tobeplaced);
+                //m_pos_offset = new BlockPos(-4, -10, -3);
+
+                placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
+                        tobeplaced,
+                        this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
+
+                return placer;
+            }
+        }
+    }
+
+    public StructurePlacerAPI getPlacer(){
+        //If the dimension is even lower than 2, just spawn one block
+        if(this.getSize() < 2){
+            return null;
+        }
+
+        if(this.getSize() <= Config.MAX_SMALL_METEOR_SIZE){
+            return getPlacer(MeteorSizeClass.SMALL);
         }
 
         if(this.getSize() <= Config.MAX_MEDIUM_METEOR_SIZE){
-            ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.MEDIUM);
-            m_pos_offset = getOffset(new BlockPos(-2, +1, -2), tobeplaced);
-
-
-            placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
-                    tobeplaced,
-                    this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
-            return placer;
+            return getPlacer(MeteorSizeClass.MEDIUM);
         }
 
         if(this.getSize() <= Config.MAX_BIG_METEOR_SIZE){
-            ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.BIG);
-            m_pos_offset = getOffset(new BlockPos(-3, 0, -3), tobeplaced);
-
-            //m_pos_offset = new BlockPos(-4, -6, -3);
-
-            placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
-                    tobeplaced,
-                    this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
-
-            return placer;
+            return getPlacer(MeteorSizeClass.BIG);
         }
 
         //If it's not in the sizes above, then it's a huge one:
-
-        ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.HUGE);
-        m_pos_offset = getOffset(new BlockPos(-4, 0, -4), tobeplaced);
-        //m_pos_offset = new BlockPos(-4, -10, -3);
-
-        placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
-                tobeplaced,
-                this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
-
-        return placer;
+        return getPlacer(MeteorSizeClass.HUGE);
     }
+
 
     /** Returns the offset of the meteor structure, aka how much it's going to be embedded in the terrain.
      * it's based on its size and the distance from the terrain that would be left from the imapct point, and
