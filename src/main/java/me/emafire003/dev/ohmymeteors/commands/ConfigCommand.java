@@ -38,8 +38,11 @@ public class ConfigCommand implements OMMCommand {
 
     private int reloadConfig(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
-            Config.reloadConfig();
-            context.getSource().sendSystemMessage(Component.literal("[Oh My, Meteors!] Config reloaded!"));
+            if(!Config.reloadConfig()){
+                context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something could have gone wrong! A copy of the old file has been created.")));
+                return 0;
+            }
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX+"§rConfig reloaded!"));
             return 1;
         }catch (Exception e){
             context.getSource().sendFailure(Component.literal("[Oh My, Meteors!] ").append("§cThere has been an error while reloading the config, check the logs"));

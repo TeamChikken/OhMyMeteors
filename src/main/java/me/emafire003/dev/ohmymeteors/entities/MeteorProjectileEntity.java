@@ -390,7 +390,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     }
 
     /**If the meteor is micro size (<2) will just spawn a block and return null*/
-    public StructurePlacerAPI getPlacer(MeteorSizeClass sizeClass){
+    public StructurePlacerAPI getPlacer(MeteorSizeClass sizeClass, String filter){
         //If the dimension is even lower than 2, just spawn one block
         if(this.getSize() < 2){
             return null;
@@ -403,7 +403,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
         switch (sizeClass){
             case SMALL -> {
-                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.SMALL);
+                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.SMALL, filter);
                 m_pos_offset = getOffset(new BlockPos(-1, 0, -1), tobeplaced);
 
 
@@ -418,7 +418,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 return placer;
             }
             case MEDIUM -> {
-                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.MEDIUM);
+                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.MEDIUM, filter);
                 m_pos_offset = getOffset(new BlockPos(-2, +1, -2), tobeplaced);
 
 
@@ -428,7 +428,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 return placer;
             }
             case BIG -> {
-                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.BIG);
+                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.BIG, filter);
                 m_pos_offset = getOffset(new BlockPos(-3, 0, -3), tobeplaced);
 
                 //m_pos_offset = new BlockPos(-4, -6, -3);
@@ -440,7 +440,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 return placer;
             } //If it's not in the sizes above, then it's a huge one:
             default -> {
-                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.HUGE);
+                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.HUGE, filter);
                 m_pos_offset = getOffset(new BlockPos(-4, 0, -4), tobeplaced);
                 //m_pos_offset = new BlockPos(-4, -10, -3);
 
@@ -451,6 +451,10 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 return placer;
             }
         }
+    }
+
+    public StructurePlacerAPI getPlacer(MeteorSizeClass sizeClass){
+        return getPlacer(sizeClass, "");
     }
 
     public StructurePlacerAPI getPlacer(){
@@ -540,7 +544,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
      *
      * @param sizeClass The size of the meteors that we want to spawn, can be "small" "medium" "big" "huge"
      * */
-    public ResourceLocation getStructureToPlace(MeteorSizeClass sizeClass){
+    public ResourceLocation getStructureToPlace(MeteorSizeClass sizeClass, String filter){
         AtomicBoolean hasSpecial = new AtomicBoolean(false);
 
         if(METEOR_STRUCTURES.isEmpty() && !this.level().isClientSide()){
@@ -555,6 +559,11 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         List<ResourceLocation> structs = METEOR_STRUCTURES.stream().filter(identifier -> {
 
             if(!identifier.getPath().startsWith(sizeClass.getSerializedName())){
+                return false;
+            }
+
+            //also checks to see that it has the filter, if the filter is enabled
+            if((filter != null && !filter.isEmpty()) && !identifier.getPath().startsWith(sizeClass.getSerializedName()+"/"+filter)){
                 return false;
             }
 
@@ -590,6 +599,10 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             }
         }
         return structure_id;
+    }
+
+    public ResourceLocation getStructureToPlace(MeteorSizeClass sizeClass){
+        return getStructureToPlace(sizeClass, "");
     }
 
     /**This will detonate the meteor with an explosion like {@link #detonateSimple()}

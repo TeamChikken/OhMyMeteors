@@ -14,8 +14,10 @@ import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //TODO look at meteorutils todo
 //TODO maybe add here or in an addon a buildable siren and a cannon or gun or automatic laser that shoots incoming meteors. Maybe an addon.
@@ -75,17 +78,25 @@ public class OhMyMeteors implements ModInitializer {
 			minecraftServer.getAllLevels().forEach(OhMyMeteors::reInitStructures);
 		});
 
+		AtomicBoolean shouldWarn = new AtomicBoolean(false);
 		//loads the config file on server startup and the scheduler
 		ServerLifecycleEvents.SERVER_STARTED.register( minecraftServer -> {
 			try{
 				SchedulerUtils.registerOnServerTick();
-				Config.reloadConfig();
+				shouldWarn.set(!Config.reloadConfig());
 				//minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
 			}catch (Exception e){
 				LOGGER.error("There was an error while loading the config files!");
 				e.printStackTrace();
 			}
 		});
+
+		ServerPlayerEvents.JOIN.register((serverPlayer -> {
+			if(serverPlayer.hasPermissions(4) && shouldWarn.get()){
+				serverPlayer.sendSystemMessage(Component.literal(PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something has gone wrong while loading it! A copy of the old file has been created.")));
+			}
+		}));
+
 	}
 
 	public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses"));

@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.PatternSyntaxException;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.LOGGER;
 
@@ -159,8 +160,10 @@ public class Config {
             }
         }
     }
-
-    public static void registerConfigs() {
+    /**
+     * @return true if all was good, false if the config was rolled back to normal
+     */
+    public static boolean registerConfigs() {
         configs = new ConfigProvider();
         createConfigs();
 
@@ -189,9 +192,10 @@ public class Config {
             CONFIG = SimpleConfig.of(OhMyMeteors.MOD_ID + "_config").provider(configs).request();
             assignConfigs();
             LOGGER.warn("Generated a new config file, make sure to configure it again!");
+            return false;
         }
 
-        LOGGER.info("All " + configs.getConfigsList().size() + " have been set properly");
+        return true;
     }
 
     private static void createConfigs() {
@@ -205,7 +209,7 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("max_meteor_spawn_distance", 25), "Expressed in blocks, represents the max distance (as in a radius) from the origin of the meteor " +
                 "(like a player) in which a meteor can spawn in. (Remember that it has an angled trajectory so it could end up in that area regardless)");
         configs.addKeyValuePair(new Pair<>("meteor_spawn_height", 300), "The world height (y level) at which meteors spawn in");
-        configs.addKeyValuePair(new Pair<>("meteor_spawn_chance", 20000), "Expressed as '1 in <x>' chances of spawning a meteor each tick (similar to randomTickSpeed). For example, by default it has a chance of 1 in 20000");
+        configs.addKeyValuePair(new Pair<>("meteor_spawn_chance", 20000), "Expressed as '1 in <x>' chances of spawning a meteor each tick (similar to randomTickSpeed). Setting it to a negative value will disable natural meteor spawn For example, by default it has a chance of 1 in 20000");
         configs.addKeyValuePair(new Pair<>("modify_spawn_chance_at_night", false),"Should the spawn rate be different during the night?");
 
         configs.addKeyValuePair(new Pair<>("spawn_huge_meteors", true),"Should huge meteors be able to spawn? They are meteors bigger than the maximum size of the big ones");
@@ -314,9 +318,16 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
     }
 
-    public static void reloadConfig(){
-        registerConfigs();
-        LOGGER.info("All " + configs.getConfigsList().size() + " have been reloaded properly");
+    /**
+     * @return true if all was good, false if the config was rolled back to normal
+     */
+    public static boolean reloadConfig(){
+        if(registerConfigs()){
+            LOGGER.info("All " + configs.getConfigsList().size() + " have been reloaded properly");
+            return true;
+        }
+        return false;
+
 
     }
 
