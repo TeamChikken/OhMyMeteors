@@ -30,11 +30,11 @@ public class MeteorProjectileEntityModel extends EntityModel<MeteorProjectileEnt
 	public static LayerDefinition getTexturedModelData() {
 		MeshDefinition modelData = new MeshDefinition();
 		PartDefinition modelPartData = modelData.getRoot();
-		PartDefinition main = modelPartData.addOrReplaceChild("main", CubeListBuilder.create().texOffs(0, 0).addBox(-6.0F, -12.0F, -6.0F, 12.0F, 12.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+		PartDefinition main = modelPartData.addOrReplaceChild("main", CubeListBuilder.create().texOffs(0, 0).addBox(-5.9428F, -6.0976F, -5.8926F, 12.0F, 12.0F, 12.0F, new CubeDeformation(0.001F)), PartPose.offset(-0.0572F, 18.0976F, -0.1074F));
 
-		PartDefinition cube_r1 = main.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(32, 0).addBox(3.0F, -12.0F, -1.0F, 12.0F, 12.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-9.0F, -5.0F, -8.0F, -0.7854F, 0.0F, 0.0F));
+		PartDefinition cube_r1 = main.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(32, 0).addBox(3.0F, -12.0F, -1.0F, 12.0F, 12.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-8.9428F, 0.9024F, -7.8926F, -0.7854F, 0.0F, 0.0F));
 
-		PartDefinition cube_r2 = main.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(0, 0).addBox(3.0F, -12.0F, -1.0F, 12.0F, 12.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-2.0F, 0.0F, -10.0F, 0.0F, -0.7854F, 0.0F));
+		PartDefinition cube_r2 = main.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(0, 0).addBox(-6.0F, -6.0F, -6.0F, 12.0F, 12.0F, 12.0F, new CubeDeformation(-0.001F)), PartPose.offsetAndRotation(-0.1144F, -0.0976F, 0.0069F, 0.0F, -0.7854F, 0.0F));
 		return LayerDefinition.create(modelData, 16, 16);
 	}
 	@Override
