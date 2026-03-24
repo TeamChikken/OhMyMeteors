@@ -101,11 +101,14 @@ public class OhMyMeteors implements ModInitializer {
 
 	public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses"));
 	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses_and_destroy"));
+	public static final TagKey<Block> METEOR_EXPLOSION_SAFE = TagKey.create(Registries.BLOCK, getIdentifier("meteor_explosion_safe"));
+
 
 	@SuppressWarnings("unused")
 	public static void registerTags(){
 		HolderSet.Named<Block> METEOR_BYPASSES_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_BYPASSES);
 		HolderSet.Named<Block> METEOR_BYPASSES_AND_DESTROY_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_BYPASSES_AND_DESTROY);
+		HolderSet.Named<Block> METEOR_EXPLOSION_SAFE_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_EXPLOSION_SAFE);
 
 	}
 

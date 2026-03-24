@@ -15,14 +15,11 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.projectile.*;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -64,6 +61,9 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     private static final EntityDataAccessor<Integer> SIZE = SynchedEntityData.defineId(MeteorProjectileEntity.class, EntityDataSerializers.INT);
     private static final TicketType<Vec3i> METEOR_CHUCK_TICKET = TicketType.create("meteor", Vec3i::compareTo, 5*20);
 
+    public final AnimationState rotationState = new AnimationState();
+    protected int rotationStateTimeout = 0;
+
     /// Aka a meteor that is a result of the {@link #detonateScatter()} method
     protected boolean isScatterMeteor = false;
 
@@ -79,6 +79,16 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(SIZE, 1);
+    }
+
+    protected float rotation = 0;
+
+    public float getRenderingRotation() {
+        rotation += 0.5f;
+        if(rotation >= 360) {
+            rotation = 0;
+        }
+        return rotation;
     }
 
 
@@ -159,6 +169,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
     private int chunksLoaded = 0;
 
+
     /**Gets called every tick and makes sure that when the meteor travels through a chunk it is loaded*/
     public void loadChunk(){
         //Safety feature so the meteor despawns if it gets too high, for example using commands and such
@@ -192,6 +203,9 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     @Override
     public void tick() {
         loadChunk();
+        if(this.level().isClientSide()){
+            setupAnimationStates();
+        }
         Entity entity = this.getOwner();
         if (this.level().isClientSide || (entity == null || !entity.isRemoved()) && this.level().hasChunkAt(this.blockPosition())) {
             super.tick();
@@ -236,6 +250,20 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
     }
 
+    public void setupAnimationStates() {
+        if (this.rotationStateTimeout <= 0) {
+            this.rotationStateTimeout = 40;
+            this.rotationState.start(this.tickCount);
+        } else {
+            --this.rotationStateTimeout;
+        }
+    }
+
+    
+    /*public void setupAnimationStates() {
+        this.rotationState.startIfStopped(this.tickCount);
+    }*/
+
     //pal vortex minecraft:flame ~ ~ ~ 1 0.01 0.8 0.1 5 3 10 false 3
     /**
      * Spawns the particle effects behind the meteor*/
@@ -273,28 +301,42 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
 
     public void detonateSimple(int extraPower){
-        ExplosionDamageCalculator explosionBehavior = new ExplosionDamageCalculator();
 
+        /// Excludes all blocks from destruction
         ExplosionDamageCalculator safeExplosion = new ExplosionDamageCalculator() {
             @Override
-            public Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter world, BlockPos pos, BlockState blockState, FluidState fluidState) {
+            public @NotNull Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter world, BlockPos pos, BlockState blockState, FluidState fluidState) {
                 return Optional.of(Blocks.BEDROCK.getExplosionResistance());
             }
         };
 
+        /// Excludes blocks tagged with "meteor_explosion_safe" by default
+        ExplosionDamageCalculator explosionBehavior = new ExplosionDamageCalculator() {
+            @Override
+            public @NotNull Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter world, BlockPos pos, BlockState blockState, FluidState fluidState) {
+                /*OhMyMeteors.LOGGER.info("Is in: " + blockState.is(OhMyMeteors.METEOR_EXPLOSION_SAFE) + " satte: " + blockState);
+                OhMyMeteors.LOGGER.info("The tags: " + blockState.getTags() + "\n\n the omm tag: " + OhMyMeteors.METEOR_EXPLOSION_SAFE);
+
+                "minecraft:chest",
+    "c:chests",
+    "minecraft:barrel",
+    "c:barrels",
+    "minecraft:hopper",
+    "minecraft:dropper",
+    "minecraft:dispenser",
+    "minecraft:ice"
+                 */
+                if(blockState.is(OhMyMeteors.METEOR_EXPLOSION_SAFE)){
+                    return Optional.of(Blocks.BEDROCK.getExplosionResistance());
+                }
+                return new ExplosionDamageCalculator().getBlockExplosionResistance(explosion, world, pos, blockState, fluidState);
+            }
+        };
+
+
         if(isScatterMeteor()){
-            if(Config.SCATTER_METEOR_GRIEFING){
-                if(Config.USE_BETTER_EXPLOSIONS){
-                    ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, true, Level.ExplosionInteraction.TNT);
-                }else{
-                    this.level().explode(this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, Level.ExplosionInteraction.TNT);
-                }
-            }else{
-                if(Config.USE_BETTER_EXPLOSIONS){
-                    ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), safeExplosion, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, false, Level.ExplosionInteraction.TNT);
-                }else{
-                    this.level().explode(this, this.damageSources().explosion(this, this), safeExplosion, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, Level.ExplosionInteraction.TNT);
-                }
+            if(!Config.SCATTER_METEOR_GRIEFING){
+                explosionBehavior = safeExplosion;
             }
 
             if(Config.ANNOUNCE_METEOR_SPAWN && !this.isSilenced()){
@@ -303,19 +345,17 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                     this.level().players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_impacted.localized", meteorPos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
                 }
             }
-
-            this.discard();
-            return;
         }
 
-        if(Config.METEOR_GRIEFING){
-            if(Config.USE_BETTER_EXPLOSIONS){
-                ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, true, Level.ExplosionInteraction.TNT);
-            }else {
-                this.level().explode(this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+extraPower, true, Level.ExplosionInteraction.TNT);
-            }
+        if(!Config.METEOR_GRIEFING){
+            explosionBehavior = safeExplosion;
+        }
+
+
+        if(Config.USE_BETTER_EXPLOSIONS){
+            ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, true, Level.ExplosionInteraction.TNT);
         }else{
-            this.level().explode(this, this.damageSources().explosion(this, this), safeExplosion, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+extraPower, false, Level.ExplosionInteraction.TNT);
+            this.level().explode(this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, Level.ExplosionInteraction.TNT);
         }
 
         if(!this.level().isClientSide()){
@@ -361,6 +401,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 }
                 return;
             }
+            placer.setPreventReplacementOfTaggedBlocks(true, OhMyMeteors.METEOR_EXPLOSION_SAFE);
             placer.loadStructure();
         }
     }
