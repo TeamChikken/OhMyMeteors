@@ -33,10 +33,8 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
 
         matrices.scale(entity.getSize(), entity.getSize(), entity.getSize());
 
-        /*float f = Mth.rotLerp(tickDelta, entity, entity.yBodyRot);
-        float g = Mth.rotLerp(tickDelta, entity.yHeadRotO, entity.yHeadRot);
-        float h = g - f;*/
-        model.setupAnim(entity, 0f, 0f, tickDelta, 0f, 0f);
+        //yay it finally works, it needed the entity tickCount as well :D
+        model.setupAnim(entity, 0f, 0f, entity.tickCount + tickDelta, 0f, 0f);
 
         this.model.renderToBuffer(matrices, vertexconsumer, light, OverlayTexture.NO_OVERLAY);
         matrices.popPose();
