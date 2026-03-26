@@ -83,17 +83,6 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         builder.define(SIZE, 1);
     }
 
-    protected float rotation = 0;
-
-    public float getRenderingRotation() {
-        rotation += 0.5f;
-        if(rotation >= 360) {
-            rotation = 0;
-        }
-        return rotation;
-    }
-
-
     @VisibleForTesting
     public void setSize(int size) {
         int i = Mth.clamp(size, 1, 50);
@@ -266,10 +255,15 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         this.rotationState.startIfStopped(this.tickCount);
     }*/
 
+    Vec3 prevPos = Vec3.ZERO;
+
     //pal vortex minecraft:flame ~ ~ ~ 1 0.01 0.8 0.1 5 3 10 false 3
     /**
      * Spawns the particle effects behind the meteor*/
     public void particleAnimation(double d, double e, double f){
+        if(this.tickCount % 5 == 0){
+            prevPos = new Vec3(d,e,f);
+        }
         MeteorFlashScaleParticleOptions meteorFlashEffect = new MeteorFlashScaleParticleOptions(this.getSize());
         this.level().addParticle(meteorFlashEffect, Config.USE_FORCED_PARTICLES, d, e + 0.5, f, 0.0, 0.0, 0.0);
         this.level().addParticle(ParticleTypes.EXPLOSION, Config.USE_FORCED_PARTICLES, d, e + 0.5, f, 0.0, 0.0, 0.0);
@@ -278,8 +272,13 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             world.players().forEach(p -> {
                 world.sendParticles(p, ParticleTypes.FLAME, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.1);
                 world.sendParticles(p, ParticleTypes.SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.1);
-                world.sendParticles(p, ParticleTypes.CAMPFIRE_COSY_SMOKE, Config.USE_FORCED_PARTICLES, d,e,f, 1+this.getSize(), 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.1);
-                world.sendParticles(p, OMMParticles.METEOR_SMOKE_COSY, Config.USE_FORCED_PARTICLES, d,e,f, 9+this.getSize()*2, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.12);
+                world.sendParticles(p, OMMParticles.METEOR_SMOKE_COSY, Config.USE_FORCED_PARTICLES, d,e,f, 10+this.getSize()*2, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.12);
+                if(this.level().getRandom().nextInt(10) == 5){
+                    world.sendParticles(p, ParticleTypes.LAVA, Config.USE_FORCED_PARTICLES, d,e,f, 10+this.getSize()*2, 0.2+(double) this.getSize()/100, 0.2+(double) this.getSize()/100, 0.2+(double) this.getSize()/100, 0.12);
+                }
+                if(!prevPos.equals(Vec3.ZERO)){
+                    world.sendParticles(p, ParticleTypes.CAMPFIRE_COSY_SMOKE, Config.USE_FORCED_PARTICLES, prevPos.x(), prevPos.y(), prevPos.z(), 1+this.getSize(), 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.1);
+                }
             });
         }
     }

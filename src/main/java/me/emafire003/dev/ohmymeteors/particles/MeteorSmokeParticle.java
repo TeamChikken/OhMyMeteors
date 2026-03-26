@@ -7,10 +7,10 @@ import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-
-import java.awt.*;
+import org.joml.Vector3f;
 
 public class MeteorSmokeParticle extends TextureSheetParticle {
+    private boolean red = true;
     MeteorSmokeParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, boolean signal) {
         super(level, x, y, z);
         this.scale(3.0F);
@@ -20,15 +20,21 @@ public class MeteorSmokeParticle extends TextureSheetParticle {
         } else {
             this.lifetime = this.random.nextInt(50) + 80;
         }
+        if(this.random.nextInt(3) == 2){
+            this.red = false;
+        }
 
         this.gravity = 3.0E-6F;
         this.xd = xSpeed;
         this.yd = ySpeed + this.random.nextFloat() / 500.0F;
         this.zd = zSpeed;
     }
+//new Vec3(145, 42, 4)
+    private static final Vec3 startRedColor = new Vec3(137, 28, 1);//891c01// new Vec3(114, 25, 1); //912004// new Vec3(150, 37,6); //"962506";//new Vec3(232,79,18);//e84f12
+    private static final Vec3 endRedColor = new Vec3(204, 65, 12); //cca50c  // new Vec3(242,219,92); //f2db5c  //new Vec3(201, 134, 62); //c9863e
 
-    private static final Vec3 startColor =  new Vec3(145, 42, 4); //912004// new Vec3(150, 37,6); //"962506";//new Vec3(232,79,18);//e84f12
-    private static final Vec3 endColor =  new Vec3(242,219,92); //f2db5c // new Vec3(204, 65, 12); //cca50c //new Vec3(201, 134, 62); //c9863e
+    private static final Vector3f startOrangeColor = new Vector3f(209, 100, 6); //d16406//new Vector3f(127,66,14); //7f420e
+    private static final Vector3f endOrangeColor = new Vector3f(191, 149, 24);// bf9518//new Vector3f(226, 21,19); //e2a11d
 
     @Override
     public void tick() {
@@ -45,9 +51,14 @@ public class MeteorSmokeParticle extends TextureSheetParticle {
                 this.alpha -= 0.015F;
             }
 
-            this.rCol = (float) Mth.lerp((float) this.age /this.lifetime*2, startColor.x()/255, endColor.x()/255);
-            this.gCol = (float) Mth.lerp((float) this.age /this.lifetime*2, startColor.y()/255, endColor.y()/255);
-            this.bCol = (float) Mth.lerp((float) this.age /this.lifetime*2, startColor.z()/255, endColor.z()/255);
+            if(red){
+                this.rCol = (float) Mth.lerp((float) this.age /this.lifetime/2, startRedColor.x()/255, endRedColor.x()/255);
+                this.gCol = (float) Mth.lerp((float) this.age /this.lifetime/2, startRedColor.y()/255, endRedColor.y()/255);
+                this.bCol = (float) Mth.lerp((float) this.age /this.lifetime/2, startRedColor.z()/255, endRedColor.z()/255);
+            }else{
+                Vector3f transition = new Vector3f(startOrangeColor).lerp(endOrangeColor, (float) this.age /this.lifetime);
+                this.rCol = transition.x/255; this.gCol = transition.y/255; this.bCol = transition.z/255;
+            }
 
         } else {
             this.remove();
