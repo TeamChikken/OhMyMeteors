@@ -435,7 +435,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         switch (sizeClass){
             case SMALL -> {
                 ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.SMALL, filter);
-                m_pos_offset = getOffset(new BlockPos(-1, 0, -1), tobeplaced);
+                m_pos_offset = getOffset(MeteorSizeClass.SMALL, tobeplaced);
 
 
                 placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
@@ -450,7 +450,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             }
             case MEDIUM -> {
                 ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.MEDIUM, filter);
-                m_pos_offset = getOffset(new BlockPos(-2, +1, -2), tobeplaced);
+                m_pos_offset = getOffset(MeteorSizeClass.MEDIUM, tobeplaced);
 
 
                 placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
@@ -460,7 +460,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             }
             case BIG -> {
                 ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.BIG, filter);
-                m_pos_offset = getOffset(new BlockPos(-3, 0, -3), tobeplaced);
+                m_pos_offset = getOffset(MeteorSizeClass.BIG, tobeplaced);
 
                 //m_pos_offset = new BlockPos(-4, -6, -3);
 
@@ -472,7 +472,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             } //If it's not in the sizes above, then it's a huge one:
             default -> {
                 ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.HUGE, filter);
-                m_pos_offset = getOffset(new BlockPos(-4, 0, -4), tobeplaced);
+                m_pos_offset = getOffset(MeteorSizeClass.HUGE, tobeplaced);
                 //m_pos_offset = new BlockPos(-4, -10, -3);
 
                 placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
@@ -511,6 +511,58 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     }
 
 
+
+    /** Returns the offset of the meteor structure, aka how much it's going to be embedded in the terrain.
+     * it's based on its size and the distance from the terrain that would be left from the imapct point, and
+     * the direction of the meteor
+     *
+     * @param sizeClass The staring sizeClass to determine the starting offset
+     * @param tobeplaced the id of the meteor that is going to be placed
+     * @return the blockpos offset
+     */
+    protected BlockPos getOffset(MeteorSizeClass sizeClass, ResourceLocation tobeplaced){
+        BlockPos offset;
+        Vec3 size_factors = Vec3.atLowerCornerOf(StructurePlacerAPI.getTemplatePreview((ServerLevel) this.level(), tobeplaced).get().getSize());
+        BlockPos nonair_pos = BlockPos.containing(this.position()).offset(0, -(int) size_factors.y()/3, 0);
+        switch (sizeClass){
+            case SMALL -> {
+                offset = new BlockPos(-1, 0, -1);
+            }case MEDIUM -> {
+                offset = new BlockPos(-2, +1, -2);
+                if(this.getXRot() < 27){
+                    nonair_pos.offset((int) (this.getDeltaMovement().x()*2), 0, (int) (this.getDeltaMovement().z()*2));
+                }
+            }case BIG -> {
+                offset = new BlockPos(-3, 0, -3);
+
+                nonair_pos = BlockPos.containing(this.position()).offset(0, -(int) size_factors.y()/10, 0);
+                if(this.getXRot() < 27){
+                    nonair_pos.offset((int) (this.getDeltaMovement().x()*5), 0, (int) (this.getDeltaMovement().z()*5));
+                }
+            }default -> {
+                offset = new BlockPos(-4, 0, -4);
+                nonair_pos = BlockPos.containing(this.position()).offset(0, -(int) size_factors.y()/37, 0);
+            }
+        }
+
+        //If it's an error structure it should be as visible as possible
+        if(tobeplaced.getPath().startsWith("error")){
+            return offset.offset(0, 5, 0);
+        }
+
+        BlockState state = this.level().getBlockState(nonair_pos);
+        int dist_to_floor = 0;
+        while(state.isAir() || state.is(Blocks.FIRE)){
+            nonair_pos = nonair_pos.below();
+            state = this.level().getBlockState(nonair_pos);
+            dist_to_floor++;
+        }
+
+        offset = BlockPos.containing(this.getDeltaMovement()).offset(offset);
+        offset = offset.offset(0, - dist_to_floor, 0);
+        return offset;
+    }
+
     /** Returns the offset of the meteor structure, aka how much it's going to be embedded in the terrain.
      * it's based on its size and the distance from the terrain that would be left from the imapct point, and
      * the direction of the meteor
@@ -519,7 +571,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
      * @param tobeplaced the id of the meteor that is going to be placed
      * @return the blockpos offset
      */
-    protected BlockPos getOffset(BlockPos m_pos_offset, ResourceLocation tobeplaced){
+    /*protected BlockPos getOffset(BlockPos m_pos_offset, ResourceLocation tobeplaced){
         //If it's an error structure it should be as visible as possible
         if(tobeplaced.getPath().startsWith("error")){
             return m_pos_offset.offset(0, 5, 0);
@@ -531,12 +583,12 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
         m_pos_offset = BlockPos.containing(this.getDeltaMovement()).offset(m_pos_offset);
 
-        /*if(false && this.getPitch() < 25 && !(tobeplaced.getPath().startsWith("big") || tobeplaced.getPath().startsWith("huge"))){
-            OhMyMeteors.LOGGER.error("Meteor fell diagonally, embedding laterally, the pitch is: " + this.getPitch());
-            m_pos_offset = m_pos_offset.add(((int) this.getVelocity().getX()*2), 0,  ((int) this.getVelocity().getZ()*2));
-        }else{
-
-        }*/
+//        if(false && this.getPitch() < 25 && !(tobeplaced.getPath().startsWith("big") || tobeplaced.getPath().startsWith("huge"))){
+//            OhMyMeteors.LOGGER.error("Meteor fell diagonally, embedding laterally, the pitch is: " + this.getPitch());
+//            m_pos_offset = m_pos_offset.add(((int) this.getVelocity().getX()*2), 0,  ((int) this.getVelocity().getZ()*2));
+//        }else{
+//
+//        }
 
         //This is the one used for "small" meteors
         BlockPos nonair_pos = BlockPos.containing(this.position()).offset(0, -(int) size_factors.y()/3, 0);
@@ -565,10 +617,10 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
         //get the distance to floor, get the height and stuff and the place half of it underground?
 
-        /*+(size_factors.getY()/2)*/
+        //+(size_factors.getY()/2)
         m_pos_offset = m_pos_offset.offset(0, - dist_to_floor, 0);
         return m_pos_offset;
-    }
+    }*/
 
     /**
      * Returns the ID of the structure that is going to be spawned based the size class
