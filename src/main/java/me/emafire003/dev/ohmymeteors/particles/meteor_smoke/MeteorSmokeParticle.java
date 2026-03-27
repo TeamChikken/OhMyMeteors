@@ -1,19 +1,17 @@
-package me.emafire003.dev.ohmymeteors.particles;
-
+package me.emafire003.dev.ohmymeteors.particles.meteor_smoke;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
-public class MeteorSmokeParticle extends TextureSheetParticle {
+public class MeteorSmokeParticle<T extends MeteorSmokeScaledOptions>  extends TextureSheetParticle {
     private boolean red = true;
-    MeteorSmokeParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, boolean signal) {
+
+    MeteorSmokeParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, boolean signal, MeteorSmokeScaledOptions options) {
         super(level, x, y, z);
-        this.scale(3.0F);
+        this.scale(options.getScale());
         this.setSize(0.25F, 0.25F);
         if (signal) {
             this.lifetime = this.random.nextInt(50) + 280;
@@ -29,9 +27,9 @@ public class MeteorSmokeParticle extends TextureSheetParticle {
         this.yd = ySpeed + this.random.nextFloat() / 500.0F;
         this.zd = zSpeed;
     }
-//new Vec3(145, 42, 4)
-    private static final Vec3 startRedColor = new Vec3(137, 28, 1);//891c01// new Vec3(114, 25, 1); //912004// new Vec3(150, 37,6); //"962506";//new Vec3(232,79,18);//e84f12
-    private static final Vec3 endRedColor = new Vec3(204, 65, 12); //cca50c  // new Vec3(242,219,92); //f2db5c  //new Vec3(201, 134, 62); //c9863e
+    //new Vec3(145, 42, 4)
+    private static final Vector3f startRedColor = new Vector3f(137, 28, 1);//891c01// new Vec3(114, 25, 1); //912004// new Vec3(150, 37,6); //"962506";//new Vec3(232,79,18);//e84f12
+    private static final Vector3f endRedColor = new Vector3f(204, 65, 12); //cca50c  // new Vec3(242,219,92); //f2db5c  //new Vec3(201, 134, 62); //c9863e
 
     private static final Vector3f startOrangeColor = new Vector3f(209, 100, 6); //d16406//new Vector3f(127,66,14); //7f420e
     private static final Vector3f endOrangeColor = new Vector3f(191, 149, 24);// bf9518//new Vector3f(226, 21,19); //e2a11d
@@ -51,14 +49,13 @@ public class MeteorSmokeParticle extends TextureSheetParticle {
                 this.alpha -= 0.015F;
             }
 
+            Vector3f transition;
             if(red){
-                this.rCol = (float) Mth.lerp((float) this.age /this.lifetime/2, startRedColor.x()/255, endRedColor.x()/255);
-                this.gCol = (float) Mth.lerp((float) this.age /this.lifetime/2, startRedColor.y()/255, endRedColor.y()/255);
-                this.bCol = (float) Mth.lerp((float) this.age /this.lifetime/2, startRedColor.z()/255, endRedColor.z()/255);
+                transition = new Vector3f(startRedColor).lerp(endRedColor, (float) this.age /this.lifetime);
             }else{
-                Vector3f transition = new Vector3f(startOrangeColor).lerp(endOrangeColor, (float) this.age /this.lifetime);
-                this.rCol = transition.x/255; this.gCol = transition.y/255; this.bCol = transition.z/255;
+                transition = new Vector3f(startOrangeColor).lerp(endOrangeColor, (float) this.age /this.lifetime);
             }
+            this.rCol = transition.x/255; this.gCol = transition.y/255; this.bCol = transition.z/255;
 
         } else {
             this.remove();
@@ -66,39 +63,39 @@ public class MeteorSmokeParticle extends TextureSheetParticle {
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
+    public @NotNull ParticleRenderType getRenderType() {
         return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     @Environment(EnvType.CLIENT)
-    public static class CosyProvider implements ParticleProvider<SimpleParticleType> {
+    public static class CosyProvider implements ParticleProvider<MeteorSmokeScaledOptions> {
         private final SpriteSet sprites;
 
         public CosyProvider(SpriteSet sprites) {
             this.sprites = sprites;
         }
 
-        public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            MeteorSmokeParticle MeteorSmokeParticle = new MeteorSmokeParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, false);
+        public Particle createParticle(MeteorSmokeScaledOptions type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+            MeteorSmokeParticle<?> MeteorSmokeParticle = new MeteorSmokeParticle<>(level, x, y, z, xSpeed, ySpeed, zSpeed, false, type);
             MeteorSmokeParticle.setAlpha(0.93F);
             MeteorSmokeParticle.pickSprite(this.sprites);
             return MeteorSmokeParticle;
         }
     }
 
-    @Environment(EnvType.CLIENT)
-    public static class SignalProvider implements ParticleProvider<SimpleParticleType> {
+    /*@Environment(EnvType.CLIENT)
+    public static class SignalProvider implements ParticleProvider<SmokeScaleParticleOptions> {
         private final SpriteSet sprites;
 
         public SignalProvider(SpriteSet sprites) {
             this.sprites = sprites;
         }
 
-        public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            MeteorSmokeParticle MeteorSmokeParticle = new MeteorSmokeParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, true);
+        public Particle createParticle(SmokeScaleParticleOptions type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+            MeteorSmokeParticle MeteorSmokeParticle = new MeteorSmokeParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, true, type);
             MeteorSmokeParticle.setAlpha(0.95F);
             MeteorSmokeParticle.pickSprite(this.sprites);
             return MeteorSmokeParticle;
         }
-    }
+    }*/
 }

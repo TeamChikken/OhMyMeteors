@@ -1,4 +1,4 @@
-package me.emafire003.dev.ohmymeteors.particles;
+package me.emafire003.dev.ohmymeteors.particles.meteor_flash;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
@@ -9,11 +9,11 @@ import net.minecraft.client.particle.*;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
-public class MeteorFlashParticle<T extends MeteorFlashScaleParticleOptions> extends TextureSheetParticle {
+public class MeteorFlashParticle<T extends FlashScaleParticleOptions> extends TextureSheetParticle {
 
-    private final MeteorFlashScaleParticleOptions options;
+    private final FlashScaleParticleOptions options;
 
-    MeteorFlashParticle(ClientLevel clientWorld, double d, double e, double f, MeteorFlashScaleParticleOptions options) {
+    MeteorFlashParticle(ClientLevel clientWorld, double d, double e, double f, FlashScaleParticleOptions options) {
         super(clientWorld, d, e, f);
         this.lifetime = 4;
         this.options = options;
@@ -40,14 +40,14 @@ public class MeteorFlashParticle<T extends MeteorFlashScaleParticleOptions> exte
 
 
     @Environment(EnvType.CLIENT)
-    public static class LaserFlashFactory implements ParticleProvider<MeteorFlashScaleParticleOptions> {
+    public static class LaserFlashFactory implements ParticleProvider<FlashScaleParticleOptions> {
         private final SpriteSet spriteProvider;
 
         public LaserFlashFactory(SpriteSet spriteProvider) {
             this.spriteProvider = spriteProvider;
         }
 
-        public Particle createParticle(MeteorFlashScaleParticleOptions type, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
+        public Particle createParticle(FlashScaleParticleOptions type, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
             MeteorFlashParticle<?> flash = new MeteorFlashParticle<>(clientWorld, d, e, f, type);
             flash.pickSprite(this.spriteProvider);
             return flash;
