@@ -29,14 +29,14 @@ public class Config {
     public static int NATURAL_METEOR_MAX_SIZE = 10;
 
     public static int MIN_METEOR_SPAWN_DISTANCE = 2; //As in a radius of blocks around the player in which the meteor won't spawn in (but remember that it can have an angled trajectory)
-    public static int MAX_METEOR_SPAWN_DISTANCE = 30; //TODO probably increase it back to 50? Nah
+    public static int MAX_METEOR_SPAWN_DISTANCE = 45;
 
     public static int METEOR_SPAWN_HEIGHT = 300; //At which y level should meteors spawn?
 
     public static boolean SHOULD_BYPASS_LEAVES = true; //Should the meteor bypass leaves instead of exploding midair om them?
     public static boolean SHOULD_DESTROY_LEAVES = true; //aka the bypassed leaves will be removed
 
-    public static int METEOR_SPAWN_CHANCE = 20000;
+    public static int METEOR_SPAWN_CHANCE = 30000;
     public static boolean SPAWN_HUGE_METEORS = true;
     public static int HUGE_METEOR_CHANCE = 100;
     public static int HUGE_METEOR_SIZE_LIMIT = 35;
