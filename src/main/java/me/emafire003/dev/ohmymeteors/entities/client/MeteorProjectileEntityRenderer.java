@@ -12,7 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProjectileEntity> {
+public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> extends EntityRenderer<T> {
     protected MeteorProjectileEntityModel<?> model;
 
     public MeteorProjectileEntityRenderer(EntityRendererProvider.Context ctx) {
@@ -21,7 +21,7 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
     }
 
     @Override
-    public void render(MeteorProjectileEntity entity, float yaw, float tickDelta, PoseStack matrices,
+    public void render(T entity, float yaw, float tickDelta, PoseStack matrices,
                        MultiBufferSource vertexConsumers, int light) {
 
         matrices.pushPose();
@@ -43,7 +43,7 @@ public class MeteorProjectileEntityRenderer extends EntityRenderer<MeteorProject
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(MeteorProjectileEntity entity) {
+    public @NotNull ResourceLocation getTextureLocation(T entity) {
         return OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png");
     }
 }

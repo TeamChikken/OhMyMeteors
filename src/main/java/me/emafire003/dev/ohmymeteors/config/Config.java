@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.PatternSyntaxException;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.LOGGER;
 
@@ -20,7 +19,7 @@ public class Config {
     public static SimpleConfig CONFIG;
     private static ConfigProvider configs;
 
-    private static final int ver = 6;
+    private static final int ver = 7;
     public static Path FILEPATH;
 
     public static int VERSION;
@@ -39,7 +38,7 @@ public class Config {
     public static int METEOR_SPAWN_CHANCE = 30000;
     public static boolean SPAWN_HUGE_METEORS = true;
     public static int HUGE_METEOR_CHANCE = 100;
-    public static int HUGE_METEOR_SIZE_LIMIT = 35;
+    public static int HUGE_METEOR_SIZE_LIMIT = 40;
 
     public static boolean MODIFY_SPAWN_CHANCE_AT_NIGHT = false;
     public static int METEOR_NIGHT_SPAWN_CHANCE = 10000;
@@ -142,6 +141,9 @@ public class Config {
     public static String METEOR_SKYGLOW_COLOR = "#048da5";
     public static boolean EXPLODE_ON_ENTITY_COLLISION = false;
 
+    //V7
+    public static double METEOR_DISPERSION_FACTOR = 3.1;
+
     public static void handleVersionChange(){
         int version_found = CONFIG.getOrDefault("version", ver);
         if(version_found != ver){
@@ -209,12 +211,12 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("max_meteor_spawn_distance", 25), "Expressed in blocks, represents the max distance (as in a radius) from the origin of the meteor " +
                 "(like a player) in which a meteor can spawn in. (Remember that it has an angled trajectory so it could end up in that area regardless)");
         configs.addKeyValuePair(new Pair<>("meteor_spawn_height", 300), "The world height (y level) at which meteors spawn in");
-        configs.addKeyValuePair(new Pair<>("meteor_spawn_chance", 20000), "Expressed as '1 in <x>' chances of spawning a meteor each tick (similar to randomTickSpeed). Setting it to a negative value will disable natural meteor spawn For example, by default it has a chance of 1 in 20000");
-        configs.addKeyValuePair(new Pair<>("modify_spawn_chance_at_night", false),"Should the spawn rate be different during the night?");
-
+        //V7
+        configs.addKeyValuePair(new Pair<>("meteor_dispersion_factor", 3.1), "The higher the value the less the meteor will go diagonally, and will keep mostly vertical. (randomness remains so it's not 100%). Generally, you can remain between 1 and 10.");
+        configs.addKeyValuePair(new Pair<>("meteor_spawn_chance", 30000), "Expressed as '1 in <x>' chances of spawning a meteor each tick (similar to randomTickSpeed). Setting it to a negative value will disable natural meteor spawn For example, by default it has a chance of 1 in 20000");
         configs.addKeyValuePair(new Pair<>("spawn_huge_meteors", true),"Should huge meteors be able to spawn? They are meteors bigger than the maximum size of the big ones");
         configs.addKeyValuePair(new Pair<>("huge_meteor_chance", 100),"The chance for a spawned meteor to be of huge size. Expressed as in 1 in x chances. (on top of the 'normal' spawning chance)");
-        configs.addKeyValuePair(new Pair<>("huge_meteor_size_limit", 35),"The size limit of how big a huge meteor can be");
+        configs.addKeyValuePair(new Pair<>("huge_meteor_size_limit", 40),"The size limit of how big a huge meteor can be");
 
         configs.addKeyValuePair(new Pair<>("modify_spawn_chance_at_night", false),"Should the spawn rate be different during the night?");
         configs.addKeyValuePair(new Pair<>("meteor_night_spawn_chance", 10000),"The chance for a meteor to spawn at night if enabled. Expressed as in 1 in x chances.");
@@ -339,12 +341,12 @@ public class Config {
         MAX_METEOR_SPAWN_DISTANCE = CONFIG.getOrDefault("max_meteor_spawn_distance", 30);
         MIN_METEOR_SPAWN_DISTANCE = CONFIG.getOrDefault("min_meteor_spawn_distance", 2);
         METEOR_SPAWN_HEIGHT = CONFIG.getOrDefault("meteor_spawn_height", 300);
-        METEOR_SPAWN_CHANCE = CONFIG.getOrDefault("meteor_spawn_chance", 20000);
+        METEOR_SPAWN_CHANCE = CONFIG.getOrDefault("meteor_spawn_chance", 30000);
         MODIFY_SPAWN_CHANCE_AT_NIGHT = CONFIG.getOrDefault("modify_spawn_chance_at_night", false);
         METEOR_NIGHT_SPAWN_CHANCE = CONFIG.getOrDefault("meteor_night_spawn_chance", 10000);
         SPAWN_HUGE_METEORS = CONFIG.getOrDefault("spawn_huge_meteors", true);
         HUGE_METEOR_CHANCE = CONFIG.getOrDefault("huge_meteor_chance",  100);
-        HUGE_METEOR_SIZE_LIMIT = CONFIG.getOrDefault("huge_meteor_size_limit", 35);
+        HUGE_METEOR_SIZE_LIMIT = CONFIG.getOrDefault("huge_meteor_size_limit", 40);
 
         NATURAL_METEOR_MIN_SIZE = CONFIG.getOrDefault("natural_meteor_min_size", 1);
         NATURAL_METEOR_MAX_SIZE = CONFIG.getOrDefault("natural_meteor_max_size", 10);
@@ -418,6 +420,9 @@ public class Config {
         METEOR_SKYGLOW = CONFIG.getOrDefault("meteor_skyglow", true);
         METEOR_SKYGLOW_COLOR = CONFIG.getOrDefault("meteor_skyglow_color", "#048da5");
         EXPLODE_ON_ENTITY_COLLISION = CONFIG.getOrDefault("explode_on_entity_collision", false);
+
+        //V7
+        METEOR_DISPERSION_FACTOR = CONFIG.getOrDefault("meteor_dispersion_factor", 3.1);
     }
 }
 

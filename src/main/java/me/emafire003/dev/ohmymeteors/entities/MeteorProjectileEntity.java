@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.particles.ParticleTypes;
@@ -522,7 +523,11 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
      */
     protected BlockPos getOffset(MeteorSizeClass sizeClass, ResourceLocation tobeplaced){
         BlockPos offset;
-        Vec3 size_factors = Vec3.atLowerCornerOf(StructurePlacerAPI.getTemplatePreview((ServerLevel) this.level(), tobeplaced).get().getSize());
+        Optional<StructureTemplate> template = StructurePlacerAPI.getTemplatePreview((ServerLevel) this.level(), tobeplaced);
+        if(template.isEmpty() || tobeplaced.getPath().startsWith("error")){
+            return new BlockPos(0, 5, 0);
+        }
+        Vec3 size_factors = Vec3.atLowerCornerOf(template.get().getSize());
         BlockPos nonair_pos = BlockPos.containing(this.position()).offset(0, -(int) size_factors.y()/3, 0);
         switch (sizeClass){
             case SMALL -> {
@@ -543,11 +548,6 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 offset = new BlockPos(-4, 0, -4);
                 nonair_pos = BlockPos.containing(this.position()).offset(0, -(int) size_factors.y()/37, 0);
             }
-        }
-
-        //If it's an error structure it should be as visible as possible
-        if(tobeplaced.getPath().startsWith("error")){
-            return offset.offset(0, 5, 0);
         }
 
         BlockState state = this.level().getBlockState(nonair_pos);
