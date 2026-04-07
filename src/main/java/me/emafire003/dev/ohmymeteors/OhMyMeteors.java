@@ -18,6 +18,7 @@ import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import net.luckperms.api.LuckPermsProvider;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,6 +35,7 @@ import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
@@ -122,11 +124,15 @@ public class OhMyMeteors {
 		}
 	}
 
-    ServerPlayerEvents.JOIN.register((serverPlayer -> {
-        if(serverPlayer.hasPermissions(4) && shouldWarn.get()){
-            serverPlayer.sendSystemMessage(Component.literal(PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something has gone wrong while loading it! A copy of the old file has been created.")));
-        }
-    }));
+	@SubscribeEvent
+	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
+		if(event.getEntity().hasPermissions(4) && shouldWarn.get()){
+			event.getEntity().sendSystemMessage(Component.literal(PREFIX).append(
+					Component.literal("§cWarning! The config file has been restored to the default settings because something" +
+							" has gone wrong while loading it! A copy of the old file has been created.")));
+		}
+
+	}
 
 	// Wow this looks like a stupid way to do this
 	@SubscribeEvent

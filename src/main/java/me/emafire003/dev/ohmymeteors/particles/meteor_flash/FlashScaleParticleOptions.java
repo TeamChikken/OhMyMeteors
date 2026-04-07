@@ -46,6 +46,6 @@ public class FlashScaleParticleOptions implements ParticleOptions {
 
     @Override
     public @NotNull ParticleType<?> getType() {
-        return OMMParticles.METEOR_FLASH;
+        return OMMParticles.METEOR_FLASH.get();
     }
 }

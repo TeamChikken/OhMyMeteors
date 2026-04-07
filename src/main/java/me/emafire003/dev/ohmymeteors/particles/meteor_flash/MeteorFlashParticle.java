@@ -1,8 +1,6 @@
 package me.emafire003.dev.ohmymeteors.particles.meteor_flash;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
@@ -25,7 +23,7 @@ public class MeteorFlashParticle<T extends FlashScaleParticleOptions> extends Te
     }
 
     @Override
-    public void render(VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
+    public void render(@NotNull VertexConsumer vertexConsumer, @NotNull Camera camera, float tickDelta) {
         this.setAlpha(0.6F - (this.age + tickDelta - 1.0F) * 0.25F * 0.5F);
         super.render(vertexConsumer, camera, tickDelta);
     }
@@ -38,16 +36,14 @@ public class MeteorFlashParticle<T extends FlashScaleParticleOptions> extends Te
         //return 2.1F * Mth.sin((this.age + tickDelta - 1.0F) * 0.25F * (float) Math.PI);
     }
 
-
-    @Environment(EnvType.CLIENT)
-    public static class LaserFlashFactory implements ParticleProvider<FlashScaleParticleOptions> {
+    public static class FlashFactory implements ParticleProvider<FlashScaleParticleOptions> {
         private final SpriteSet spriteProvider;
 
-        public LaserFlashFactory(SpriteSet spriteProvider) {
+        public FlashFactory(SpriteSet spriteProvider) {
             this.spriteProvider = spriteProvider;
         }
 
-        public Particle createParticle(FlashScaleParticleOptions type, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
+        public Particle createParticle(@NotNull FlashScaleParticleOptions type, @NotNull ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
             MeteorFlashParticle<?> flash = new MeteorFlashParticle<>(clientWorld, d, e, f, type);
             flash.pickSprite(this.spriteProvider);
             return flash;

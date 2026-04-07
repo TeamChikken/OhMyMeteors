@@ -40,6 +40,6 @@ public class MeteorSmokeScaledOptions extends FlashScaleParticleOptions {
 
     @Override
     public @NotNull ParticleType<?> getType() {
-        return OMMParticles.METEOR_SMOKE_COSY;
+        return OMMParticles.METEOR_SMOKE_COSY.get();
     }
 }

@@ -1,6 +1,8 @@
 package me.emafire003.dev.ohmymeteors.particles;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.particles.meteor_flash.MeteorFlashParticleType;
+import me.emafire003.dev.ohmymeteors.particles.meteor_smoke.MeteorSmokeParticleType;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -14,7 +16,6 @@ public class OMMParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES =
             DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, OhMyMeteors.MOD_ID);
 
-
     public static final Supplier<SimpleParticleType> LASER_PARTICLE = PARTICLE_TYPES.register(
             "laser_particle", () -> new SimpleParticleType(true));
     public static final Supplier<SimpleParticleType> LASER_PARTICLE_SMALL = PARTICLE_TYPES.register(
@@ -22,10 +23,10 @@ public class OMMParticles {
     public static final Supplier<SimpleParticleType> LASER_FLASH_PARTICLE = PARTICLE_TYPES.register(
             "laser_flash_particle", () -> new SimpleParticleType(true));
 
-    //TODO fix
-    public static final ParticleType<MeteorSmokeScaledOptions> METEOR_SMOKE_COSY = FabricParticleTypes.complex(MeteorSmokeScaledOptions.CODEC, MeteorSmokeScaledOptions.STREAM_CODEC);
-    //public static final ParticleType<SmokeScaleParticleOptions> METEOR_SMOKE_SIGNAL = FabricParticleTypes.complex(SmokeScaleParticleOptions.CODEC, SmokeScaleParticleOptions.STREAM_CODEC);
-    public static final ParticleType<FlashScaleParticleOptions> METEOR_FLASH = FabricParticleTypes.complex(FlashScaleParticleOptions.CODEC, FlashScaleParticleOptions.STREAM_CODEC);
+    public static final Supplier<MeteorSmokeParticleType> METEOR_SMOKE_COSY = PARTICLE_TYPES.register(
+            "meteor_smoke_cosy", () -> new MeteorSmokeParticleType(true));
+    public static final Supplier<MeteorFlashParticleType> METEOR_FLASH = PARTICLE_TYPES.register(
+            "meteor_flash", () -> new MeteorFlashParticleType(true));
 
     public static void register(IEventBus eventBus) {
         PARTICLE_TYPES.register(eventBus);
