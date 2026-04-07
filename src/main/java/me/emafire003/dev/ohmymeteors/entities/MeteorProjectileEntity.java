@@ -332,7 +332,6 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
 
     public void detonateSimple(int extraPower){
-
         /// Excludes all blocks from destruction
         ExplosionDamageCalculator safeExplosion = new ExplosionDamageCalculator() {
             @Override
@@ -358,12 +357,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 explosionBehavior = safeExplosion;
             }
 
-            if(Config.ANNOUNCE_METEOR_SPAWN && !this.isSilenced()){
-                if(Config.ANNOUNCE_LOCATION){
-                    String meteorPos = this.blockPosition().getX() + " x, " + this.blockPosition().getZ() + " z!";
-                    this.level().players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_impacted.localized", meteorPos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
-                }
-            }
+            announceSpawn();
         }
 
         if(!Config.METEOR_GRIEFING){
@@ -372,9 +366,9 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
 
         if(Config.USE_BETTER_EXPLOSIONS){
-            ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, true, Level.ExplosionInteraction.TNT);
+            ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, Config.SPAWN_FIRE_WITH_METEOR, Level.ExplosionInteraction.TNT);
         }else{
-            this.level().explode(this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, true, Level.ExplosionInteraction.TNT);
+            this.level().explode(this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, Config.SPAWN_FIRE_WITH_METEOR, Level.ExplosionInteraction.TNT);
         }
 
         if(!this.level().isClientSide()){
@@ -392,6 +386,12 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             });
         }
 
+        announceSpawn();
+        //entity.getWorld().addParticle(ParticleTypes.FLASH, pos.getX(), pos.getY(), pos.getZ(), 0,0,0);
+        this.discard();
+    }
+
+    public void announceSpawn() {
         if(Config.ANNOUNCE_METEOR_SPAWN && !this.isSilenced()){
             if(Config.ANNOUNCE_LOCATION){
                 String meteorPos = this.blockPosition().getX() + " x, " + this.blockPosition().getZ() + " z!";
