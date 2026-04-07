@@ -19,7 +19,10 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.neoforged.fml.ModList;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -40,17 +43,22 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
 
     @Shadow public abstract boolean addFreshEntity(Entity entity);
 
-    @Shadow public abstract ChunkSource getChunkSource();
+    @Shadow public abstract @NotNull ChunkSource getChunkSource();
 
-    @Shadow public abstract ServerLevel getLevel();
+    @Shadow public abstract @NotNull ServerLevel getLevel();
 
-    @Shadow public abstract List<ServerPlayer> players();
+    @Shadow public abstract @NotNull List<ServerPlayer> players();
 
     @Unique
     int meteorCooldown = 0;
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
     public void tickSpawnMeteor(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
+
+        //If chance is negative, it means that no natural meteor should spawn so return early
+        if(Config.METEOR_SPAWN_CHANCE < 0){
+            return;
+        }
 
         if(Config.SHOULD_COOLDOWN_BETWEEN_METEORS && meteorCooldown > 0){
             meteorCooldown = meteorCooldown - 1;
@@ -92,6 +100,8 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
         /// For the chance, biome > dim > global
         /// Aka the biome chance overrides the dimension chance which in turn overrides the global parameter
         int chance = Config.METEOR_SPAWN_CHANCE;
+
+        //If chance is negative, it means that no natural meteor should spawn
 
         //If the current dimension is in the map, it will override the chance thing
         if(Config.DIMENSION_CHANCES.containsKey(current_dim.getRegisteredName())){

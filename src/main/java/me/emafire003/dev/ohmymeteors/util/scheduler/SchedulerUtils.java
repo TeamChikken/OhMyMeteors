@@ -5,14 +5,13 @@ import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SchedulerUtils {
     /**Used to schedule the replacements*/
     public static final class ServerTaskScheduler {
 
-        private static final List<ScheduledTask> TASKS = new ArrayList<>();
+        private static final ConcurrentLinkedQueue<ScheduledTask> TASKS = new ConcurrentLinkedQueue<>();
 
         public static void schedule(ScheduledTask task) {
             TASKS.add(task);

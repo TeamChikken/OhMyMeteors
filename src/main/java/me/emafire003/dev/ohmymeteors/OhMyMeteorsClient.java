@@ -8,6 +8,8 @@ import me.emafire003.dev.ohmymeteors.particles.LaserFlashParticle;
 import me.emafire003.dev.ohmymeteors.particles.LaserParticle;
 import me.emafire003.dev.ohmymeteors.particles.LaserParticleSmall;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
+import me.emafire003.dev.ohmymeteors.particles.meteor_flash.MeteorFlashParticle;
+import me.emafire003.dev.ohmymeteors.particles.meteor_smoke.MeteorSmokeParticle;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -22,13 +24,6 @@ import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 @EventBusSubscriber(modid = OhMyMeteors.MOD_ID, value = Dist.CLIENT)
 public class OhMyMeteorsClient{
 
-
-    /*public void registerParticles(){
-        ParticleFactoryRegistry.getInstance().register(OMMParticles.LASER_PARTICLE, LaserParticle.EggCrackFactory::new);
-        ParticleFactoryRegistry.getInstance().register(OMMParticles.LASER_PARTICLE_SMALL, LaserParticleSmall.EggCrackFactory::new);
-        ParticleFactoryRegistry.getInstance().register(OMMParticles.LASER_FLASH_PARTICLE, LaserFlashParticle.LaserFlashFactory::new);
-    }*/
-
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
         registerEntityStuff();
@@ -39,16 +34,13 @@ public class OhMyMeteorsClient{
         event.registerSpriteSet(OMMParticles.LASER_PARTICLE.get(), LaserParticle.EggCrackFactory::new);
         event.registerSpriteSet(OMMParticles.LASER_PARTICLE_SMALL.get(), LaserParticleSmall.EggCrackFactory::new);
         event.registerSpriteSet(OMMParticles.LASER_FLASH_PARTICLE.get(), LaserFlashParticle.LaserFlashFactory::new);
+        event.registerSpriteSet(OMMParticles.METEOR_SMOKE_COSY.get(), MeteorSmokeParticle.CosyProvider::new);
+        event.registerSpriteSet(OMMParticles.METEOR_FLASH.get(), MeteorFlashParticle.FlashFactory::new);
     }
 
     public static void registerEntityStuff(){
         EntityRenderers.register(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), MeteorProjectileEntityRenderer::new);
         EntityRenderers.register(OMMEntities.METEOR_KITTY_CAT.get(), MeteorCatEntityRenderer::new);
-
-        /*EntityModelLayerRegistry.registerModelLayer(MeteorProjectileEntityModel.METEOR, MeteorProjectileEntityModel::getTexturedModelData);
-        EntityRendererRegistry.register(OMMEntities.METEOR_PROJECTILE_ENTITY, MeteorProjectileEntityRenderer::new);
-        //EntityModelLayerRegistry.registerModelLayer(MeteorCatEntityModel., MeteorProjectileEntityModel::getTexturedModelData);
-        EntityRendererRegistry.register(OMMEntities.METEOR_KITTY_CAT, MeteorCatEntityRenderer::new);*/
 
     }
 
@@ -56,11 +48,5 @@ public class OhMyMeteorsClient{
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event){
         event.registerLayerDefinition(MeteorProjectileEntityModel.METEOR, MeteorProjectileEntityModel::getTexturedModelData);
     }
-
-    /*
-    public static void registerBlockStuff(){
-        BlockRenderLayerMap.INSTANCE.putBlock(OMMBlocks.BASIC_METEOR_LASER, RenderType.translucent());
-        BlockRenderLayerMap.INSTANCE.putBlock(OMMBlocks.ADVANCED_METEOR_LASER, RenderType.translucent());
-    }*/
 
 }

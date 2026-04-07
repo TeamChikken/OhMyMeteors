@@ -18,6 +18,7 @@ import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import net.luckperms.api.LuckPermsProvider;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,6 +35,7 @@ import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
@@ -42,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 //TODO look at meteorutils todo
 //TODO maybe add here or in an addon a buildable siren and a cannon or gun or automatic laser that shoots incoming meteors. Maybe an addon.
 
@@ -100,6 +103,7 @@ public class OhMyMeteors {
 
 	}
 
+    AtomicBoolean shouldWarn = new AtomicBoolean(false);
 	private static MinecraftServer serverInstance = null;
 
 	// Loads the config file on server startup as well as the scheduler
@@ -107,7 +111,7 @@ public class OhMyMeteors {
 	public void onServerStarting(ServerStartingEvent event) {
 		// Do something when the server starts
 		try{
-			Config.reloadConfig();
+            shouldWarn.set(!Config.reloadConfig());
 			if(ModList.get().isLoaded("luckperms")){
 				PermissionsChecker.luckPerms = LuckPermsProvider.get();
 			}
@@ -118,6 +122,16 @@ public class OhMyMeteors {
 			LOGGER.error("There was an error while loading the config files!");
 			e.printStackTrace();
 		}
+	}
+
+	@SubscribeEvent
+	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
+		if(event.getEntity().hasPermissions(4) && shouldWarn.get()){
+			event.getEntity().sendSystemMessage(Component.literal(PREFIX).append(
+					Component.literal("§cWarning! The config file has been restored to the default settings because something" +
+							" has gone wrong while loading it! A copy of the old file has been created.")));
+		}
+
 	}
 
 	// Wow this looks like a stupid way to do this
@@ -171,11 +185,14 @@ public class OhMyMeteors {
 
 	public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses"));
 	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses_and_destroy"));
+	public static final TagKey<Block> METEOR_EXPLOSION_SAFE = TagKey.create(Registries.BLOCK, getIdentifier("meteor_explosion_safe"));
+
 
 	@SuppressWarnings("unused")
 	public static void registerTags(){
 		HolderSet.Named<Block> METEOR_BYPASSES_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_BYPASSES);
 		HolderSet.Named<Block> METEOR_BYPASSES_AND_DESTROY_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_BYPASSES_AND_DESTROY);
+		HolderSet.Named<Block> METEOR_EXPLOSION_SAFE_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_EXPLOSION_SAFE);
 
 	}
 

@@ -6,6 +6,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
@@ -34,5 +36,16 @@ public class OMMEntities {
 
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);
+        eventBus.register(OMMEntities.class);
+    }
+
+    @SubscribeEvent // on the mod event bus
+    public static void createDefaultAttributes(EntityAttributeCreationEvent event) {
+        event.put(
+                // Your entity type.
+                OMMEntities.METEOR_KITTY_CAT.get(),
+                MeteorCatEntity.createCatAttributes().build()
+
+        );
     }
 }

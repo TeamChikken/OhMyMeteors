@@ -108,7 +108,7 @@ public class SimpleConfig {
 
     private void createConfig() throws IOException {
 
-        LOGGER.info("Creating config " + request.filename);
+        LOGGER.debug("Creating config " + request.filename);
         // try creating missing files
         request.file.getParentFile().mkdirs();
         Files.createFile( request.file.toPath() );
@@ -134,15 +134,29 @@ public class SimpleConfig {
     /**Updates from one config version to the other*/
     public void updateValues(HashMap<Pair<String, ?>, Pair<String, ?>> sub_map) throws IOException {
         config_new = request.getConfig();
+        config_new = config_new.replaceAll("\\{", "éàè");
+        config_new = config_new.replaceAll("}", "àéà");
 
         sub_map.forEach((oldone, newone) -> {
             String new_string = newone.getFirst() + ":" + newone.getSecond();
             String old_string = oldone.getFirst() + ":" + oldone.getSecond();
 
+            // The {} of maps is wrongly treated as a regex, so i needed to get a bit creative.
+            // It subs all instances of {} with a string of unlikely chars which will be subbed before writing to file again by {}
+            old_string = old_string.replaceAll("\\{", "éàè");
+            old_string = old_string.replaceAll("}", "àéà");
+            new_string = new_string.replaceAll("\\{", "éàè");
+            new_string = new_string.replaceAll("}", "àéà");
+
             if(!newone.getFirst().equalsIgnoreCase("version") && newone.getSecond() != null && oldone.getSecond() != null){
                 config_new = config_new.replaceAll(old_string, new_string);
             }
+
+
         });
+        //Replacing the weird chars back to {}
+        config_new = config_new.replaceAll("éàè", "{");
+        config_new = config_new.replaceAll("àéà", "}");
 
         // try creating missing files
         request.file.delete();
