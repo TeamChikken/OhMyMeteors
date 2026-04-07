@@ -143,6 +143,7 @@ public class Config {
 
     //V7
     public static double METEOR_DISPERSION_FACTOR = 3.1;
+    public static boolean SPAWN_FIRE_WITH_METEOR = true;
 
     public static void handleVersionChange(){
         int version_found = CONFIG.getOrDefault("version", ver);
@@ -259,9 +260,11 @@ public class Config {
 
         configs.addKeyValuePair(new Pair<>("meteor_structure", true),"Should meteors spawn the meteor structure after impact?");
         configs.addKeyValuePair(new Pair<>("scatter_meteor_structure", true),"Should the meteors that come out of a bigger meteor when it's broken be able to destroy spawn structures on impact?");
-
+        //V5
         configs.addKeyValuePair(new Pair<>("only_replace_air", false),"Should the meteor structure only replace air blocks?");
         configs.addKeyValuePair(new Pair<>("scatter_only_replace_air", true),"Should the meteors that come out of a bigger meteor when it's broken only replace air blocks for their structure?");
+        //V7
+        configs.addKeyValuePair(new Pair<>("spawn_fire_with_meteor", true),"Should fire be spawned on meteor impact? (it looks cool!)");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
@@ -423,6 +426,7 @@ public class Config {
 
         //V7
         METEOR_DISPERSION_FACTOR = CONFIG.getOrDefault("meteor_dispersion_factor", 3.1);
+        SPAWN_FIRE_WITH_METEOR = CONFIG.getOrDefault("spawn_fire_with_meteor", true);
     }
 }
 
