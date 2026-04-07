@@ -1,0 +1,10 @@
+{
+  "gui_item": {
+    "id": "ohmymeteors:meteoric_rock"
+  },
+  "default_value": true,
+  "global": true,
+  "global_default_value": true,
+  "require_explicit": false,
+  "order": 67
+}

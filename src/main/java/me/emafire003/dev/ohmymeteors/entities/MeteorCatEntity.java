@@ -16,7 +16,8 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 public class MeteorCatEntity extends Cat {
 
@@ -68,7 +69,7 @@ public class MeteorCatEntity extends Cat {
     //also should not need overriding
     @Nullable
     public MeteorCatEntity getBreedOffspring(ServerLevel serverWorld, AgeableMob passiveEntity) {
-        MeteorCatEntity catEntity = OMMEntities.METEOR_KITTY_CAT.create(serverWorld);
+        MeteorCatEntity catEntity = OMMEntities.METEOR_KITTY_CAT.get().create(serverWorld);
         //EntityType.CAT.create(serverWorld);
         if (catEntity != null && passiveEntity instanceof MeteorCatEntity catEntity2) {
 

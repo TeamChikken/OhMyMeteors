@@ -1,8 +1,9 @@
 package me.emafire003.dev.ohmymeteors.util.scheduler;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -32,8 +33,9 @@ public class SchedulerUtils {
         boolean tick(MinecraftServer server);
     }
 
-    public static void registerOnServerTick(){
-        ServerTickEvents.END_SERVER_TICK.register( (ServerTaskScheduler::tick));
+    @SubscribeEvent
+    public static void onServerTick(ServerTickEvent.Post event) {
+        ServerTaskScheduler.tick(event.getServer());
     }
 
 

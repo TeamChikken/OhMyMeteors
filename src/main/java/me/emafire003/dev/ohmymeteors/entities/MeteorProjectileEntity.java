@@ -5,7 +5,6 @@ import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
-import me.emafire003.dev.ohmymeteors.events.MeteorSpawnEvent;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.particles.meteor_flash.FlashScaleParticleOptions;
 import me.emafire003.dev.ohmymeteors.particles.meteor_smoke.MeteorSmokeScaledOptions;
@@ -13,7 +12,6 @@ import me.emafire003.dev.ohmymeteors.util.ExplosionUtils;
 import me.emafire003.dev.ohmymeteors.util.MeteorSizeClass;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
@@ -47,6 +45,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import org.jetbrains.annotations.NotNull;
+import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -141,8 +140,6 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
         int j = 1 << i;
         this.setSize(j);
-        //TODO this doesn't really make sense tbh
-        MeteorSpawnEvent.EVENT.invoker().meteorSpawned(this);
 
         if(this.level().isClientSide()){
             MeteorUtils.addAliveMeteor(this.getUUID());
@@ -382,7 +379,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             if(placer == null){
                 int r = this.getRandom().nextIntBetweenInclusive(1,3);
                 if(r == 1){
-                    this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.defaultBlockState());
+                    this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.get().defaultBlockState());
                 }else if(r == 2){
                     this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.SMOOTH_BASALT.defaultBlockState());
                 }else{
@@ -405,7 +402,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 if(level().getBlockState(this.blockPosition()).isAir()){
                     int r = this.getRandom().nextIntBetweenInclusive(1,3);
                     if(r == 1){
-                        this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.defaultBlockState());
+                        this.level().setBlockAndUpdate(BlockPos.containing(this.position()), OMMBlocks.METEORIC_ROCK.get().defaultBlockState());
                     }else if(r == 2){
                         this.level().setBlockAndUpdate(BlockPos.containing(this.position()), Blocks.SMOOTH_BASALT.defaultBlockState());
                     }else{
@@ -734,7 +731,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
         //It also registers Air blocks as a collision so we need to avoid such cases
         if(!state.isAir()){
-            if(FabricLoader.getInstance().isModLoaded("flan") && !this.level().isClientSide()){
+            if(ModList.get().isLoaded("flan") && !this.level().isClientSide()){
                 if(!FlanCompat.canSpawnHere(null, blockHitResult.getBlockPos())){
                     this.discard();
                     OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by a Flan claim, it has been discarded!");
@@ -742,7 +739,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 }
             }
 
-            if(FabricLoader.getInstance().isModLoaded("yawp") && !this.level().isClientSide()){
+            if(ModList.get().isLoaded("yawp") && !this.level().isClientSide()){
                 if(!YawpCompat.canSpawnHere((ServerLevel) this.level(), blockHitResult.getBlockPos())){
                     this.discard();
                     OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by YetAnotherWorldProtector 'EXPLOSION_ENTITY' flag, it has been discarded!");
@@ -788,7 +785,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
         super.onHitEntity(entityHitResult);
         BlockPos collisionPos = entityHitResult.getEntity().getOnPos();
-        if(FabricLoader.getInstance().isModLoaded("flan") && !this.level().isClientSide()){
+        if(ModList.get().isLoaded("flan") && !this.level().isClientSide()){
             if(!FlanCompat.canSpawnHere(null, collisionPos)){
                 this.discard();
                 OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by a Flan claim, it has been discarded!");
@@ -796,7 +793,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             }
         }
 
-        if(FabricLoader.getInstance().isModLoaded("yawp") && !this.level().isClientSide()){
+        if(ModList.get().isLoaded("yawp") && !this.level().isClientSide()){
             if(!YawpCompat.canSpawnHere((ServerLevel) this.level(), collisionPos)){
                 this.discard();
                 OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by YetAnotherWorldProtector 'EXPLOSION_ENTITY' flag, it has been discarded!");
@@ -857,9 +854,8 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             OhMyMeteors.LOGGER.error("Removing meteor");
             OhMyMeteors.LOGGER.error("Ok client side remove");
             MeteorUtils.addAliveMeteor(this.getUUID());
-        }
+
         super.remove(removalReason);
-    }
 */
     /**Returns true if this meteor is classified as huge, as in bigger than the biggest "big" size*/
     public boolean isHuge(){

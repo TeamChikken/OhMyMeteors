@@ -1,7 +1,5 @@
 package me.emafire003.dev.ohmymeteors.particles;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleProvider;
@@ -70,7 +68,6 @@ public class LaserParticle extends TextureSheetParticle {
         }
     }*/
 
-    @Environment(EnvType.CLIENT)
     public static class EggCrackFactory implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet spriteProvider;
 

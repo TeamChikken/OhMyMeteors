@@ -2,22 +2,23 @@ package me.emafire003.dev.ohmymeteors;
 
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.blocks.OMMProperties;
+import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentType;
+import me.emafire003.dev.ohmymeteors.commands.argument.MeteorSizeClassArgumentType;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
+import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
+import me.emafire003.dev.ohmymeteors.items.OMMItemTab;
 import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
-import net.fabricmc.api.ModInitializer;
-
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.network.chat.Component;
+import net.luckperms.api.LuckPermsProvider;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -25,6 +26,16 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.tags.TagKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,17 +43,17 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 //TODO look at meteorutils todo
 //TODO maybe add here or in an addon a buildable siren and a cannon or gun or automatic laser that shoots incoming meteors. Maybe an addon.
 
-public class OhMyMeteors implements ModInitializer {
+@Mod(OhMyMeteors.MOD_ID)
+public class OhMyMeteors {
 	// This logger is used to write text to the console and the log file.
 	// It is considered best practice to use your mod id as the logger's name.
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final String MOD_ID = "ohmymeteors";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	public static Path PATH = Path.of(FabricLoader.getInstance().getConfigDir() + "/" + MOD_ID + "/");
+	public static Path PATH = Path.of(FMLLoader.getGamePath() + "/config/" + MOD_ID + "/");
 
 	public static String PREFIX = "§8[Oh My, Meteors!] §r";
 
@@ -50,54 +61,121 @@ public class OhMyMeteors implements ModInitializer {
 		return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
 	}
 
-	@Override
-	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
+	// The constructor for the mod class is the first code that is run when your mod is loaded.
+	// FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
+	public OhMyMeteors(IEventBus eventBus) {
+		// Register the commonSetup method for modloading
+		//modEventBus.addListener(this::commonSetup);
+
+		// Register the Deferred Register to the mod event bus so blocks get registered
+		//BLOCKS.register(modEventBus);
+		// Register the Deferred Register to the mod event bus so items get registered
+		//ITEMS.register(modEventBus);
+		// Register the Deferred Register to the mod event bus so tabs get registered
+		//CREATIVE_MODE_TABS.register(modEventBus);
+
+		// Register ourselves for server and other game events we are interested in.
+		// Note that this is necessary if and only if we want *this* class (OhMyMeteors) to respond directly to events.
+		// Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
+		NeoForge.EVENT_BUS.register(this);
+		NeoForge.EVENT_BUS.register(new OMMEvents());
+		NeoForge.EVENT_BUS.register(SchedulerUtils.class);
+		eventBus.addListener(this::registerCustomArgumentType);
+
+
 		Config.FILEPATH = PATH.resolve(OhMyMeteors.MOD_ID + "_config.yml");
 
-		OMMCommands.registerArguments();
-		CommandRegistrationCallback.EVENT.register(OMMCommands::registerCommands);
-
+		OMMBlocks.register(eventBus);
+		OMMItems.register(eventBus);
 		OMMProperties.registerBlockProperties();
-		OMMEntities.registerEntities();
-		OMMBlocks.registerBlocks();
-		OMMEvents.registerEvents();
-		OMMSounds.registerSounds();
-		OMMItems.registerItems();
-		OMMParticles.registerParticles();
+		OMMEntities.register(eventBus);
+		OMMSounds.register(eventBus);
+		OMMItemTab.register(eventBus);
 		registerTags();
-		if(FabricLoader.getInstance().isModLoaded("flan")){
+		OMMParticles.register(eventBus);
+
+
+		if(ModList.get().isLoaded("flan")){
 			FlanCompat.registerFlan();
 		}
 
-		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((minecraftServer, lifecycledResourceManager, b) -> {
-			//yes reloads for each dimension
-			//TODO maybe just pick one? Datapacks aren't per-dimension right? But multiverse and stuff exists so idk
-			minecraftServer.getAllLevels().forEach(OhMyMeteors::reInitStructures);
-		});
-
-		AtomicBoolean shouldWarn = new AtomicBoolean(false);
-		//loads the config file on server startup and the scheduler
-		ServerLifecycleEvents.SERVER_STARTED.register( minecraftServer -> {
-			try{
-				SchedulerUtils.registerOnServerTick();
-				shouldWarn.set(!Config.reloadConfig());
-				//minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
-			}catch (Exception e){
-				LOGGER.error("There was an error while loading the config files!");
-				e.printStackTrace();
-			}
-		});
-
-		ServerPlayerEvents.JOIN.register((serverPlayer -> {
-			if(serverPlayer.hasPermissions(4) && shouldWarn.get()){
-				serverPlayer.sendSystemMessage(Component.literal(PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something has gone wrong while loading it! A copy of the old file has been created.")));
-			}
-		}));
-
 	}
+
+    AtomicBoolean shouldWarn = new AtomicBoolean(false);
+	private static MinecraftServer serverInstance = null;
+
+	// Loads the config file on server startup as well as the scheduler
+	@SubscribeEvent
+	public void onServerStarting(ServerStartingEvent event) {
+		// Do something when the server starts
+		try{
+            shouldWarn.set(!Config.reloadConfig());
+			if(ModList.get().isLoaded("luckperms")){
+				PermissionsChecker.luckPerms = LuckPermsProvider.get();
+			}
+			//This is needed because for SOME REASON the datapack reload event doesn't have a server parameter :/
+			serverInstance = event.getServer();
+			//minecraftServer.getWorlds().forEach(OhMyMeteors::reInitStructures);
+		}catch (Exception e){
+			LOGGER.error("There was an error while loading the config files!");
+			e.printStackTrace();
+		}
+	}
+
+    ServerPlayerEvents.JOIN.register((serverPlayer -> {
+        if(serverPlayer.hasPermissions(4) && shouldWarn.get()){
+            serverPlayer.sendSystemMessage(Component.literal(PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something has gone wrong while loading it! A copy of the old file has been created.")));
+        }
+    }));
+
+	// Wow this looks like a stupid way to do this
+	@SubscribeEvent
+	public void onDatapackReload(OnDatapackSyncEvent event) {
+		//why not just have the ServerLifeCycleEvents.Datapackreload thingy? Bah
+		if(event.getPlayer() == null){
+			//yes reloads for each dimension
+			//WHY THE FUCK IS THERE NOT A SERVER ASSOCIATED TO THIS EVENT?!!!
+			//TODO maybe just pick one? Datapacks aren't per-dimension right? But multiverse and stuff exists so idk
+			if(serverInstance == null){
+				LOGGER.error("Something went very wrong, could not get the server while reloading the datapacks!");
+				return;
+			}
+			serverInstance.getAllLevels().forEach(OhMyMeteors::reInitStructures);
+		}
+	}
+
+	// registers commands
+	@SubscribeEvent
+	public void onRegisterCommands(RegisterCommandsEvent event) {
+		// Do something when the server starts
+		try{
+			OMMCommands.registerCommands(event.getDispatcher(), event.getBuildContext(), event.getCommandSelection());
+		}catch (Exception e){
+			LOGGER.error("There was an error while loading the config files!");
+			e.printStackTrace();
+		}
+	}
+
+	//Register argument types
+	private void registerCustomArgumentType(RegisterEvent event) {
+		event.register(
+				BuiltInRegistries.COMMAND_ARGUMENT_TYPE.key(),
+				OhMyMeteors.getIdentifier("meteor_size_class"),
+				() -> {
+					SingletonArgumentInfo<MeteorSizeClassArgumentType> meteorSizeClassArgumentTypeSingletonArgumentInfo = SingletonArgumentInfo.contextFree(MeteorSizeClassArgumentType::new);
+					return ArgumentTypeInfos.registerByClass(MeteorSizeClassArgumentType.class, meteorSizeClassArgumentTypeSingletonArgumentInfo);
+				}
+		);
+		event.register(
+				BuiltInRegistries.COMMAND_ARGUMENT_TYPE.key(),
+				OhMyMeteors.getIdentifier("meteor_shower_type"),
+				() -> {
+					SingletonArgumentInfo<MeteorShowerTypeArgumentType> meteorShowerTypeArgumentTypeSingletonArgumentInfo = SingletonArgumentInfo.contextFree(MeteorShowerTypeArgumentType::new);
+					return ArgumentTypeInfos.registerByClass(MeteorShowerTypeArgumentType.class, meteorShowerTypeArgumentTypeSingletonArgumentInfo);
+				}
+		);
+	}
+
 
 	public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses"));
 	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses_and_destroy"));

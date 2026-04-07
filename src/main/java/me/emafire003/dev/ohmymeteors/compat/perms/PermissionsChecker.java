@@ -1,16 +1,16 @@
 package me.emafire003.dev.ohmymeteors.compat.perms;
 
-import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.loader.api.FabricLoader;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.util.Tristate;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.commands.CommandSourceStack;
-
+import net.neoforged.fml.ModList;
 import java.util.function.Predicate;
 
-//Based on Factions' code https://github.com/ickerio/factions (MIT license)
 public class PermissionsChecker {
 
-    public static final boolean permissions = FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0");
+    public static final boolean permissions = ModList.get().isLoaded("luckperms");
 
     @SafeVarargs
     public static Predicate<CommandSourceStack> multiple(
@@ -29,16 +29,55 @@ public class PermissionsChecker {
             if(!permissions){
                 return source.hasPermission(2);
             }else {
-                return Permissions.check(source, permission, defaultValue);
+                //checks if they are an operator
+                if(source.getEntity() != null && source.getEntity().hasPermissions(4)){
+                    checkPermission(source.getEntity(), permission).asBoolean();
+                    return true;
+                }
+                return checkPermission(source.getEntity(), permission).asBoolean();
             }
         };
     }
+    public static LuckPerms luckPerms = null;
+
+    public static Tristate checkPermission(Entity entity, String permission) {
+        if (!(entity instanceof ServerPlayer)) {
+            return Tristate.UNDEFINED;
+        }
+
+        var user = luckPerms.getPlayerAdapter(ServerPlayer.class).getUser((ServerPlayer) entity);
+        var perms = user.getCachedData().getPermissionData();
+        return perms.checkPermission(permission);
+    }
+
+    /*
+    public static CompletableFuture<Tristate> checkPermission(UUID uuid, String permission) {
+        var future = new CompletableFuture<Tristate>();
+        if (luckPerms.getUserManager().isLoaded(uuid)) {
+            var user = luckPerms.getUserManager().getUser(uuid);
+            if (user == null) {
+                future.complete(Tristate.UNDEFINED);
+            } else {
+                future.complete(user
+                        .getCachedData()
+                        .getPermissionData()
+                        .checkPermission(permission));
+            }
+        } else {
+            luckPerms.getUserManager().loadUser(uuid).thenAccept(user -> future
+                    .complete(user
+                            .getCachedData()
+                            .getPermissionData()
+                            .checkPermission(permission)));
+        }
+        return future;
+    }
 
     public static boolean hasPerms(Entity entity, String permission, boolean defValue){
-        if(!permissions){
+        //if(!permissions){
             return defValue;
-        }else {
+        /*}else {
             return Permissions.check(entity, permission, defValue);
         }
-    }
+    }*/
 }

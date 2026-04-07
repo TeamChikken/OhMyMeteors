@@ -15,7 +15,6 @@ import me.emafire003.dev.ohmymeteors.mixin.MinecraftServerSessionAccessor;
 import me.emafire003.dev.ohmymeteors.util.MeteorSizeClass;
 import me.emafire003.dev.ohmymeteors.util.packutils.PackMeta;
 import me.emafire003.dev.ohmymeteors.util.packutils.PackUtilThing;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.Commands;
@@ -23,6 +22,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.LevelResource;
+import net.neoforged.fml.loading.FMLLoader;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -91,7 +91,7 @@ public class CustomStructureCommand implements OMMCommand {
             boolean special = BoolArgumentType.getBool(context, "special");
 
             //the path where worldedit schematics are stored
-            Path we_schempath = Path.of(FabricLoader.getInstance().getConfigDir().normalize().toString()+"/worldedit/schematics/");
+            Path we_schempath = Path.of(FMLLoader.getGamePath()+"/config/worldedit/schematics/");
 
             schemId = schemId.replaceAll("\\.schem", "");
 
@@ -154,7 +154,7 @@ public class CustomStructureCommand implements OMMCommand {
             boolean special = BoolArgumentType.getBool(context, "special");
 
             //the path where litematica schematics are stored
-            Path lm_schempath = Path.of(FabricLoader.getInstance().getConfigDir().getParent().normalize().toString()+"/schematics/");
+            Path lm_schempath = Path.of(FMLLoader.getGamePath()+"/schematics/");
 
             schemId = schemId.replaceAll("\\.litematic", "");
 

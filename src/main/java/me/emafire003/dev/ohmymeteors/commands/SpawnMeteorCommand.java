@@ -15,7 +15,6 @@ import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.util.MeteorShowerType;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.core.Holder;
 import net.minecraft.commands.Commands;
@@ -25,40 +24,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.neoforged.fml.ModList;
 
 import java.util.Objects;
 
 public class SpawnMeteorCommand implements OMMCommand {
-
-    @Deprecated
-    private int spawnRandom(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        CommandSourceStack source = context.getSource();
-
-        try{
-
-            if(!source.isPlayer()){
-                source.sendSystemMessage(Component.literal("Must be executed by player"));
-                return 0;
-            }
-
-            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, source.getLevel());
-            meteorProjectile.setPosRaw(
-                    source.getPlayer().getX()+source.getPlayer().getRandom().nextIntBetweenInclusive(0, 50)*source.getPlayer().getRandom().nextIntBetweenInclusive(-1, 1),
-                    source.getPlayer().getEyeY()+source.getPlayer().getRandom().nextIntBetweenInclusive(0, 50)*source.getPlayer().getRandom().nextIntBetweenInclusive(-1, 1),
-                    source.getPlayer().getZ()+source.getPlayer().getRandom().nextIntBetweenInclusive(0, 50)*source.getPlayer().getRandom().nextIntBetweenInclusive(-1, 1)
-            );
-
-            source.sendSystemMessage(Component.literal("Spawning meteor at " + meteorProjectile.position()));
-            meteorProjectile.setSize(source.getPlayer().getRandom().nextIntBetweenInclusive(0, 20));
-            source.getLevel().addFreshEntity(meteorProjectile);
-
-            return 1;
-        }catch(Exception e){
-            e.printStackTrace();
-            source.sendSuccess( () -> Component.literal("Error: " + e),false);
-            return 0;
-        }
-    }
 
     private int spawnSize(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
@@ -70,7 +40,7 @@ public class SpawnMeteorCommand implements OMMCommand {
                 return 0;
             }
 
-            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, source.getLevel());
+            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), source.getLevel());
             meteorProjectile.setPosRaw(source.getPlayer().getX(), source.getPlayer().getEyeY(), source.getPlayer().getZ());
 
             meteorProjectile.shootFromRotation(source.getPlayer(), source.getPlayer().getXRot(), source.getPlayer().getYRot(), 0f, 0.2f, 0f);
@@ -95,7 +65,7 @@ public class SpawnMeteorCommand implements OMMCommand {
                 return 0;
             }
 
-            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, source.getLevel());
+            MeteorProjectileEntity meteorProjectile = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), source.getLevel());
             meteorProjectile.setPosRaw(source.getPlayer().getX(), source.getPlayer().getEyeY(), source.getPlayer().getZ());
 
             meteorProjectile.shootFromRotation(source.getPlayer(), source.getPlayer().getXRot(), source.getPlayer().getYRot(), 0f, FloatArgumentType.getFloat(context, "speed"), 0f);
@@ -111,13 +81,13 @@ public class SpawnMeteorCommand implements OMMCommand {
     }
 
     private boolean spawnChecks(ServerPlayer p){
-        if(FabricLoader.getInstance().isModLoaded("flan")){
+        if(ModList.get().isLoaded("flan")){
             if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
                 return false;
             }
         }
 
-        if(FabricLoader.getInstance().isModLoaded("yawp")){
+        if(ModList.get().isLoaded("yawp")){
             //Checks the player pos and the place where the meteor would spawn
             if(!(YawpCompat.canSpawnHere(p.serverLevel(), p.blockPosition()) || YawpCompat.canSpawnHere(p.serverLevel(), new BlockPos(p.blockPosition().getX(), Config.METEOR_SPAWN_HEIGHT, p.blockPosition().getZ())))){
                 return false;
@@ -133,6 +103,7 @@ public class SpawnMeteorCommand implements OMMCommand {
         Holder<Biome> current_biome = p.level().getBiome(p.blockPosition());
 
         if(!MeteorUtils.canSpawnInBiome(current_biome)){
+            p.sendSystemMessage(Component.literal("biome"));
             return false;
         }
         return true;

@@ -1,7 +1,5 @@
 package me.emafire003.dev.ohmymeteors.particles;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.Camera;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -36,7 +34,6 @@ public class LaserFlashParticle extends TextureSheetParticle {
     }
 
 
-    @Environment(EnvType.CLIENT)
     public static class LaserFlashFactory implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet spriteProvider;
 

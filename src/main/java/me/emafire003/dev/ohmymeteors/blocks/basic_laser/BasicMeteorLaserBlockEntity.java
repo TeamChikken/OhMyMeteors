@@ -7,6 +7,6 @@ import net.minecraft.core.BlockPos;
 
 public class BasicMeteorLaserBlockEntity extends BlockEntity {
     public BasicMeteorLaserBlockEntity(BlockPos pos, BlockState state) {
-        super(OMMBlocks.BASIC_METEOR_LASER_BLOCK_ENTITY, pos, state);
+        super(OMMBlocks.BASIC_METEOR_LASER_BLOCK_ENTITY.get(), pos, state);
     }
 }
