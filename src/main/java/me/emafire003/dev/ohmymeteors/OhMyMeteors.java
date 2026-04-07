@@ -7,6 +7,7 @@ import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
+import me.emafire003.dev.ohmymeteors.events.PlayerJoinEvent;
 import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
@@ -14,7 +15,6 @@ import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.chat.Component;
@@ -48,7 +48,7 @@ public class OhMyMeteors implements ModInitializer {
 	public static String PREFIX = "§8[Oh My, Meteors!] §r";
 
 	public static ResourceLocation getIdentifier(String path){
-		return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+		return ResourceLocation.tryBuild(MOD_ID, path);
 	}
 
 	@Override
@@ -92,11 +92,11 @@ public class OhMyMeteors implements ModInitializer {
 			}
 		});
 
-		ServerPlayerEvents.JOIN.register((serverPlayer -> {
+		PlayerJoinEvent.EVENT.register(serverPlayer -> {
 			if(serverPlayer.hasPermissions(4) && shouldWarn.get()){
 				serverPlayer.sendSystemMessage(Component.literal(PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something has gone wrong while loading it! A copy of the old file has been created.")));
 			}
-		}));
+		});
 
 	}
 

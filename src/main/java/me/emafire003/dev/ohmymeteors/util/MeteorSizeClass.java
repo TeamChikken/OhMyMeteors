@@ -1,9 +1,5 @@
 package me.emafire003.dev.ohmymeteors.util;
 
-import com.mojang.serialization.Codec;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,8 +15,6 @@ public enum MeteorSizeClass implements StringRepresentable {
     }
 
     public static final EnumCodec<MeteorSizeClass> CODEC = StringRepresentable.fromEnum(MeteorSizeClass::values);
-
-    public static final StreamCodec<ByteBuf, MeteorSizeClass> STREAM_CODEC = ByteBufCodecs.fromCodec(CODEC);
 
     @Override
     public @NotNull String getSerializedName() {

@@ -1,34 +1,29 @@
 package me.emafire003.dev.ohmymeteors.particles.meteor_smoke;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import me.emafire003.dev.ohmymeteors.particles.meteor_flash.FlashScaleParticleOptions;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
+import me.emafire003.dev.ohmymeteors.particles.meteor_flash.FlashScaleParticleOptions;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 public class MeteorSmokeScaledOptions extends FlashScaleParticleOptions {
-    public static final StreamCodec<RegistryFriendlyByteBuf, MeteorSmokeScaledOptions> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.FLOAT,
-            MeteorSmokeScaledOptions::getScale,
-            MeteorSmokeScaledOptions::new
-    );
-    public static final Codec<Float> SCALE = Codec.FLOAT
-            .validate(
-                    float_ -> float_ >= MIN_SCALE && float_ <= MAX_SCALE ? DataResult.success(float_) : DataResult.error(() -> "Value must be within range [" + MIN_SCALE + ";" + MAX_SCALE +"]: " + float_)
-            );
 
-    public static final MapCodec<MeteorSmokeScaledOptions> CODEC = RecordCodecBuilder.mapCodec(
-            instance -> instance.group(
-                            SCALE.fieldOf("scale").forGetter(MeteorSmokeScaledOptions::getScale)
-                    )
-                    .apply(instance, MeteorSmokeScaledOptions::new)
-    );
+    public static ParticleOptions.Deserializer<MeteorSmokeScaledOptions> DESERIALIZER = new ParticleOptions.Deserializer<MeteorSmokeScaledOptions>() {
+        public MeteorSmokeScaledOptions fromCommand(ParticleType<MeteorSmokeScaledOptions> particleType, StringReader
+                stringReader) throws CommandSyntaxException {
+            //TODO should not be needed //stringReader.expect(' ');
+            float f = stringReader.readFloat();
+            return new MeteorSmokeScaledOptions(f);
+        }
+
+        public MeteorSmokeScaledOptions fromNetwork(ParticleType<MeteorSmokeScaledOptions> particleType, FriendlyByteBuf
+                friendlyByteBuf) {
+            return new MeteorSmokeScaledOptions(friendlyByteBuf.readFloat());
+        }
+    };
 
     public MeteorSmokeScaledOptions(float scale) {
         super(scale);

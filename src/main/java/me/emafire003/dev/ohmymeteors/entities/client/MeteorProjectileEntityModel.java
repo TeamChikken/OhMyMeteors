@@ -47,8 +47,8 @@ public class MeteorProjectileEntityModel<T extends MeteorProjectileEntity> exten
 	}
 
 	@Override
-	public void renderToBuffer(PoseStack matrices, VertexConsumer vertexConsumer, int light, int overlay, int color) {
-		root.render(matrices, vertexConsumer, light, overlay, color);
+	public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int i, int j, float f, float g, float h, float k) {
+		super.renderToBuffer(poseStack, vertexConsumer, i, j, f, g, h, k);
 	}
 
 	@Override

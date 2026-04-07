@@ -6,6 +6,7 @@
   "mixins": [
     "CatCollarInvoker",
     "MinecraftServerSessionAccessor",
+    "PlayerJoinMixin",
     "WorldSpawnMeteorMixin"
   ],
   "injectors": {
