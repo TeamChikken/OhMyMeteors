@@ -3,14 +3,15 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.util.RandomSource;
 import org.joml.Vector3f;
 
-public class MeteorSmokeParticle<T extends MeteorSmokeScaledOptions>  extends TextureSheetParticle {
+public class MeteorSmokeParticle<T extends MeteorSmokeScaledOptions>  extends SingleQuadParticle {
     private boolean red = true;
 
-    MeteorSmokeParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, boolean signal, MeteorSmokeScaledOptions options) {
-        super(level, x, y, z);
+    MeteorSmokeParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, boolean signal, TextureAtlasSprite sprite, MeteorSmokeScaledOptions options) {
+        super(level, x, y, z, sprite);
         this.scale(options.getScale());
         this.setSize(0.25F, 0.25F);
         if (signal) {
@@ -63,8 +64,8 @@ public class MeteorSmokeParticle<T extends MeteorSmokeScaledOptions>  extends Te
     }
 
     @Override
-    public @NotNull ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    public SingleQuadParticle.Layer getLayer() {
+        return SingleQuadParticle.Layer.TRANSLUCENT;
     }
 
     @Environment(EnvType.CLIENT)
@@ -75,27 +76,12 @@ public class MeteorSmokeParticle<T extends MeteorSmokeScaledOptions>  extends Te
             this.sprites = sprites;
         }
 
-        public Particle createParticle(MeteorSmokeScaledOptions type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            MeteorSmokeParticle<?> MeteorSmokeParticle = new MeteorSmokeParticle<>(level, x, y, z, xSpeed, ySpeed, zSpeed, false, type);
-            MeteorSmokeParticle.setAlpha(0.93F);
-            MeteorSmokeParticle.pickSprite(this.sprites);
-            return MeteorSmokeParticle;
+        public Particle createParticle(
+                MeteorSmokeScaledOptions type, ClientLevel clientLevel, double d, double e, double f, double g, double h, double i, RandomSource randomSource
+        ) {
+            MeteorSmokeParticle<?> campfireSmokeParticle = new MeteorSmokeParticle<>(clientLevel, d, e, f, g, h, i, false, this.sprites.get(randomSource), type);
+            campfireSmokeParticle.setAlpha(0.9F);
+            return campfireSmokeParticle;
         }
     }
-
-    /*@Environment(EnvType.CLIENT)
-    public static class SignalProvider implements ParticleProvider<SmokeScaleParticleOptions> {
-        private final SpriteSet sprites;
-
-        public SignalProvider(SpriteSet sprites) {
-            this.sprites = sprites;
-        }
-
-        public Particle createParticle(SmokeScaleParticleOptions type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            MeteorSmokeParticle MeteorSmokeParticle = new MeteorSmokeParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, true, type);
-            MeteorSmokeParticle.setAlpha(0.95F);
-            MeteorSmokeParticle.pickSprite(this.sprites);
-            return MeteorSmokeParticle;
-        }
-    }*/
 }

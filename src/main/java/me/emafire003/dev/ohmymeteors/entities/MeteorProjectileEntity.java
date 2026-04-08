@@ -30,7 +30,6 @@ import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingPr
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.ValueInput;
@@ -294,19 +293,19 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             prevPos = new Vec3(d,e,f);
         }
         this.level().addParticle(new FlashScaleParticleOptions(this.getSize()), Config.USE_FORCED_PARTICLES, true, d, e + 0.5, f, 0.0, 0.0, 0.0);
-        this.level().addParticle(ParticleTypes.EXPLOSION, Config.USE_FORCED_PARTICLES, d, e + 0.5, f, 0.0, 0.0, 0.0);
+        this.level().addParticle(ParticleTypes.EXPLOSION, Config.USE_FORCED_PARTICLES, true, d, e + 0.5, f, 0.0, 0.0, 0.0);
 
         if(this.level() instanceof ServerLevel world && !this.getDeltaMovement().equals(Vec3.ZERO)){
             world.players().forEach(p -> {
                 world.sendParticles(p, ParticleTypes.FLAME, Config.USE_FORCED_PARTICLES, Config.USE_FORCED_PARTICLES,  d,e,f, 30+this.getSize()*5, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.1);
                 world.sendParticles(p, ParticleTypes.SMOKE, Config.USE_FORCED_PARTICLES, Config.USE_FORCED_PARTICLES, d,e,f, 30+this.getSize()*5, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.1);
-                world.sendParticles(p, new MeteorSmokeScaledOptions(3f), Config.USE_FORCED_PARTICLES, d,e,f, 10+this.getSize()*2, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.12);
-                world.sendParticles(p, new MeteorSmokeScaledOptions(7f), Config.USE_FORCED_PARTICLES, d,e,f, 1, 0,0,0, 0.12);
+                world.sendParticles(p, new MeteorSmokeScaledOptions(3f), Config.USE_FORCED_PARTICLES, true, d,e,f, 10+this.getSize()*2, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.12);
+                world.sendParticles(p, new MeteorSmokeScaledOptions(7f), Config.USE_FORCED_PARTICLES, true, d,e,f, 1, 0,0,0, 0.12);
                 if(this.level().getRandom().nextInt(10) == 5){
                     world.sendParticles(p, ParticleTypes.LAVA, Config.USE_FORCED_PARTICLES, Config.USE_FORCED_PARTICLES, d,e,f, 10+this.getSize()*2, 0.2+(double) this.getSize()/100, 0.2+(double) this.getSize()/100, 0.2+(double) this.getSize()/100, 0.12);
                 }
                 if(!prevPos.equals(Vec3.ZERO)){
-                    world.sendParticles(p, ParticleTypes.CAMPFIRE_COSY_SMOKE, Config.USE_FORCED_PARTICLES, prevPos.x(), prevPos.y(), prevPos.z(), 1+this.getSize(), 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.1);
+                    world.sendParticles(p, ParticleTypes.CAMPFIRE_COSY_SMOKE, Config.USE_FORCED_PARTICLES, true, prevPos.x(), prevPos.y(), prevPos.z(), 1+this.getSize(), 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.1);
                 }
             });
         }
@@ -344,7 +343,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         ExplosionDamageCalculator explosionBehavior = new ExplosionDamageCalculator() {
             @Override
             public @NotNull Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter world, BlockPos pos, BlockState blockState, FluidState fluidState) {
-                if(blockState.is(OhMyMeteors.METEOR_EXPLOSION_SAFE)){
+                if(blockState.is(OMMTags.METEOR_EXPLOSION_SAFE)){
                     return Optional.of(Blocks.BEDROCK.getExplosionResistance());
                 }
                 return new ExplosionDamageCalculator().getBlockExplosionResistance(explosion, world, pos, blockState, fluidState);
@@ -366,7 +365,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
 
         if(Config.USE_BETTER_EXPLOSIONS){
-            ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, Config.SPAWN_FIRE_WITH_METEOR, Level.ExplosionInteraction.TNT);
+            ExplosionUtils.createExplosion((ServerLevel) this.level(), this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, Config.SPAWN_FIRE_WITH_METEOR, Level.ExplosionInteraction.TNT);
         }else{
             this.level().explode(this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, Config.SPAWN_FIRE_WITH_METEOR, Level.ExplosionInteraction.TNT);
         }
@@ -420,7 +419,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 }
                 return;
             }
-            placer.setPreventReplacementOfTaggedBlocks(true, OhMyMeteors.METEOR_EXPLOSION_SAFE);
+            placer.setPreventReplacementOfTaggedBlocks(true, OMMTags.METEOR_EXPLOSION_SAFE);
             placer.loadStructure();
         }
     }
@@ -472,7 +471,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                         this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
             }
             case MEDIUM -> {
-                ResourceLocation tobeplaced = getStructureToPlace(MeteorSizeClass.MEDIUM, filter);
+                Identifier tobeplaced = getStructureToPlace(MeteorSizeClass.MEDIUM, filter);
                 m_pos_offset = getOffset(MeteorSizeClass.MEDIUM, tobeplaced);
 
                 placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
@@ -544,7 +543,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
      * @param tobeplaced the id of the meteor that is going to be placed
      * @return the blockpos offset
      */
-    protected BlockPos getOffset(MeteorSizeClass sizeClass, ResourceLocation tobeplaced){
+    protected BlockPos getOffset(MeteorSizeClass sizeClass, Identifier tobeplaced){
         BlockPos offset;
         Optional<StructureTemplate> template = StructurePlacerAPI.getTemplatePreview((ServerLevel) this.level(), tobeplaced);
         if(template.isEmpty() || tobeplaced.getPath().startsWith("error")){
@@ -707,7 +706,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         return structure_id;
     }
 
-    public ResourceLocation getStructureToPlace(MeteorSizeClass sizeClass){
+    public Identifier getStructureToPlace(MeteorSizeClass sizeClass){
         return getStructureToPlace(sizeClass, "");
     }
 

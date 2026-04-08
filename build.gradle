@@ -62,7 +62,9 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     //StructurePlacerAPI (to spawn the meteor structure on impact)
+    //files("C:\\Users\\Ema\\Desktop\\Projects\\Java_projects\\OhMyMeteors\\run\\libs\\structureplacerapi-2.1.2+1.21.11.jar")
     include(modImplementation "maven.modrinth:structureplacerapi:${project.structureplacerapi_version}")
+
 
     //ParticleAnimationLib for cool particle effects
     include(modImplementation "maven.modrinth:particleanimationlib:${project.pal_version}")

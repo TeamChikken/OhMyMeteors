@@ -19,7 +19,6 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.TicketType;
@@ -96,7 +95,7 @@ public class OhMyMeteors implements ModInitializer {
 		});
 
 		ServerPlayerEvents.JOIN.register((serverPlayer -> {
-			if(serverPlayer.hasPermissions(4) && shouldWarn.get()){
+			if(serverPlayer.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_ADMIN) && shouldWarn.get()){
 				serverPlayer.sendSystemMessage(Component.literal(PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something has gone wrong while loading it! A copy of the old file has been created.")));
 			}
 		}));

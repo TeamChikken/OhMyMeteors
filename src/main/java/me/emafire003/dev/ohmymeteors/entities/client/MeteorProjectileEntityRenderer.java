@@ -10,12 +10,11 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.jetbrains.annotations.NotNull;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
-public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> extends EntityRenderer<T> {
+public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> extends EntityRenderer<T, MeteorProjectileRenderState> {
     protected MeteorProjectileEntityModel<?> model;
 
     public static final Identifier TEXTURE = OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png");
@@ -27,17 +26,13 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
 
     @Override
     public void submit(MeteorProjectileRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
+
+
         matrices.pushPose();
-
-        matrices.translate(0, -state.boundingBoxHeight /1.5, 0);
-
+        model.setupAnim(state);
+        //matrices.translate(0, -state.boundingBoxHeight /1.5, 0); //TODO why did they fucking chance the pivot?
         matrices.scale(state.size, state.size, state.size);
 
-        /*VertexConsumer vertexconsumer = ItemRenderer.getItemGlintConsumer(MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers(),
-                this.model.getLayer(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
-*/
-
-        // this.model.render(matrices, vertexconsumer, state.light, OverlayTexture.DEFAULT_UV);
 
         List<RenderType> list = ItemRenderer.getFoilRenderTypes(this.model.renderType(TEXTURE), false, false);
 
@@ -61,32 +56,15 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
 
     }
 
-    /*@Override
-    public void render(MeteorProjectileRenderState state, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
-        super.render(state, matrices, vertexConsumers, light);
-        matrices.push();
-        //TODO this does not work.
-        VertexConsumer vertexconsumer = ItemRenderer.getItemGlintConsumer(vertexConsumers,
-                this.model.getLayer(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
-
-        matrices.translate(0, -state.height/1.5, 0);
-
-        matrices.scale(state.size, state.size, state.size);
-
-        this.model.render(matrices, vertexconsumer, light, OverlayTexture.DEFAULT_UV);
-
-        matrices.pop();
-
-    }*/
-
     @Override
     public MeteorProjectileRenderState createRenderState() {
         return new MeteorProjectileRenderState();
     }
 
-    public void extractRenderState(MeteorProjectileEntity meteorEntity, MeteorProjectileRenderState slimeEntityRenderState, float f) {
-        super.extractRenderState(meteorEntity, slimeEntityRenderState, f);
-        slimeEntityRenderState.size = meteorEntity.getSize();
+    public void extractRenderState(T meteorEntity, MeteorProjectileRenderState meteorState, float f) {
+        super.extractRenderState(meteorEntity, meteorState, f);
+        meteorState.size = meteorEntity.getSize();
+        //meteorState.rotationState.copyFrom(meteorEntity.rotationState);
     }
 
     /*protected void scale(MeteorProjectileEntity entity, MatrixStack matrixStack, float f) {

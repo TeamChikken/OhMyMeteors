@@ -1,12 +1,9 @@
 package me.emafire003.dev.ohmymeteors.entities.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import net.minecraft.client.animation.KeyframeAnimation;
 import net.minecraft.client.model.*;
-import net.minecraft.client.model.EntityModel;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -15,20 +12,23 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 
 import static me.emafire003.dev.ohmymeteors.entities.client.MeteorProjectileAnimations.METEOR_ROTATION;
 
-public class MeteorProjectileEntityModel<T extends MeteorProjectileEntity> extends HierarchicalModel<T> {
+public class MeteorProjectileEntityModel<T extends MeteorProjectileEntity> extends EntityModel<MeteorProjectileRenderState> {
 	private final ModelPart root;
 	private final ModelPart cube_r1;
 	private final ModelPart cube_r2;
 	public static final ModelLayerLocation METEOR = new ModelLayerLocation(OhMyMeteors.getIdentifier("meteor_projectile"), "root");
+	private final KeyframeAnimation rotationAnimation;
 
 	public MeteorProjectileEntityModel(ModelPart root) {
+		super(root, RenderTypes::entityCutout);
 		this.root = root.getChild("root");
 		this.cube_r1 = this.root.getChild("cube_r1");
 		this.cube_r2 = this.root.getChild("cube_r2");
+		this.rotationAnimation = METEOR_ROTATION.bake(root);
 	}
 
 	public static LayerDefinition getTexturedModelData() {
@@ -43,17 +43,20 @@ public class MeteorProjectileEntityModel<T extends MeteorProjectileEntity> exten
 	}
 
 	@Override
-	public void setupAnim(MeteorProjectileEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+	public void setupAnim(MeteorProjectileRenderState meteorProjectileRenderState) {
 		this.root().getAllParts().forEach(ModelPart::resetPose);
-		this.animate(entity.rotationState, METEOR_ROTATION, ageInTicks, 1f);
+		//this.rotationAnimation(meteorProjectileRenderState, METEOR_ROTATION, ageInTicks, 1f);
+		this.rotationAnimation.apply(meteorProjectileRenderState.rotationState, meteorProjectileRenderState.ageInTicks);
 	}
+
+
     /*
     * @Override
 	public void setupAnim(MeteorProjectileRenderState state) {
 		super.setupAnim(state);
 	}
 	* */
-
+/*
 	@Override
 	public void renderToBuffer(PoseStack matrices, VertexConsumer vertexConsumer, int light, int overlay, int color) {
 		main.render(matrices, vertexConsumer, light, overlay, color);
@@ -62,5 +65,5 @@ public class MeteorProjectileEntityModel<T extends MeteorProjectileEntity> exten
     @Override
     public @NotNull ModelPart root() {
         return root;
-    }
+    }*/
 }
