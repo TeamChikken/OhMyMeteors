@@ -8,46 +8,44 @@ import me.emafire003.dev.ohmymeteors.entities.client.MeteorProjectileEntityRende
 import me.emafire003.dev.ohmymeteors.particles.LaserParticle;
 import me.emafire003.dev.ohmymeteors.particles.LaserParticleSmall;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
-import me.emafire003.dev.ohmymeteors.particles.*;
 import me.emafire003.dev.ohmymeteors.particles.meteor_flash.MeteorFlashParticle;
 import me.emafire003.dev.ohmymeteors.particles.meteor_smoke.MeteorSmokeParticle;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 public class OhMyMeteorsClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
         registerEntityStuff();
-        registerBlockStuff();
+        //registerBlockStuff();
         registerParticles();
     }
 
     public void registerParticles(){
-        ParticleFactoryRegistry.getInstance().register(OMMParticles.LASER_PARTICLE, LaserParticle.EggCrackFactory::new);
-        ParticleFactoryRegistry.getInstance().register(OMMParticles.LASER_PARTICLE_SMALL, LaserParticleSmall.EggCrackFactory::new);
+        ParticleProviderRegistry.getInstance().register(OMMParticles.LASER_PARTICLE, LaserParticle.EggCrackFactory::new);
+        ParticleProviderRegistry.getInstance().register(OMMParticles.LASER_PARTICLE_SMALL, LaserParticleSmall.EggCrackFactory::new);
         //ParticleFactoryRegistry.getInstance().register(OMMParticles.LASER_FLASH_PARTICLE, LaserFlashParticle.LaserFlashFactory::new);
-        ParticleFactoryRegistry.getInstance().register(OMMParticles.METEOR_SMOKE_COSY, MeteorSmokeParticle.CosyProvider::new);
+        ParticleProviderRegistry.getInstance().register(OMMParticles.METEOR_SMOKE_COSY, MeteorSmokeParticle.CosyProvider::new);
         //ParticleFactoryRegistry.getInstance().register(OMMParticles.METEOR_SMOKE_SIGNAL, MeteorSmokeParticle.SignalProvider::new);
-        ParticleFactoryRegistry.getInstance().register(OMMParticles.METEOR_FLASH, MeteorFlashParticle.LaserFlashFactory::new);
+        ParticleProviderRegistry.getInstance().register(OMMParticles.METEOR_FLASH, MeteorFlashParticle.LaserFlashFactory::new);
 
     }
 
     public static void registerEntityStuff(){
-        EntityModelLayerRegistry.registerModelLayer(MeteorProjectileEntityModel.METEOR, MeteorProjectileEntityModel::getTexturedModelData);
+        ModelLayerRegistry.registerModelLayer(MeteorProjectileEntityModel.METEOR, MeteorProjectileEntityModel::getTexturedModelData);
         EntityRendererRegistry.register(OMMEntities.METEOR_PROJECTILE_ENTITY, MeteorProjectileEntityRenderer::new);
         //EntityModelLayerRegistry.registerModelLayer(MeteorCatEntityModel., MeteorProjectileEntityModel::getTexturedModelData);
         EntityRendererRegistry.register(OMMEntities.METEOR_KITTY_CAT, MeteorCatEntityRenderer::new);
 
     }
 
+    //TODO should not be neded anymore
     public static void registerBlockStuff(){
-        BlockRenderLayerMap.putBlock(OMMBlocks.BASIC_METEOR_LASER, ChunkSectionLayer.TRANSLUCENT);
-        BlockRenderLayerMap.putBlock(OMMBlocks.ADVANCED_METEOR_LASER, ChunkSectionLayer.TRANSLUCENT);
+        //ChunkSectionLayerMap.putBlock(OMMBlocks.BASIC_METEOR_LASER, ChunkSectionLayer.TRANSLUCENT);
+        //ChunkSectionLayerMap.putBlock(OMMBlocks.ADVANCED_METEOR_LASER, ChunkSectionLayer.TRANSLUCENT);
     }
 
 }

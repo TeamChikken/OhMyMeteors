@@ -394,7 +394,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         if(Config.ANNOUNCE_METEOR_SPAWN && !this.isSilenced()){
             if(Config.ANNOUNCE_LOCATION){
                 String meteorPos = this.blockPosition().getX() + " x, " + this.blockPosition().getZ() + " z!";
-                this.level().players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_impacted.localized", meteorPos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                this.level().players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_impacted.localized", meteorPos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }
         }
         //entity.getEntityWorld().addParticle(ParticleTypes.FLASH, pos.getX(), pos.getY(), pos.getZ(), 0,0,0);

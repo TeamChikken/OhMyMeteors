@@ -2,7 +2,7 @@ package me.emafire003.dev.ohmymeteors.items;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -41,7 +41,7 @@ public class OMMItems {
     );
 
     private static Item registerItem(String name, Item item, ResourceKey<CreativeModeTab> group, Item add_after){
-        ItemGroupEvents.modifyEntriesEvent(group).register(content -> content.addAfter(add_after, item));
+        CreativeModeTabEvents.modifyOutputEvent(group).register(content -> content.insertAfter(add_after, item));
         return Registry.register(BuiltInRegistries.ITEM, OhMyMeteors.getIdentifier(name), item);
     }
 

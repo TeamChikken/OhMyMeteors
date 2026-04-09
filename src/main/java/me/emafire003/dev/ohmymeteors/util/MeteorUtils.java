@@ -182,9 +182,9 @@ public class MeteorUtils {
         if(Config.ANNOUNCE_METEOR_SPAWN && !meteor.isSilenced()){
             if(Config.ANNOUNCE_LOCATION){
                 String meteorPos = meteor.blockPosition().getX() + " x, " + meteor.blockPosition().getZ() + " z!";
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", meteorPos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", meteorPos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }else{
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }
         }
 
@@ -208,9 +208,9 @@ public class MeteorUtils {
         if(Config.ANNOUNCE_METEOR_SPAWN){
             if(Config.ANNOUNCE_LOCATION){
                 String pos = p.blockPosition().getX() + " x, " + p.blockPosition().getZ() + " z!";
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", pos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", pos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }else{
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }
         }
     }
@@ -254,9 +254,9 @@ public class MeteorUtils {
         if(Config.ANNOUNCE_METEOR_SPAWN){
             if(Config.ANNOUNCE_LOCATION){
                 String pos = p.blockPosition().getX() + " x, " + p.blockPosition().getZ() + " z!";
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", pos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", pos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }else{
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }
         }
     }
@@ -310,9 +310,9 @@ public class MeteorUtils {
         if(Config.ANNOUNCE_METEOR_SPAWN){
             if(Config.ANNOUNCE_LOCATION){
                 String pos = p.blockPosition().getX() + " x, " + p.blockPosition().getZ() + " z!";
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", pos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", pos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }else{
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
             }
         }
     }

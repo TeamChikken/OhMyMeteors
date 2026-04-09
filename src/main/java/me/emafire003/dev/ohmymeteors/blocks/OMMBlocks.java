@@ -5,7 +5,7 @@ import me.emafire003.dev.ohmymeteors.blocks.advanced_laser.AdvancedMeteorLaserBl
 import me.emafire003.dev.ohmymeteors.blocks.advanced_laser.AdvancedMeteorLaserBlockEntity;
 import me.emafire003.dev.ohmymeteors.blocks.basic_laser.BasicMeteorLaserBlock;
 import me.emafire003.dev.ohmymeteors.blocks.basic_laser.BasicMeteorLaserBlockEntity;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.Block;
@@ -62,7 +62,7 @@ public class OMMBlocks {
         Item the_item = Registry.register(BuiltInRegistries.ITEM, OhMyMeteors.getIdentifier(name), new BlockItem(block, new net.minecraft.world.item.Item.Properties()
                 .setId(ResourceKey.create(Registries.ITEM, OhMyMeteors.getIdentifier(name)))
         ));
-        ItemGroupEvents.modifyEntriesEvent(tab).register(content -> content.addAfter(add_after, the_item));
+        CreativeModeTabEvents.modifyEntriesEvent(tab).register(content -> content.addAfter(add_after, the_item));
         return the_block;
     }
 
