@@ -87,7 +87,8 @@ dependencies {
     }
 
     //SchemConvert
-    include (implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT')
+    include (implementation 'com.github.Emafire003:SchemConvert:1.2')
+    //include (implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT')
     //implementation 'com.github.PiTheGuy:SchemConvert:v1.2.5 '
 
 

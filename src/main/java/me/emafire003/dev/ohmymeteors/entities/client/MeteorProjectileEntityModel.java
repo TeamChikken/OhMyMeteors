@@ -45,25 +45,8 @@ public class MeteorProjectileEntityModel<T extends MeteorProjectileEntity> exten
 	@Override
 	public void setupAnim(MeteorProjectileRenderState meteorProjectileRenderState) {
 		this.root().getAllParts().forEach(ModelPart::resetPose);
-		//this.rotationAnimation(meteorProjectileRenderState, METEOR_ROTATION, ageInTicks, 1f);
-		this.rotationAnimation.apply(meteorProjectileRenderState.rotationState, meteorProjectileRenderState.ageInTicks);
+		root.yRot = meteorProjectileRenderState.ageInTicks / 6f;
+		root.xRot = meteorProjectileRenderState.ageInTicks / 6f;
+		//this.rotationAnimation.apply(meteorProjectileRenderState.rotationState, meteorProjectileRenderState.ageInTicks);
 	}
-
-
-    /*
-    * @Override
-	public void setupAnim(MeteorProjectileRenderState state) {
-		super.setupAnim(state);
-	}
-	* */
-/*
-	@Override
-	public void renderToBuffer(PoseStack matrices, VertexConsumer vertexConsumer, int light, int overlay, int color) {
-		main.render(matrices, vertexConsumer, light, overlay, color);
-	}
-
-    @Override
-    public @NotNull ModelPart root() {
-        return root;
-    }*/
 }
