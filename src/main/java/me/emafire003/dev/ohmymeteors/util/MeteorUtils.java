@@ -7,7 +7,6 @@ import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,6 +19,7 @@ import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -369,13 +369,13 @@ public class MeteorUtils {
      * @return true if the meteor can spawn in there, false otherwise
      * */
     public static boolean canSpawnInModdedRegion(ServerPlayer p){
-        if(FabricLoader.getInstance().isModLoaded("flan")){
+        if(ModList.get().isLoaded("flan")){
             if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
                 return false;
             }
         }
 
-        if(FabricLoader.getInstance().isModLoaded("yawp")){
+        if(ModList.get().isLoaded("yawp")){
             //Checks the player pos and the place where the meteor would spawn
             if(!(YawpCompat.canSpawnHere((ServerLevel) p.level(), p.blockPosition()) || YawpCompat.canSpawnHere((ServerLevel) p.level(), new BlockPos(p.blockPosition().getX(), Config.METEOR_SPAWN_HEIGHT, p.blockPosition().getZ())))){
                 return false;
