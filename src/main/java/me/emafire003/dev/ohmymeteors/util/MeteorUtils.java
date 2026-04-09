@@ -1,10 +1,16 @@
 package me.emafire003.dev.ohmymeteors.util;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
+import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -357,4 +363,64 @@ public class MeteorUtils {
         }
     }
 
+    /**Checks if the meteor can spawn in the given modded region
+     *
+     * @param p The player at whose position the meteor is going to spawn
+     * @return true if the meteor can spawn in there, false otherwise
+     * */
+    public static boolean canSpawnInModdedRegion(ServerPlayer p){
+        if(FabricLoader.getInstance().isModLoaded("flan")){
+            if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
+                return false;
+            }
+        }
+
+        if(FabricLoader.getInstance().isModLoaded("yawp")){
+            //Checks the player pos and the place where the meteor would spawn
+            if(!(YawpCompat.canSpawnHere((ServerLevel) p.level(), p.blockPosition()) || YawpCompat.canSpawnHere((ServerLevel) p.level(), new BlockPos(p.blockPosition().getX(), Config.METEOR_SPAWN_HEIGHT, p.blockPosition().getZ())))){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Check if the meteor can spawn in a given location and sends out error messages if verbose is true */
+    public static boolean canMeteorSpawn(ServerPlayer p, Holder<DimensionType> current_dim, Holder<Biome> current_biome){
+        if(!canSpawnInModdedRegion(p)){
+            return false;
+        }
+        if(!canSpawnInDimension(current_dim)){
+            return false;
+        }
+        return canSpawnInBiome(current_biome);
+    }
+
+    public static boolean canMeteorSpawn(ServerPlayer p){
+        return canMeteorSpawn(p, p.level().dimensionTypeRegistration(), p.level().getBiome(p.blockPosition()));
+    }
+
+    public static boolean canMeteorSpawnVerbose(ServerPlayer p, CommandSourceStack source, Holder<DimensionType> current_dim, Holder<Biome> current_biome){
+        if(!canSpawnInModdedRegion(p)){
+            String msg = "The meteor cannot spawn at " + p.blockPosition() + " because of a region flag from Flan or YAWP prevents it in that location! (maybe you added a region in that location?)";
+            source.sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Tried spawning meteor around player '"+p.getDisplayName().getString()+"' but failed.")).append(Component.literal(msg)));
+            OhMyMeteors.LOGGER.warn(msg);
+            return false;
+        }
+        if(!canSpawnInDimension(current_dim)){
+            String msg = "The meteor cannot spawn in the dimension '" + current_dim.getRegisteredName() + "'. Check your config file for the allowed spawn dimensions!";
+            source.sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Tried spawning meteor around player '"+p.getDisplayName().getString()+"' but failed.")).append(Component.literal(msg)));OhMyMeteors.LOGGER.warn(msg);
+            return false;
+        }
+        if(!canSpawnInBiome(current_biome)){
+            String msg = "The meteor cannot spawn in the biome '" + current_biome.getRegisteredName() + "'. Check your config file for the allowed spawn biomes!";
+            source.sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Tried spawning meteor around player '"+p.getDisplayName().getString()+"' but failed.")).append(Component.literal(msg)));
+            OhMyMeteors.LOGGER.warn(msg);
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean canMeteorSpawnVerbose(ServerPlayer p, CommandSourceStack source){
+        return canMeteorSpawnVerbose(p, source, p.level().dimensionTypeRegistration(), p.level().getBiome(p.blockPosition()));
+    }
 }

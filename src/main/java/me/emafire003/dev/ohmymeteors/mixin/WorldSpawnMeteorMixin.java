@@ -1,17 +1,13 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
-import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
-import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.level.WorldGenLevel;
@@ -21,8 +17,6 @@ import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.dimension.DimensionType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -77,30 +71,12 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
         }
 
         /// As for spawning, region overrides biome overrides dimension
-        if(FabricLoader.getInstance().isModLoaded("flan")){
-            if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
-                return;
-            }
-        }
-
-        if(FabricLoader.getInstance().isModLoaded("yawp")){
-            //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere(((ServerLevel) (Object) this), p.blockPosition()) || YawpCompat.canSpawnHere(((ServerLevel) (Object) this), new BlockPos(p.blockPosition().getX(), Config.METEOR_SPAWN_HEIGHT, p.blockPosition().getZ())))){
-                return;
-            }
-        }
-
         Holder<DimensionType> current_dim = p.level().dimensionTypeRegistration();
-
-        if(!MeteorUtils.canSpawnInDimension(current_dim)){
-            return;
-        }
-
         Holder<Biome> current_biome = p.level().getBiome(p.blockPosition());
-
-        if(!MeteorUtils.canSpawnInBiome(current_biome)){
+        if(!MeteorUtils.canMeteorSpawn(p, current_dim, current_biome)){
             return;
         }
+
 
         /// For the chance, biome > dim > global
         /// Aka the biome chance overrides the dimension chance which in turn overrides the global parameter
