@@ -7,24 +7,16 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentType;
-import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
-import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
-import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.util.MeteorShowerType;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandBuildContext;
-import net.minecraft.core.Holder;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.dimension.DimensionType;
 
 import java.util.Objects;
 
@@ -110,33 +102,6 @@ public class SpawnMeteorCommand implements OMMCommand {
         }
     }
 
-    private boolean spawnChecks(ServerPlayer p){
-        if(FabricLoader.getInstance().isModLoaded("flan")){
-            if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
-                return false;
-            }
-        }
-
-        if(FabricLoader.getInstance().isModLoaded("yawp")){
-            //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere(p.level(), p.blockPosition()) || YawpCompat.canSpawnHere(p.level(), new BlockPos(p.blockPosition().getX(), Config.METEOR_SPAWN_HEIGHT, p.blockPosition().getZ())))){
-                return false;
-            }
-        }
-
-        Holder<DimensionType> current_dim = p.level().dimensionTypeRegistration();
-
-        if(!MeteorUtils.canSpawnInDimension(current_dim)){
-            return false;
-        }
-
-        Holder<Biome> current_biome = p.level().getBiome(p.blockPosition());
-
-        if(!MeteorUtils.canSpawnInBiome(current_biome)){
-            return false;
-        }
-        return true;
-    }
 
     /**Spawns a meteor exactly like the natural spawns. Gives an error if there are no players online*/
     private int spawnNatural(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -151,10 +116,9 @@ public class SpawnMeteorCommand implements OMMCommand {
 
 
            ServerPlayer p = source.getLevel().getRandomPlayer();
-           if(spawnChecks(p)){
+           if(MeteorUtils.canMeteorSpawnVerbose(p, source)){
                MeteorUtils.spawnMeteor(source.getLevel(), p, false);
            }else{
-               source.sendFailure(Component.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
                return 0;
            }
 
@@ -176,7 +140,7 @@ public class SpawnMeteorCommand implements OMMCommand {
                 return -1;
             }
             ServerPlayer p = source.getLevel().getRandomPlayer();
-            if(spawnChecks(p)){
+            if(MeteorUtils.canMeteorSpawnVerbose(p, source)){
                 if(type.equals(MeteorShowerType.DELAYED)){
                     MeteorUtils.spawnMeteorShowerDelayed(source.getLevel(), p);
                 }else if(type.equals(MeteorShowerType.DELAYED_DIRECTION)){
@@ -185,7 +149,6 @@ public class SpawnMeteorCommand implements OMMCommand {
                     MeteorUtils.spawnMeteorShowerInstant(source.getLevel(), p);
                 }
             }else{
-                source.sendFailure(Component.literal(OhMyMeteors.PREFIX + "Could not spawn a meteor in the area around player: ").append(p.getName()));
                 return 0;
             }
 
