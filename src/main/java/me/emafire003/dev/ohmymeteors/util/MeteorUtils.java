@@ -407,12 +407,12 @@ public class MeteorUtils {
             return false;
         }
         if(!canSpawnInDimension(current_dim)){
-            String msg = "The meteor cannot spawn in the dimension '" + current_dim.getRegisteredName() + "'. Check your config file for the allowed spawn dimensions!";
+            String msg = "The meteor cannot spawn in the dimension '" + current_dim.value().toString() + "'. Check your config file for the allowed spawn dimensions!";
             source.sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Tried spawning meteor around player '"+p.getDisplayName().getString()+"' but failed.")).append(Component.literal(msg)));OhMyMeteors.LOGGER.warn(msg);
             return false;
         }
         if(!canSpawnInBiome(current_biome)){
-            String msg = "The meteor cannot spawn in the biome '" + current_biome.getRegisteredName() + "'. Check your config file for the allowed spawn biomes!";
+            String msg = "The meteor cannot spawn in the biome '" + current_biome.value().toString() + "'. Check your config file for the allowed spawn biomes!";
             source.sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Tried spawning meteor around player '"+p.getDisplayName().getString()+"' but failed.")).append(Component.literal(msg)));
             OhMyMeteors.LOGGER.warn(msg);
             return false;
