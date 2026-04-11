@@ -15,8 +15,6 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import org.jetbrains.annotations.NotNull;
 
-import static me.emafire003.dev.ohmymeteors.entities.client.MeteorProjectileAnimations.METEOR_ROTATION;
-
 public class MeteorProjectileEntityModel<T extends MeteorProjectileEntity> extends HierarchicalModel<T> {
 	private final ModelPart root;
 	private final ModelPart cube_r1;
@@ -43,7 +41,10 @@ public class MeteorProjectileEntityModel<T extends MeteorProjectileEntity> exten
 	@Override
 	public void setupAnim(MeteorProjectileEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.root().getAllParts().forEach(ModelPart::resetPose);
-		this.animate(entity.rotationState, METEOR_ROTATION, ageInTicks, 1f);
+		//this.animate(entity.rotationState, METEOR_ROTATION, ageInTicks, 1f);
+		//this.animate(entity.rotationState, METEOR_ROTATION, ageInTicks);
+		root.xRot = ageInTicks / 6f;
+		root.yRot = ageInTicks / 6f;
 	}
 
 	@Override

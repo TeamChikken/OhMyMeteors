@@ -56,7 +56,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.METEOR_STRUCTURES;
 
-
 /**
  * The projectile entity that gets spawned as a meteor.
  * Upon hitting a block which is not air, it will execute the on-hit actions
@@ -345,7 +344,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
 
         if(Config.USE_BETTER_EXPLOSIONS){
-            ExplosionUtils.createExplosion(this.level(), this, this.damageSources().explosion(this, this), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, Config.SPAWN_FIRE_WITH_METEOR, Level.ExplosionInteraction.TNT);
+            ExplosionUtils.createExplosion(this.getLevel(), this, DamageSource.explosion(e), explosionBehavior, this.position(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER+sphereExplosionAdjuster()+extraPower, Config.SPAWN_FIRE_WITH_METEOR, Explosion.BlockInteraction.DESTROY);
         }else{
             this.getLevel().explode(this, DamageSource.explosion(e), safeExplosion, this.getX(), this.getY(), this.getZ(), this.getSize()+Config.EXPLOSION_POWER_MODIFIER, false, Explosion.BlockInteraction.DESTROY);
         }
@@ -454,7 +453,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 m_pos_offset = getOffset(MeteorSizeClass.MEDIUM, tobeplaced);
 
 
-                placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
+                placer = new StructurePlacerAPI((WorldGenLevel) this.getLevel(),
                         tobeplaced,
                         this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
             }
@@ -464,7 +463,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
                 //m_pos_offset = new BlockPos(-4, -6, -3);
 
-                placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
+                placer = new StructurePlacerAPI((WorldGenLevel) this.getLevel(),
                         tobeplaced,
                         this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
 
@@ -474,7 +473,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 m_pos_offset = getOffset(MeteorSizeClass.HUGE, tobeplaced);
                 //m_pos_offset = new BlockPos(-4, -10, -3);
 
-                placer = new StructurePlacerAPI((WorldGenLevel) this.level(),
+                placer = new StructurePlacerAPI((WorldGenLevel) this.getLevel(),
                         tobeplaced,
                         this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
 
@@ -524,12 +523,12 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
      */
     protected BlockPos getOffset(MeteorSizeClass sizeClass, ResourceLocation tobeplaced){
         BlockPos offset;
-        Optional<StructureTemplate> template = StructurePlacerAPI.getTemplatePreview((ServerLevel) this.level(), tobeplaced);
+        Optional<StructureTemplate> template = StructurePlacerAPI.getTemplatePreview((ServerLevel) this.getLevel(), tobeplaced);
         if(template.isEmpty() || tobeplaced.getPath().startsWith("error")){
             return new BlockPos(0, 5, 0);
         }
         Vec3 size_factors = Vec3.atLowerCornerOf(template.get().getSize());
-        BlockPos nonair_pos = BlockPos.containing(this.position()).offset(0, -(int) size_factors.y()/3, 0);
+        BlockPos nonair_pos = new BlockPos(this.position()).offset(0, -(int) size_factors.y()/3, 0);
         switch (sizeClass){
             case SMALL -> {
                 offset = new BlockPos(-1, 0, -1);
@@ -541,25 +540,25 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             }case BIG -> {
                 offset = new BlockPos(-3, 0, -3);
 
-                nonair_pos = BlockPos.containing(this.position()).offset(0, -(int) size_factors.y()/10, 0);
+                nonair_pos = new BlockPos(this.position()).offset(0, -(int) size_factors.y()/10, 0);
                 if(this.getXRot() < 27){
                     nonair_pos.offset((int) (this.getDeltaMovement().x()*5), 0, (int) (this.getDeltaMovement().z()*5));
                 }
             }default -> {
                 offset = new BlockPos(-4, 0, -4);
-                nonair_pos = BlockPos.containing(this.position()).offset(0, -(int) size_factors.y()/37, 0);
+                nonair_pos = new BlockPos(this.position()).offset(0, -(int) size_factors.y()/37, 0);
             }
         }
 
-        BlockState state = this.level().getBlockState(nonair_pos);
+        BlockState state = this.getLevel().getBlockState(nonair_pos);
         int dist_to_floor = 0;
         while(state.isAir() || state.is(Blocks.FIRE)){
             nonair_pos = nonair_pos.below();
-            state = this.level().getBlockState(nonair_pos);
+            state = this.getLevel().getBlockState(nonair_pos);
             dist_to_floor++;
         }
 
-        offset = BlockPos.containing(this.getDeltaMovement()).offset(offset);
+        offset = new BlockPos(this.getDeltaMovement()).offset(offset);
         offset = offset.offset(0, - dist_to_floor, 0);
         return offset;
     }
@@ -828,7 +827,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 /*
     @Override
     public void remove(RemovalReason removalReason) {
-        if(this.level().isClientSide()){
+        if(this.getLevel().isClientSide()){
             OhMyMeteors.LOGGER.error("Removing meteor");
             OhMyMeteors.LOGGER.error("Ok client side remove");
             MeteorUtils.addAliveMeteor(this.getUUID());

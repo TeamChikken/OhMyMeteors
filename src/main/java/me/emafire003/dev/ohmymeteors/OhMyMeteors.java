@@ -95,7 +95,7 @@ public class OhMyMeteors implements ModInitializer {
     public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registry.BLOCK_REGISTRY, getIdentifier("meteor_bypasses"));
     public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.create(Registry.BLOCK_REGISTRY, getIdentifier("meteor_bypasses_and_destroy"));
     public static final TagKey<Block> AIR_BLOCKS = TagKey.create(Registry.BLOCK_REGISTRY, getIdentifier("air"));
-    public static final TagKey<Block> METEOR_EXPLOSION_SAFE = TagKey.create(Registries.BLOCK, getIdentifier("meteor_explosion_safe"));
+    public static final TagKey<Block> METEOR_EXPLOSION_SAFE = TagKey.create(Registry.BLOCK_REGISTRY, getIdentifier("meteor_explosion_safe"));
 
     public static List<ResourceLocation> METEOR_STRUCTURES = new ArrayList<>();
 

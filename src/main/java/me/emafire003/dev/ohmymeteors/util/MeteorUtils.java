@@ -1,15 +1,11 @@
 package me.emafire003.dev.ohmymeteors.util;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
-import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
-import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerLevel;
@@ -369,18 +365,6 @@ public class MeteorUtils {
      * @return true if the meteor can spawn in there, false otherwise
      * */
     public static boolean canSpawnInModdedRegion(ServerPlayer p){
-        if(FabricLoader.getInstance().isModLoaded("flan")){
-            if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
-                return false;
-            }
-        }
-
-        if(FabricLoader.getInstance().isModLoaded("yawp")){
-            //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere((ServerLevel) p.level(), p.blockPosition()) || YawpCompat.canSpawnHere((ServerLevel) p.level(), new BlockPos(p.blockPosition().getX(), Config.METEOR_SPAWN_HEIGHT, p.blockPosition().getZ())))){
-                return false;
-            }
-        }
         return true;
     }
 
@@ -396,7 +380,7 @@ public class MeteorUtils {
     }
 
     public static boolean canMeteorSpawn(ServerPlayer p){
-        return canMeteorSpawn(p, p.level().dimensionTypeRegistration(), p.level().getBiome(p.blockPosition()));
+        return canMeteorSpawn(p, p.getLevel().dimensionTypeRegistration(), p.getLevel().getBiome(p.blockPosition()));
     }
 
     public static boolean canMeteorSpawnVerbose(ServerPlayer p, CommandSourceStack source, Holder<DimensionType> current_dim, Holder<Biome> current_biome){
@@ -421,6 +405,6 @@ public class MeteorUtils {
     }
 
     public static boolean canMeteorSpawnVerbose(ServerPlayer p, CommandSourceStack source){
-        return canMeteorSpawnVerbose(p, source, p.level().dimensionTypeRegistration(), p.level().getBiome(p.blockPosition()));
+        return canMeteorSpawnVerbose(p, source, p.getLevel().dimensionTypeRegistration(), p.getLevel().getBiome(p.blockPosition()));
     }
 }

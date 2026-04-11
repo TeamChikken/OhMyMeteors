@@ -1,7 +1,6 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
 import me.emafire003.dev.ohmymeteors.config.Config;
-import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,8 +26,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
-
-import static me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity.*;
 
 //(there would be a way to like list all of the loaded chunks but it seems a bit impractical when we can just target a random online player)
 @Mixin(ServerLevel.class)
@@ -71,8 +68,8 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
         }
 
         /// As for spawning, region overrides biome overrides dimension
-        Holder<DimensionType> current_dim = p.level().dimensionTypeRegistration();
-        Holder<Biome> current_biome = p.level().getBiome(p.blockPosition());
+        Holder<DimensionType> current_dim = p.getLevel().dimensionTypeRegistration();
+        Holder<Biome> current_biome = p.getLevel().getBiome(p.blockPosition());
         if(!MeteorUtils.canMeteorSpawn(p, current_dim, current_biome)){
             return;
         }

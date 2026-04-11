@@ -5,9 +5,9 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -59,7 +59,7 @@ public class FlashScaleParticleOptions implements ParticleOptions {
 
     @Override
     public @NotNull String writeToString() { //"%s %.2f %.2f %.2f %.2f"
-        return String.format(Locale.ROOT, "%s", BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()), this.scale);
+        return String.format(Locale.ROOT, "%s", Registry.PARTICLE_TYPE.getKey(this.getType()), this.scale);
     }
 
 }

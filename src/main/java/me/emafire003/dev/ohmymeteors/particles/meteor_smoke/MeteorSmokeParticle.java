@@ -1,10 +1,10 @@
 package me.emafire003.dev.ohmymeteors.particles.meteor_smoke;
+import com.mojang.math.Vector3f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3f;
 
 public class MeteorSmokeParticle<T extends MeteorSmokeScaledOptions>  extends TextureSheetParticle {
     private boolean red = true;
@@ -28,8 +28,8 @@ public class MeteorSmokeParticle<T extends MeteorSmokeScaledOptions>  extends Te
         this.zd = zSpeed;
     }
     //new Vec3(145, 42, 4)
-    private static final Vector3f startRedColor = new Vector3f(137, 28, 1);//891c01// new Vec3(114, 25, 1); //912004// new Vec3(150, 37,6); //"962506";//new Vec3(232,79,18);//e84f12
-    private static final Vector3f endRedColor = new Vector3f(204, 65, 12); //cca50c  // new Vec3(242,219,92); //f2db5c  //new Vec3(201, 134, 62); //c9863e
+    private static final Vector3f startRedColor = new Vector3f(137, 28, 1);//891c01// new Vector3f(114, 25, 1); //912004// new Vector3f(150, 37,6); //"962506";//new Vector3f(232,79,18);//e84f12
+    private static final Vector3f endRedColor = new Vector3f(204, 65, 12); //cca50c  // new Vector3f(242,219,92); //f2db5c  //new Vector3f(201, 134, 62); //c9863e
 
     private static final Vector3f startOrangeColor = new Vector3f(209, 100, 6); //d16406//new Vector3f(127,66,14); //7f420e
     private static final Vector3f endOrangeColor = new Vector3f(191, 149, 24);// bf9518//new Vector3f(226, 21,19); //e2a11d
@@ -51,11 +51,13 @@ public class MeteorSmokeParticle<T extends MeteorSmokeScaledOptions>  extends Te
 
             Vector3f transition;
             if(red){
-                transition = new Vector3f(startRedColor).lerp(endRedColor, (float) this.age /this.lifetime);
+                transition = startRedColor.copy();
+                transition.lerp(endRedColor, (float) this.age /this.lifetime);
             }else{
-                transition = new Vector3f(startOrangeColor).lerp(endOrangeColor, (float) this.age /this.lifetime);
+                transition = startOrangeColor;
+                transition.lerp(endOrangeColor, (float) this.age /this.lifetime);
             }
-            this.rCol = transition.x/255; this.gCol = transition.y/255; this.bCol = transition.z/255;
+            this.rCol = transition.x()/255; this.gCol = transition.y()/255; this.bCol = transition.z()/255;
 
         } else {
             this.remove();

@@ -34,7 +34,8 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
         matrices.scale(entity.getSize(), entity.getSize(), entity.getSize());
 
         //yay it finally works, it needed the entity tickCount as well :D
-        model.setupAnim(entity, 0f, 0f, entity.tickCount + tickDelta, 0f, 0f);
+        //OhMyMeteors.LOGGER.info("the ticks thing: " + entity.tickCount + tickDelta);
+        model.setupAnim(entity, 0f, 0f, entity.tickCount+tickDelta, 0f, 0f);
 
         this.model.renderToBuffer(matrices, vertexconsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
         matrices.popPose();

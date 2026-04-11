@@ -25,11 +25,11 @@ public class OMMParticles {
                 LASER_PARTICLE_SMALL);
         Registry.register(Registry.PARTICLE_TYPE, OhMyMeteors.getIdentifier("laser_flash_particle"),
                 LASER_FLASH_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, OhMyMeteors.getIdentifier("meteor_smoke_cosy"),
+        Registry.register(Registry.PARTICLE_TYPE, OhMyMeteors.getIdentifier("meteor_smoke_cosy"),
                 METEOR_SMOKE_COSY);
         /*Registry.register(BuiltInRegistries.PARTICLE_TYPE, OhMyMeteors.getIdentifier("meteor_smoke_signal"),
                 METEOR_SMOKE_SIGNAL);*/
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, OhMyMeteors.getIdentifier("meteor_flash"),
+        Registry.register(Registry.PARTICLE_TYPE, OhMyMeteors.getIdentifier("meteor_flash"),
                 METEOR_FLASH);
     }
 }
