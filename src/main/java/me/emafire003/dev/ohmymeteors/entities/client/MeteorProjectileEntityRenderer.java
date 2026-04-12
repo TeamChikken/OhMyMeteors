@@ -2,7 +2,6 @@ package me.emafire003.dev.ohmymeteors.entities.client;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
-import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -30,6 +29,13 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
         model.setupAnim(state);
 
         submitNodeCollector.order(0)
+                .submitModel(this.model,
+                        state,
+                        poseStack,
+                        TEXTURE, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, null);
+
+        /*TODO this could be used to render meteors as enchanted. May be useful later?
+        submitNodeCollector.order(1)
                 .submitModel(
                         this.model,
                         state,
@@ -39,7 +45,20 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
                         OverlayTexture.NO_OVERLAY,
                         state.outlineColor,
                         null
-                );
+                );*/
+
+/*
+        submitNodeCollector.order(0)
+                .submitModel(
+                        this.model,
+                        state,
+                        poseStack,
+                        ItemFeatureRenderer.getFoilRenderType(this.model.renderType(TEXTURE), true),
+                        state.lightCoords,
+                        OverlayTexture.NO_OVERLAY,
+                        state.outlineColor,
+                        null
+                );*/
         /*List<RenderType> list = ItemFeatureRenderer.gettFoilBuffer(this.model.renderType(TEXTURE), false, false);
 
         for (int i = 0; i < list.size(); i++) {
