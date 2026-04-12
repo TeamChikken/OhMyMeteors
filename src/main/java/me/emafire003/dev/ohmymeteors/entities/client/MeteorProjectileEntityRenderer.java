@@ -2,17 +2,14 @@ package me.emafire003.dev.ohmymeteors.entities.client;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
+import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.state.CameraRenderState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.resources.Identifier;
-
-import java.util.List;
 
 public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> extends EntityRenderer<T, MeteorProjectileRenderState> {
     protected MeteorProjectileEntityModel<?> model;
@@ -25,31 +22,43 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
     }
 
     @Override
-    public void submit(MeteorProjectileRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
-        matrices.pushPose();
-        matrices.translate(0, -state.boundingBoxHeight /1.5, 0);
-        matrices.scale(state.size, state.size, state.size);
+    public void submit(MeteorProjectileRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        
+        poseStack.pushPose();
+        poseStack.translate(0, -state.boundingBoxHeight /1.5, 0);
+        poseStack.scale(state.size, state.size, state.size);
         model.setupAnim(state);
-        List<RenderType> list = ItemRenderer.getFoilRenderTypes(this.model.renderType(TEXTURE), false, false);
+
+        submitNodeCollector.order(0)
+                .submitModel(
+                        this.model,
+                        state,
+                        poseStack,
+                        ItemFeatureRenderer.getFoilRenderType(this.model.renderType(TEXTURE), false),
+                        state.lightCoords,
+                        OverlayTexture.NO_OVERLAY,
+                        state.outlineColor,
+                        null
+                );
+        /*List<RenderType> list = ItemFeatureRenderer.gettFoilBuffer(this.model.renderType(TEXTURE), false, false);
 
         for (int i = 0; i < list.size(); i++) {
-            queue.order(i)
+            submitNodeCollector.order(i)
                     .submitModel(
                             this.model,
                             state,
-                            matrices,
+                            poseStack,
                             list.get(i),
                             state.lightCoords,
                             OverlayTexture.NO_OVERLAY,
                             state.outlineColor,
                             null
                     );
-        }
+        }*/
 
 
-        matrices.popPose();
-        super.submit(state, matrices, queue, cameraState);
-
+        poseStack.popPose();
+        super.submit(state, poseStack, submitNodeCollector, camera);
     }
 
     @Override

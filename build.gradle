@@ -62,7 +62,6 @@ dependencies {
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
     //StructurePlacerAPI (to spawn the meteor structure on impact)
-    //files("C:\\Users\\Ema\\Desktop\\Projects\\Java_projects\\OhMyMeteors\\run\\libs\\structureplacerapi-2.1.2+1.21.11.jar")
     include(implementation "maven.modrinth:structureplacerapi:${project.structureplacerapi_version}")
 
     //ParticleAnimationLib for cool particle effects
@@ -74,8 +73,8 @@ dependencies {
     //Fabric permission api
     implementation "me.lucko:fabric-permissions-api:${project.fabricperms_version}"
 
-    //Flan
-    compileOnly("maven.modrinth:flan:${project.flan_version}"){
+    //Flan TODO reanble when released
+    /*compileOnly("maven.modrinth:flan:${project.flan_version}"){
         transitive = false
     }
 
@@ -83,7 +82,7 @@ dependencies {
     //implementation("maven.modrinth:yawp:${project.yawp_version}")
     compileOnly("curse.maven:yawp-663276:${project.yawp_version}"){
         transitive = false
-    }
+    }*/
 
     //SchemConvert
     include (implementation 'com.github.Emafire003:SchemConvert:1.2')

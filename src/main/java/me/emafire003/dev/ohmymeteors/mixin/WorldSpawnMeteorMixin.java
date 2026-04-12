@@ -20,8 +20,7 @@ import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.dimension.DimensionType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.Final;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -43,7 +42,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
 
     @Shadow @Nullable public abstract ServerPlayer getRandomPlayer();
 
-    @Shadow public abstract boolean addFreshEntity(Entity entity);
+    @Shadow public abstract boolean addFreshEntity(@NonNull Entity entity);
 
     @Shadow public abstract @NotNull ChunkSource getChunkSource();
 
@@ -55,7 +54,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
     int meteorCooldown = 0;
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
-    public void tickSpawnMeteor(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
+    public void tickSpawnMeteor(BooleanSupplier haveTime, CallbackInfo ci){
 
         //If chance is negative, it means that no natural meteor should spawn so return early
         if(Config.METEOR_SPAWN_CHANCE < 0){

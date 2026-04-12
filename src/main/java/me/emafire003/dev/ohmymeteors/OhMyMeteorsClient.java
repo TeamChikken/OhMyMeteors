@@ -1,6 +1,5 @@
 package me.emafire003.dev.ohmymeteors;
 
-import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.entities.client.MeteorCatEntityRenderer;
 import me.emafire003.dev.ohmymeteors.entities.client.MeteorProjectileEntityModel;
@@ -36,6 +35,7 @@ public class OhMyMeteorsClient implements ClientModInitializer {
 
     public static void registerEntityStuff(){
         ModelLayerRegistry.registerModelLayer(MeteorProjectileEntityModel.METEOR, MeteorProjectileEntityModel::getTexturedModelData);
+        //TODO figure out why it's deprecated
         EntityRendererRegistry.register(OMMEntities.METEOR_PROJECTILE_ENTITY, MeteorProjectileEntityRenderer::new);
         //EntityModelLayerRegistry.registerModelLayer(MeteorCatEntityModel., MeteorProjectileEntityModel::getTexturedModelData);
         EntityRendererRegistry.register(OMMEntities.METEOR_KITTY_CAT, MeteorCatEntityRenderer::new);

@@ -22,7 +22,7 @@ import java.util.List;
 public abstract class MeteorFogMixin {
 
     @ModifyReturnValue(method = "getBaseColor", at = @At("RETURN"))
-    private static int modifyColor(int original, @Local(argsOnly = true) Camera camera, @Local(argsOnly = true) ClientLevel clientLevel){
+    private static int modifyColor(int original, @Local(argsOnly = true, name = "camera") Camera camera, @Local(argsOnly = true, name = "level") ClientLevel clientLevel){
         if(areMeteorsNearby(camera, clientLevel)){
             //TODO maybe add a transition?
             //Default: Vec3(4,141,165) #048da5

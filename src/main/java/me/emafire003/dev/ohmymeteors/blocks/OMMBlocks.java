@@ -62,7 +62,7 @@ public class OMMBlocks {
         Item the_item = Registry.register(BuiltInRegistries.ITEM, OhMyMeteors.getIdentifier(name), new BlockItem(block, new net.minecraft.world.item.Item.Properties()
                 .setId(ResourceKey.create(Registries.ITEM, OhMyMeteors.getIdentifier(name)))
         ));
-        CreativeModeTabEvents.modifyEntriesEvent(tab).register(content -> content.addAfter(add_after, the_item));
+        CreativeModeTabEvents.modifyOutputEvent(tab).register(content -> content.insertAfter(add_after, the_item));
         return the_block;
     }
 
