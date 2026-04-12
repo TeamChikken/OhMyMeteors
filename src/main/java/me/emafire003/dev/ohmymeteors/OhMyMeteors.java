@@ -13,13 +13,14 @@ import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
-import me.emafire003.dev.ohmymeteors.events.PlayerJoinEvent;
 import me.emafire003.dev.ohmymeteors.items.OMMItemTab;
 import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.LaserFlashParticle;
 import me.emafire003.dev.ohmymeteors.particles.LaserParticle;
 import me.emafire003.dev.ohmymeteors.particles.LaserParticleSmall;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
+import me.emafire003.dev.ohmymeteors.particles.meteor_flash.MeteorFlashParticle;
+import me.emafire003.dev.ohmymeteors.particles.meteor_smoke.MeteorSmokeParticle;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import net.minecraft.network.chat.Component;
@@ -28,6 +29,7 @@ import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -41,6 +43,7 @@ import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -119,13 +122,14 @@ public class OhMyMeteors {
 	}
 
 	private static MinecraftServer serverInstance = null;
+	AtomicBoolean shouldWarn = new AtomicBoolean(false);
 
 	// Loads the config file on server startup as well as the scheduler
 	@SubscribeEvent
 	public void onServerStarting(ServerStartingEvent event) {
 		// Do something when the server starts
 		try{
-			Config.reloadConfig();
+			shouldWarn.set(!Config.reloadConfig());
 			if(ModList.get().isLoaded("luckperms")){
 				PermissionsChecker.luckPerms = LuckPermsProvider.get();
 			}
@@ -137,13 +141,16 @@ public class OhMyMeteors {
 			e.printStackTrace();
 		}
 	}
-    /*TODO
-    *
-    * PlayerJoinEvent.EVENT.register(serverPlayer -> {
-			if(serverPlayer.hasPermissions(4) && shouldWarn.get()){
-				serverPlayer.sendSystemMessage(Component.literal(PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something has gone wrong while loading it! A copy of the old file has been created.")));
-			}
-		});*/
+
+	@SubscribeEvent
+	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
+		if(event.getEntity().hasPermissions(4) && shouldWarn.get()){
+			event.getEntity().sendSystemMessage(Component.literal(PREFIX).append(
+					Component.literal("§cWarning! The config file has been restored to the default settings because something" +
+							" has gone wrong while loading it! A copy of the old file has been created.")));
+		}
+
+	}
 
 	// Wow this looks like a stupid way to do this
 	@SubscribeEvent
@@ -276,11 +283,14 @@ public class OhMyMeteors {
 			EntityRenderers.register(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), MeteorProjectileEntityRenderer::new);
 			EntityRenderers.register(OMMEntities.METEOR_KITTY_CAT.get(), MeteorCatEntityRenderer::new);
 		}
+
 		@SubscribeEvent
 		public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
 			event.registerSpriteSet(OMMParticles.LASER_PARTICLE.get(), LaserParticle.EggCrackFactory::new);
 			event.registerSpriteSet(OMMParticles.LASER_PARTICLE_SMALL.get(), LaserParticleSmall.EggCrackFactory::new);
 			event.registerSpriteSet(OMMParticles.LASER_FLASH_PARTICLE.get(), LaserFlashParticle.LaserFlashFactory::new);
+			event.registerSpriteSet(OMMParticles.METEOR_SMOKE_COSY.get(), MeteorSmokeParticle.CosyProvider::new);
+			event.registerSpriteSet(OMMParticles.METEOR_FLASH.get(), MeteorFlashParticle.FlashFactory::new);
 		}
 
 		@SubscribeEvent

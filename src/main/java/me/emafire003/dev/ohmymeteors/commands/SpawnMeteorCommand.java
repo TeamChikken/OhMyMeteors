@@ -107,35 +107,6 @@ public class SpawnMeteorCommand implements OMMCommand {
         }
     }
 
-    private boolean spawnChecks(ServerPlayer p){
-        if(ModList.get().isLoaded("flan")){
-            if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
-                return false;
-            }
-        }
-
-        if(ModList.get().isLoaded("yawp")){
-            //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere(p.serverLevel(), p.blockPosition()) || YawpCompat.canSpawnHere(p.serverLevel(), new BlockPos(p.blockPosition().getX(), Config.METEOR_SPAWN_HEIGHT, p.blockPosition().getZ())))){
-                return false;
-            }
-        }
-
-        Holder<DimensionType> current_dim = p.level().dimensionTypeRegistration();
-
-        if(!MeteorUtils.canSpawnInDimension(current_dim)){
-            return false;
-        }
-
-        Holder<Biome> current_biome = p.level().getBiome(p.blockPosition());
-
-        if(!MeteorUtils.canSpawnInBiome(current_biome)){
-            p.sendSystemMessage(Component.literal("biome"));
-            return false;
-        }
-        return true;
-    }
-
     /**Spawns a meteor exactly like the natural spawns. Gives an error if there are no players online*/
     private int spawnNatural(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();

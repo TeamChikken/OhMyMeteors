@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = OhMyMeteors.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class OMMModBusWhatever {
-    //TODO verify that this works
+
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(OMMEntities.METEOR_KITTY_CAT.get(), MeteorCatEntity.createCatAttributes().build());

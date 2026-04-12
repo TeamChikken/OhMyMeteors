@@ -1,8 +1,6 @@
 package me.emafire003.dev.ohmymeteors.particles.meteor_flash;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
@@ -39,11 +37,10 @@ public class MeteorFlashParticle<T extends FlashScaleParticleOptions> extends Te
     }
 
 
-    @Environment(EnvType.CLIENT)
-    public static class LaserFlashFactory implements ParticleProvider<FlashScaleParticleOptions> {
+    public static class FlashFactory implements ParticleProvider<FlashScaleParticleOptions> {
         private final SpriteSet spriteProvider;
 
-        public LaserFlashFactory(SpriteSet spriteProvider) {
+        public FlashFactory(SpriteSet spriteProvider) {
             this.spriteProvider = spriteProvider;
         }
 

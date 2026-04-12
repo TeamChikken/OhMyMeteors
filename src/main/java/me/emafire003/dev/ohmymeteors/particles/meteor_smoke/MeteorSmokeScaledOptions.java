@@ -2,6 +2,8 @@ package me.emafire003.dev.ohmymeteors.particles.meteor_smoke;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.particles.meteor_flash.FlashScaleParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
@@ -25,6 +27,11 @@ public class MeteorSmokeScaledOptions extends FlashScaleParticleOptions {
         }
     };
 
+    public static Codec<MeteorSmokeScaledOptions> CODEC = RecordCodecBuilder.create(
+            (instance) ->
+                    instance.group(Codec.FLOAT.fieldOf("scale").forGetter(FlashScaleParticleOptions::getScale))
+                            .apply(instance, MeteorSmokeScaledOptions::new));
+
     public MeteorSmokeScaledOptions(float scale) {
         super(scale);
     }
@@ -35,6 +42,6 @@ public class MeteorSmokeScaledOptions extends FlashScaleParticleOptions {
 
     @Override
     public @NotNull ParticleType<?> getType() {
-        return OMMParticles.METEOR_SMOKE_COSY;
+        return OMMParticles.METEOR_SMOKE_COSY.get();
     }
 }

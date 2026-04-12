@@ -1,6 +1,5 @@
 package me.emafire003.dev.ohmymeteors.particles.meteor_smoke;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import org.jetbrains.annotations.NotNull;
@@ -67,7 +66,6 @@ public class MeteorSmokeParticle<T extends MeteorSmokeScaledOptions>  extends Te
         return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
-    @Environment(EnvType.CLIENT)
     public static class CosyProvider implements ParticleProvider<MeteorSmokeScaledOptions> {
         private final SpriteSet sprites;
 
