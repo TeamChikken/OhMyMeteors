@@ -1,8 +1,8 @@
 {
   "replace": false,
   "values": [
-    "#c:chests",
-    "#c:barrels",
+    "minecraft:chest",
+    "minecraft:barrel",
     "minecraft:hopper",
     "minecraft:dropper",
     "minecraft:dispenser",
