@@ -9,6 +9,7 @@ import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.entities.client.MeteorCatEntityRenderer;
 import me.emafire003.dev.ohmymeteors.entities.client.MeteorProjectileEntityModel;
 import me.emafire003.dev.ohmymeteors.entities.client.MeteorProjectileEntityRenderer;
+import me.emafire003.dev.ohmymeteors.config.OMMConfigV2;
 import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
@@ -23,6 +24,12 @@ import me.emafire003.dev.ohmymeteors.particles.meteor_flash.MeteorFlashParticle;
 import me.emafire003.dev.ohmymeteors.particles.meteor_smoke.MeteorSmokeParticle;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
+import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
+import net.fabricmc.api.ModInitializer;
+
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.chat.Component;
 import net.luckperms.api.LuckPermsProvider;
 import net.minecraft.client.renderer.entity.EntityRenderers;
@@ -75,6 +82,8 @@ public class OhMyMeteors {
 
 	public static String PREFIX = "§8[Oh My, Meteors!] §r";
 
+	public static OMMConfigV2 CONFIG;
+
 	public static ResourceLocation getIdentifier(String path){
 		return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
 	}
@@ -104,6 +113,8 @@ public class OhMyMeteors {
 
 
 		Config.FILEPATH = PATH.resolve(OhMyMeteors.MOD_ID + "_config.yml");
+		//register new config
+		CONFIG = ConfigApiJava.registerAndLoadConfig(OMMConfigV2::new);
 
 		OMMBlocks.register(eventBus);
 		OMMItems.register(eventBus);

@@ -6,6 +6,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.config.Config;
+import me.emafire003.dev.ohmymeteors.util.ParticleMode;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
@@ -20,15 +21,20 @@ public class ConfigCommand implements OMMCommand {
         try{
             CommandSourceStack source = context.getSource();
 
-            if(FMLEnvironment.dist.isDedicatedServer()){
-                source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Warning! The config file is located on the server, go to your server's config folder and edit '").withStyle(ChatFormatting.GOLD).append(Component.literal(Config.FILEPATH.toFile().toString()).withStyle(ChatFormatting.LIGHT_PURPLE).append(Component.literal("'").withStyle(ChatFormatting.GOLD)))));
+            source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Please open the config file from Modmenu!").withStyle(ChatFormatting.GOLD).append(Component.literal(Config.FILEPATH.toFile().toString()).withStyle(ChatFormatting.LIGHT_PURPLE).append(Component.literal("'").withStyle(ChatFormatting.GOLD)))));
+            /*if(source.getEntity().level().isClientSide()){
+                ConfigApi.INSTANCE.openScreen(OhMyMeteors.MOD_ID);
+                return 1;
+            }*/ //TODO if i need to implement networking for something, also add this
+            /*if(FMLEnvironment.dist.isDedicatedServer()){
+                source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Warning! The config file is located on the server, go to your server's config folder and edit it or use the Modmenu buttons!'").withStyle(ChatFormatting.GOLD).append(Component.literal(Config.FILEPATH.toFile().toString()).withStyle(ChatFormatting.LIGHT_PURPLE).append(Component.literal("'").withStyle(ChatFormatting.GOLD)))));
                 return 2;
             }
 
             Util.getPlatform().openFile(Config.FILEPATH.toFile());
 
             source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Make sure to use ").append(Component.literal("/omm config reload").withStyle(ChatFormatting.BLUE).append(Component.literal(" when you have finished editing the config file!").withStyle(ChatFormatting.RESET)))));
-            return 1;
+            */return 1;
         }catch (Exception e){
             context.getSource().sendFailure(Component.literal("[Oh My, Meteors!] ").append("§cThere has been an error while reloading the config, check the logs"));
             e.printStackTrace();
@@ -38,11 +44,43 @@ public class ConfigCommand implements OMMCommand {
 
     private int reloadConfig(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
-            if(!Config.reloadConfig()){
-                context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something could have gone wrong! A copy of the old file has been created.")));
-                return 0;
-            }
+            OhMyMeteors.CONFIG.save();
             context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX+"§rConfig reloaded!"));
+            return 1;
+        }catch (Exception e){
+            context.getSource().sendFailure(Component.literal("[Oh My, Meteors!] ").append("§cThere has been an error while reloading the config, check the logs"));
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    private int presetPerformance(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        try{
+            OhMyMeteors.CONFIG.visualsSection.use_forced_particles = false;
+            OhMyMeteors.CONFIG.visualsSection.particles_mode = ParticleMode.MINIMAL;
+            OhMyMeteors.CONFIG.meteorShowerSection.meteor_showers_enabled = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.meteors_load_chunks = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.use_better_explosions = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.spawn_scatter_meteors = false;
+            OhMyMeteors.CONFIG.save();
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX+"§rConfig settings adjusted to have more performance!"));
+            return 1;
+        }catch (Exception e){
+            context.getSource().sendFailure(Component.literal("[Oh My, Meteors!] ").append("§cThere has been an error while reloading the config, check the logs"));
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    private int presetNoGriefing(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        try{
+            OhMyMeteors.CONFIG.meteorBehaviourSection.meteor_structure = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.meteor_griefing = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.scatter_meteor_structure = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.scatter_meteor_griefing = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.spawn_fire_with_meteor = false;
+            OhMyMeteors.CONFIG.save();
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX+"§rConfig settings adjusted to have no griefing!"));
             return 1;
         }catch (Exception e){
             context.getSource().sendFailure(Component.literal("[Oh My, Meteors!] ").append("§cThere has been an error while reloading the config, check the logs"));
@@ -60,6 +98,14 @@ public class ConfigCommand implements OMMCommand {
                         Commands.literal("reload").executes(this::reloadConfig)
                 ).then(
                         Commands.literal("open").executes(this::openConfig)
+                )
+                .then(
+                        Commands.literal("preset")
+                                .then(
+                                        Commands.literal("performance").executes(this::presetPerformance)
+                                ).then(
+                                        Commands.literal("no_griefing").executes(this::presetNoGriefing)
+                                )
                 )
 
                 .build();
