@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "ohmymeteors:block/meteoric_rock_hot"
+  }
+}

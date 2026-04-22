@@ -24,6 +24,14 @@
 		],
 		"modmenu": [
 			"me.emafire003.dev.ohmymeteors.compat.modmenu.ModMenuIntegration"
+		],
+		"fabric-datagen": [
+			"me.emafire003.dev.ohmymeteors.datagen.OMMDataGen"
+		]
+	},
+	"custom": {
+		"fzzy_config": [
+			"ohmymeteors"
 		]
 	},
 	"mixins": [
@@ -32,7 +40,9 @@
 	"depends": {
 		"fabricloader": ">=0.18.4",
 		"minecraft": ">=1.21.10",
-		"java": ">=16"
+		"java": ">=16",
+		"fabric-api": ">=0.141.0+1.21.11",
+		"fzzy_config": ">=0.7.6"
 	},
 	"suggests": {
 		"another-mod": "*"

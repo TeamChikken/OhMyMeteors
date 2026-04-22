@@ -46,10 +46,67 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
                     );
         }
 
+        /*TODO make this work
+        VertexConsumer vertexconsumer;
+
+        switch (OhMyMeteors.CONFIG.visualsSection.meteor_texture_mode){
+            case HOT -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png")), false, false);
+            case MID -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png")), false, false);
+            case DYNAMIC_HEIGHT -> vertexconsumer = textureByHeight(entity, vertexConsumers);
+            case DYNAMIC_DISTANCE -> vertexconsumer = textureByDistance(entity, vertexConsumers);
+            case DYNAMIC_AUTO -> {
+                if(Math.abs(entity.getDeltaMovement().x()) > 0.85 || Math.abs(entity.getDeltaMovement().z()) > 0.85){
+                    vertexconsumer = textureByDistance(entity, vertexConsumers);
+                }else{
+                    vertexconsumer = textureByHeight(entity, vertexConsumers);
+                }
+            }
+            default -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+
+        }
+
+        matrices.translate(0, -entity.getDimensions(entity.getPose()).height()/1.5, 0);
+
+        * */
+
 
         matrices.popPose();
         super.submit(state, matrices, queue, cameraState);
 
+    }
+
+    public VertexConsumer textureByHeight(T entity, MultiBufferSource vertexConsumers){
+        VertexConsumer vertexconsumer;
+        if(entity.position().y() < entity.moltenPos){
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png")), false, false);
+        }else if(entity.position().y() < entity.midPos){
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png")), false, false);
+        }else{
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+        }
+        return vertexconsumer;
+    }
+
+    //TODO add travel time option as well? Maybe?
+    public VertexConsumer textureByDistance(T entity, MultiBufferSource vertexConsumers){
+        VertexConsumer vertexconsumer;
+        if(entity.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_hot+OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png")), false, false);
+        }else if(entity.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png")), false, false);
+        }else{
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+        }
+        return vertexconsumer;
     }
 
     @Override

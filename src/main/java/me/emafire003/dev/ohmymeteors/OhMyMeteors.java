@@ -3,6 +3,7 @@ package me.emafire003.dev.ohmymeteors;
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.blocks.OMMProperties;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
+import me.emafire003.dev.ohmymeteors.config.OMMConfigV2;
 import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
@@ -12,6 +13,7 @@ import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
 import me.emafire003.dev.ohmymeteors.util.OMMTags;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
+import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -45,9 +47,10 @@ public class OhMyMeteors implements ModInitializer {
 
 	public static String PREFIX = "§8[Oh My, Meteors!] §r";
 
-	//Dunno, 14 is the enderpearl thingy sooo
-	public static final TicketType METEOR_CHUCK_TICKET = Registry.register(BuiltInRegistries.TICKET_TYPE, OhMyMeteors.MOD_ID+":meteor", new TicketType(5*20, 14));
+    public static OMMConfigV2 CONFIG;
 
+    //Dunno, 14 is the enderpearl thingy sooo
+	public static final TicketType METEOR_CHUCK_TICKET = Registry.register(BuiltInRegistries.TICKET_TYPE, OhMyMeteors.MOD_ID+":meteor", new TicketType(5*20, 14));
 
 	public static Identifier getIdentifier(String path){
 		return Identifier.fromNamespaceAndPath(MOD_ID, path);
@@ -59,6 +62,8 @@ public class OhMyMeteors implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 		Config.FILEPATH = PATH.resolve(OhMyMeteors.MOD_ID + "_config.yml");
+		//register new config
+		CONFIG = ConfigApiJava.registerAndLoadConfig(OMMConfigV2::new);
 
 		OMMCommands.registerArguments();
 		CommandRegistrationCallback.EVENT.register(OMMCommands::registerCommands);

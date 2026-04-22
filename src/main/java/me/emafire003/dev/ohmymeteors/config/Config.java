@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,7 @@ public class Config {
     public static SimpleConfig CONFIG;
     private static ConfigProvider configs;
 
-    private static final int ver = 7;
+    private static final int ver = 8;
     public static Path FILEPATH;
 
     public static int VERSION;
@@ -133,7 +134,7 @@ public class Config {
     public static int MAX_METEORS_IN_SHOWER = 20;
     public static boolean ANNOUNCE_LOCATION = true;
     public static boolean ONLY_REPLACE_AIR = false;
-    public static boolean SCATTER_ONLY_REPALCE_AIR = false;
+    public static boolean SCATTER_ONLY_REPLACE_AIR = false;
 
     //V6
     public static int METEOR_SHOWER_DELAY_TICKS = 15;
@@ -145,10 +146,25 @@ public class Config {
     public static double METEOR_DISPERSION_FACTOR = 3.1;
     public static boolean SPAWN_FIRE_WITH_METEOR = true;
 
+
     public static void handleVersionChange(){
         int version_found = CONFIG.getOrDefault("version", ver);
         if(version_found != ver){
             LOGGER.warn("DIFFERENT CONFIG VERSION DETECTED, updating...");
+            if(version_found == 7){
+                LOGGER.warn("TRYING TO CONVERT CONFIG TO NEW FORMAT...");
+                List<String> settings = new ArrayList<>();
+                CONFIG.getConfigCopy().forEach((key, value) -> settings.add(key));
+                try {
+                    CONFIG.migrateToNew(settings);
+
+                } catch (IOException e) {
+                    LOGGER.error("There was an error during the conversion!");
+                    throw new RuntimeException(e);
+                }
+                LOGGER.info("Conversion completed!");
+                return;
+            }
             HashMap<String, String> config_old = CONFIG.getConfigCopy();
             try {
                 CONFIG.delete();
@@ -163,6 +179,8 @@ public class Config {
             }
         }
     }
+
+
     /**
      * @return true if all was good, false if the config was rolled back to normal
      */
@@ -205,7 +223,7 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("version", ver), "The version of the config. DO NOT CHANGE IT :D");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
-
+//TODO spawning section
         configs.addKeyValuePair(new Pair<>("min_meteor_spawn_distance", 2), "Expressed in blocks, represents the min distance (as in a radius) from the origin of the meteor " +
                 "(like a player) in which the meteor wont' spawn in. (Remember that it has an angled trajectory so it could end up in that area regardless)");
 
@@ -214,43 +232,45 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("meteor_spawn_height", 300), "The world height (y level) at which meteors spawn in");
         //V7
         configs.addKeyValuePair(new Pair<>("meteor_dispersion_factor", 3.1), "The higher the value the less the meteor will go diagonally, and will keep mostly vertical. (randomness remains so it's not 100%). Generally, you can remain between 1 and 10.");
-        configs.addKeyValuePair(new Pair<>("meteor_spawn_chance", 30000), "Expressed as '1 in <x>' chances of spawning a meteor each tick (similar to randomTickSpeed). Setting it to a negative value will disable natural meteor spawn For example, by default it has a chance of 1 in 20000");
+        configs.addKeyValuePair(new Pair<>("meteor_spawn_chance", 30000), "Expressed as '1 in <x>' chances of spawning a meteor each tick (similar to randomTickSpeed). Setting it to a negative value will disable natural meteor spawn. For example, by default it has a chance of 1 in 30000, so 0.03%");
         configs.addKeyValuePair(new Pair<>("spawn_huge_meteors", true),"Should huge meteors be able to spawn? They are meteors bigger than the maximum size of the big ones");
         configs.addKeyValuePair(new Pair<>("huge_meteor_chance", 100),"The chance for a spawned meteor to be of huge size. Expressed as in 1 in x chances. (on top of the 'normal' spawning chance)");
         configs.addKeyValuePair(new Pair<>("huge_meteor_size_limit", 40),"The size limit of how big a huge meteor can be");
 
         configs.addKeyValuePair(new Pair<>("modify_spawn_chance_at_night", false),"Should the spawn rate be different during the night?");
         configs.addKeyValuePair(new Pair<>("meteor_night_spawn_chance", 10000),"The chance for a meteor to spawn at night if enabled. Expressed as in 1 in x chances.");
+//V2
+        configs.addKeyValuePair(new Pair<>("special_meteors_chance", 10), "The chance of spawning a special meteor structure in a certain size category (for example the meteor cat meteor) (works like the other chances, aka 1 in x probability)");
 
+        //V3
+        //TODO add the other settings for the whitelist/blacklist
+        configs.addKeyValuePair(new Pair<>("spawn_dimensions", List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString())),"A list of the IDs of the dimensions in which meteors can naturally spawn in, vanilla or not.");
+        configs.addKeyValuePair(new Pair<>("dimension_chances", DIMENSION_CHANCES_default), "A map consisting of dimension=chance of spawning. The dimension must be present in the list above, otherwise meteors won't spawn at all. This chance will ALWAYS ovveride the default if present. The spawn chance works as described above.");
+        configs.addKeyValuePair(new Pair<>("dimension_night_chances", DIMENSION_NIGHT_CHANCES_default), "The same as above but with a possibly different chance at night if enabled");
+        configs.addKeyValuePair(new Pair<>("biome_list_mode", false),"If set to false will behave like a blacklist, aka meteors won't spawn in those biomes. If true will behave like a whitelist, meteors will spawn ONLY in those biomes.");
+        configs.addKeyValuePair(new Pair<>("biome_spawn_list", BIOME_SPAWN_LIST_default),"A black or whitelist of the biomes in which meteor will or will not spawn according to the setting above");
+
+        configs.addKeyValuePair(new Pair<>("biome_chances", BIOME_CHANCES_default), "A map consisting of biome=chance of spawning. The spawn chance works as described above. The meteors must be able to spawn in those biomes, otherwise they won't!");
+        configs.addKeyValuePair(new Pair<>("biome_night_chances", BIOME_NIGHT_CHANCES_default), "The same as above but with a possibly different chance at night if enabled");
+
+        //TODO size category? maybe these should go in the spawn section yes
         configs.addKeyValuePair(new Pair<>("natural_meteor_min_size", 1),"The smallest size a natural meteor can have when spawned in. Cannot go below 1");
         configs.addKeyValuePair(new Pair<>("natural_meteor_max_size", 10),"The biggest size a natural meteor can have when spawned in. Cannot go above 50.");
+        configs.addKeyValuePair(new Pair<>("max_small_meteor_size", 4),"The maximum size of meteor that can be considered small, and will spawn a small meteor structure upon impact");
+        configs.addKeyValuePair(new Pair<>("max_medium_meteor_size", 7),"The maximum size of meteor that can be considered medium, and will spawn a medium meteor structure upon impact");
+        configs.addKeyValuePair(new Pair<>("max_big_meteor_size", 20),"The maximum size of meteor that can be considered big, and will spawn a big meteor structure upon impact. Only these can spawn a meteor cat by default.");
+
+// TODO meteor behaviour section
+
         //V2
+        //TODO add multiplier versions of these
         configs.addKeyValuePair(new Pair<>("explosion_power_modifier", 0), "A factor to ADD to the explosion power (by default, the power is equal to the meteor size), thus increasing the damage and radius of the explosion. Also supports negative numbers");
         //V3
         configs.addKeyValuePair(new Pair<>("downwards_speed_modifier", 0), "A factor to ADD to the speed at which the meteor falls downwards. It is added to a randomly generated number between 1 and 0. Also supports negative numbers");
         //V6
         configs.addKeyValuePair(new Pair<>("explode_on_entity_collision", false), "Should meteors explode when they come into contact with an entity? (if true you could use an arrow to make the meteor explode for example)");
 
-
-        configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
-
-        configs.addKeyValuePair(new Pair<>("should_bypass_leaves", true),"This option has no effect as of version 0.4.0. Please use the 'ohmymeteors:meteor_bypasses' tag instead.");
-        configs.addKeyValuePair(new Pair<>("should_destroy_leaves", true),"This option has no effect as of version 0.4.0. Please use the 'ohmymeteors:meteor_bypasses_and_destroy' tag instead");
-
         configs.addKeyValuePair(new Pair<>("homing_meteors", false),"Should meteors be (more or less) directed towards the nearest player?");
-
-        configs.addKeyValuePair(new Pair<>("announce_meteor_spawn", false),"Should players get a message in chat/hotbar when a meteor spawns?");
-        configs.addKeyValuePair(new Pair<>("announce_meteor_destroyed", false),"Should players get a message in chat/hotbar when a meteor is destroyed?");
-        configs.addKeyValuePair(new Pair<>("actionbar_announcements", true),"Should the above announcement be displayed above the hotbar in the actionbar or in chat?");
-        //V5
-        configs.addKeyValuePair(new Pair<>("announce_location", true),"If announcements are enabled, should they also display the (approximate) coordinates of the meteor being spawned/destroyed?");
-
-        //V2
-        configs.addKeyValuePair(new Pair<>("global_explosion_sound", false),"Should the explosion sound of the meteor be heard by all players online?");
-        configs.addKeyValuePair(new Pair<>("area_explosion_sound", false),"Should the explosion sound of the meteor be heard by all players around a certain area from the impact point?");
-        configs.addKeyValuePair(new Pair<>("area_explosion_sound_radius", 500),"The radius in blocks of the area in which the sound of the meteor will be heard if the option above is true");
-
-        configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
         configs.addKeyValuePair(new Pair<>("should_cooldown_between_meteors", true),"Should there be a cooldown between a meteor spawning one meteor and then another?");
         configs.addKeyValuePair(new Pair<>("min_meteor_cooldown_time", 20),"The minimum time interval (in seconds) between spawning a meteor and then another");
@@ -266,8 +286,30 @@ public class Config {
         //V7
         configs.addKeyValuePair(new Pair<>("spawn_fire_with_meteor", true),"Should fire be spawned on meteor impact? (it looks cool!)");
 
+
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
+        //TODO @Deprecated
+        //configs.addKeyValuePair(new Pair<>("should_bypass_leaves", true),"This option has no effect as of version 0.4.0. Please use the 'ohmymeteors:meteor_bypasses' tag instead.");
+        //TODO @Deprecated
+        //configs.addKeyValuePair(new Pair<>("should_destroy_leaves", true),"This option has no effect as of version 0.4.0. Please use the 'ohmymeteors:meteor_bypasses_and_destroy' tag instead");
+
+//TODO announce section/comms section
+        configs.addKeyValuePair(new Pair<>("announce_meteor_spawn", false),"Should players get a message in chat/hotbar when a meteor spawns?");
+        configs.addKeyValuePair(new Pair<>("announce_meteor_destroyed", false),"Should players get a message in chat/hotbar when a meteor is destroyed?");
+        configs.addKeyValuePair(new Pair<>("actionbar_announcements", true),"Should the above announcement be displayed above the hotbar in the actionbar or in chat?");
+        //V5
+        configs.addKeyValuePair(new Pair<>("announce_location", true),"If announcements are enabled, should they also display the (approximate) coordinates of the meteor being spawned/destroyed?");
+
+        //V2
+        configs.addKeyValuePair(new Pair<>("global_explosion_sound", false),"Should the explosion sound of the meteor be heard by all players online?");
+        configs.addKeyValuePair(new Pair<>("area_explosion_sound", false),"Should the explosion sound of the meteor be heard by all players around a certain area from the impact point?");
+        configs.addKeyValuePair(new Pair<>("area_explosion_sound_radius", 500),"The radius in blocks of the area in which the sound of the meteor will be heard if the option above is true");
+
+        configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
+
+
+//TODO laser section
         configs.addKeyValuePair(new Pair<>("basic_laser_area_radius", 32),"The radius in blocks of the xz area covered by the Basic laser block, where meteors will be blown up");
         configs.addKeyValuePair(new Pair<>("basic_laser_height", 64),"How many blocks up from the position of the basic laser should meteors be checked for? (note that the detection box is only 2 blocks thick, not the whole way)");
 
@@ -281,15 +323,14 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("advanced_laser_cooldown", 1),"How many seconds should this cooldown last?");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
-        
-        configs.addKeyValuePair(new Pair<>("max_small_meteor_size", 4),"The maximum size of meteor that can be considered small, and will spawn a small meteor structure upon impact");
-        configs.addKeyValuePair(new Pair<>("max_medium_meteor_size", 7),"The maximum size of meteor that can be considered medium, and will spawn a medium meteor structure upon impact");
-        configs.addKeyValuePair(new Pair<>("max_big_meteor_size", 20),"The maximum size of meteor that can be considered big, and will spawn a big meteor structure upon impact. Only these can spawn a meteor cat by default.");
-        //V2
-        configs.addKeyValuePair(new Pair<>("special_meteors_chance", 10), "The chance of spawning a special meteor structure in a certain size category (for example the meteor cat meteor) (works like the other chances, aka 1 in x probability)");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
+//TODO visuals (some of these may be client side settings?
         configs.addKeyValuePair(new Pair<>("use_forced_particles", true),"Should meteor and laser particles be forced? They will be rendered further away and look better, but if there are too many of them you may want to disable this for lag reasons. Note: some particles will never displays as forced, like the lasers target box");
+        configs.addKeyValuePair(new Pair<>("use_better_explosions", true),"If true will use a spherical explosion instead of the vanilla cubical one. These look nicer at higher explosion power/ranges, but after power 100 become quite laggy.");
+        configs.addKeyValuePair(new Pair<>("meteor_render_distance", 200),"How far should meteors be rendered. WARNING: YOU NEED TO RESTART YOUR SERVER AND CLIENT IF YOU CHANGE THIS VALUE in order for it to take effect. It is multiplied by the 'entity render' distance of the server");
+        configs.addKeyValuePair(new Pair<>("meteor_skyglow", true),"If true, makes the sky glow a certain color when a meteor passes by. This only applies if the meteor is in rendering range and not world or server wide.");
+        configs.addKeyValuePair(new Pair<>("meteor_skyglow_color", "#048da5"),"The color to apply to the sky when a meteor passes by if it's enabled. By default it's a lightblue-cyan color. Bear in mind that Minecraft still applies its own colors, so some shades (like green) work less well than others (blue)");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
@@ -306,10 +347,8 @@ public class Config {
         //V4
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
 
-        configs.addKeyValuePair(new Pair<>("use_better_explosions", true),"If true will use a spherical explosion instead of the vanilla cubical one. These look nicer at higher explosion power/ranges, but after power 100 become quite laggy.");
-        configs.addKeyValuePair(new Pair<>("meteor_render_distance", 200),"How far should meteors be rendered. WARNING: YOU NEED TO RESTART YOUR SERVER AND CLIENT IF YOU CHANGE THIS VALUE in order for it to take effect. It is multiplied by the 'entity render' distance of the server");
 
-        //V5
+//TODO meteor showers //V5
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
         configs.addKeyValuePair(new Pair<>("meteor_showers_enabled", true),"If true, there will be a chance that meteor showers will spawn (a lot of meteors spawning at the same time & place. it can also cause brief lag spikes, nothing too dramatic tho)");
         configs.addKeyValuePair(new Pair<>("meteor_shower_chance", 100),"The chance for a meteor shower to spawn (on top of the normal meteor spawning chance, so it's meteor_spawn*meteor_shower spawn)");
@@ -321,6 +360,8 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("meteor_skyglow_color", "#048da5"),"The color to apply to the sky when a meteor passes by if it's enabled. By default it's a lightblue-cyan color");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
+
+
     }
 
     /**
@@ -416,7 +457,7 @@ public class Config {
         MIN_METEORS_IN_SHOWER = CONFIG.getOrDefault("min_meteors_in_shower", 5);
         MAX_METEORS_IN_SHOWER = CONFIG.getOrDefault("max_meteors_in_shower", 20);
         ONLY_REPLACE_AIR = CONFIG.getOrDefault("only_replace_air", false);
-        SCATTER_ONLY_REPALCE_AIR = CONFIG.getOrDefault("only_repalcer_air_scatter", false);
+        SCATTER_ONLY_REPLACE_AIR = CONFIG.getOrDefault("only_repalcer_air_scatter", false);
 
         //V6
         METEOR_SHOWER_DELAY_TICKS = CONFIG.getOrDefault("meteor_shower_delay_ticks", 15);
