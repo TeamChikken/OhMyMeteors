@@ -1,6 +1,14 @@
 {
   "variants": {
-    "": { "model": "ohmymeteors:block/meteoric_rock" }
+    "rock_temperature=hot": {
+      "model": "ohmymeteors:block/meteoric_rock_hot"
+    },
+    "rock_temperature=mid": {
+      "model": "ohmymeteors:block/meteoric_rock_mid"
+    },
+    "rock_temperature=normal": {
+      "model": "ohmymeteors:block/meteoric_rock"
+    }
   }
 }
 
