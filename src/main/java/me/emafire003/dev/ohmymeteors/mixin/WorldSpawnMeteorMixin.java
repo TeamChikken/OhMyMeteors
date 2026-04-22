@@ -1,6 +1,5 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
-import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerPlayer;
@@ -50,7 +49,6 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
     public void tickSpawnMeteor(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
-
         //If chance is negative, it means that no natural meteor should spawn so return early
         if(Config.METEOR_SPAWN_CHANCE < 0){
             return;

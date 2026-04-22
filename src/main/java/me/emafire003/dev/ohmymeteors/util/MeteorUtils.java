@@ -2,10 +2,13 @@ package me.emafire003.dev.ohmymeteors.util;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.config.Config;
+import me.emafire003.dev.ohmymeteors.compat.opac.OPACCompat;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerLevel;
@@ -22,6 +25,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
+
 
 public class MeteorUtils {
 
@@ -73,7 +79,7 @@ public class MeteorUtils {
         if(world.getRandom().nextBoolean()){
             invert_z = -1;
         }
-        Vec3 vel = new Vec3((world.getRandom().nextFloat()/Config.METEOR_DISPERSION_FACTOR)*invert_x, -1.0f*(world.getRandom().nextFloat()+ Config.DOWNWARDS_SPEED_MODIFIER), (world.getRandom().nextFloat()/Config.METEOR_DISPERSION_FACTOR)*invert_z);
+        Vec3 vel = new Vec3((world.getRandom().nextFloat()/CONFIG.meteorSpawning.meteor_dispersion_factor)*invert_x, -1.0f*(world.getRandom().nextFloat()+ CONFIG.meteorBehaviourSection.downwards_speed_modifier)*CONFIG.meteorBehaviourSection.downwards_speed_multiplier, (world.getRandom().nextFloat()/CONFIG.meteorSpawning.meteor_dispersion_factor)*invert_z);
 
         return new Tuple<>(pos, vel);
 
@@ -93,7 +99,7 @@ public class MeteorUtils {
         meteor.setSize(world.getRandom().nextIntBetweenInclusive(Math.max(0, min_size), Math.min(50, max_size)));
 
         if(homing){
-            meteor.setDeltaMovement(originPos.subtract(meteor.position()).normalize().multiply(1,1,1).add(0, Config.DOWNWARDS_SPEED_MODIFIER, 0));
+            meteor.setDeltaMovement(originPos.subtract(meteor.position()).normalize().multiply(1,1,1).add(0, CONFIG.meteorBehaviourSection.downwards_speed_modifier, 0).scale(CONFIG.meteorBehaviourSection.downwards_speed_multiplier));
         }else{
             meteor.setDeltaMovement(pos_vel.getB());
         }
@@ -161,7 +167,9 @@ public class MeteorUtils {
             return;
         }
         MeteorProjectileEntity meteor = getDownwardsMeteor(p.position(), world.getLevel(),
-                Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS);
+                Config.MIN_METEOR_SPAWN_DISTANCE,
+                Config.MAX_METEOR_SPAWN_DISTANCE,
+                Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS);
 
         meteor.setSilenced(silenced);
 
@@ -337,7 +345,9 @@ public class MeteorUtils {
                     }
                 }
         );
-
+        if(!CONFIG.meteorSpawning.dimension_list_mode){
+            return !dimension_ok.get();
+        }
         return dimension_ok.get();
     }
 
@@ -359,18 +369,37 @@ public class MeteorUtils {
         }
     }
 
+
+    public static boolean canSpawnInModdedRegion(ServerLevel level, BlockPos pos){
+        return canSpawnInModdedRegion(null, level, pos);
+    }
+
+    public static boolean canSpawnInModdedRegion(ServerPlayer player, BlockPos pos){
+        return canSpawnInModdedRegion(player, (ServerLevel) player.level(), pos);
+    }
+
     /**Checks if the meteor can spawn in the given modded region
      *
      * @param p The player at whose position the meteor is going to spawn
+     * @param level The world/level in which the meteor is going to spawn or has spawned
+     * @param pos The position to check
      * @return true if the meteor can spawn in there, false otherwise
      * */
-    public static boolean canSpawnInModdedRegion(ServerPlayer p){
+    public static boolean canSpawnInModdedRegion(ServerPlayer p, ServerLevel level, BlockPos pos){
+        if(FabricLoader.getInstance().isModLoaded("openpartiesandclaims")){
+            if(!OPACCompat.canSpawnHere(level, pos)){
+                if(CONFIG.notificationSection.verbose){
+                    OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by an OpenPartiesAndClaims claim, it has been discarded!");
+                }
+                return false;
+            }
+        }
         return true;
     }
 
     /** Check if the meteor can spawn in a given location and sends out error messages if verbose is true */
     public static boolean canMeteorSpawn(ServerPlayer p, Holder<DimensionType> current_dim, Holder<Biome> current_biome){
-        if(!canSpawnInModdedRegion(p)){
+        if(!canSpawnInModdedRegion(p, p.blockPosition())){
             return false;
         }
         if(!canSpawnInDimension(current_dim)){
@@ -384,7 +413,7 @@ public class MeteorUtils {
     }
 
     public static boolean canMeteorSpawnVerbose(ServerPlayer p, CommandSourceStack source, Holder<DimensionType> current_dim, Holder<Biome> current_biome){
-        if(!canSpawnInModdedRegion(p)){
+        if(!canSpawnInModdedRegion(p, p.blockPosition())){
             String msg = "The meteor cannot spawn at " + p.blockPosition() + " because of a region flag from Flan or YAWP prevents it in that location! (maybe you added a region in that location?)";
             source.sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Tried spawning meteor around player '"+p.getDisplayName().getString()+"' but failed.")).append(Component.literal(msg)));
             OhMyMeteors.LOGGER.warn(msg);

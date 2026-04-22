@@ -73,6 +73,9 @@ dependencies {
     include (implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT')
     //implementation 'com.github.PiTheGuy:SchemConvert:v1.2.5 '
 
+    //OpenPartiesAndClaims
+    modCompileOnly "maven.modrinth:open-parties-and-claims:${project.opac_version}"
+
 }
 
 processResources {
