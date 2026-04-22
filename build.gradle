@@ -192,6 +192,9 @@ dependencies {
     //OpenPartiesAndClaims
     compileOnly "maven.modrinth:open-parties-and-claims:${project.opac_version}"
 
+    //FzzyConfig
+    modImplementation "me.fzzyhmstrs:fzzy_config:${project.fzzyconfig_version}"
+
     //SchemConvert
     implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT'
     jarJar("com.github.PiTheGuy:SchemConvert:master-SNAPSHOT")
