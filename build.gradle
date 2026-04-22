@@ -42,6 +42,11 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    maven {
+        name = "FzzyMaven"
+        url = uri("https://maven.fzzyhmstrs.me/")
+    }
+
     maven { url 'https://jitpack.io' }
     mavenCentral()
 }
@@ -83,6 +88,9 @@ dependencies {
     modCompileOnly("curse.maven:yawp-663276:${project.yawp_version}"){
         transitive = false
     }
+
+    //FzzyConfig
+    modImplementation "me.fzzyhmstrs:fzzy_config:${project.fzzyconfig_version}"
 
     //SchemConvert
     include (implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT')
