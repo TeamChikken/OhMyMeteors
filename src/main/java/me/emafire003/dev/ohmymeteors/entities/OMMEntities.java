@@ -30,8 +30,7 @@ public class OMMEntities {
                     .sized(0.9F, 0.9F).build("meteor_cat"));
 
     public static int getMeteorTrackingDistance(){
-        Config.reloadConfig();
-        return Config.METEOR_RENDER_DISTANCE;
+        return OhMyMeteors.CONFIG.visualsSection.meteor_render_distance;
     }
 
     public static void register(IEventBus eventBus) {
