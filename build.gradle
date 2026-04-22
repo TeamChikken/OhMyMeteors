@@ -31,16 +31,20 @@ repositories {
         name = 'ParchmentMC'
         url = 'https://maven.parchmentmc.org'
     }
-	exclusiveContent {
-		forRepository {
-			maven {
-				url "https://cursemaven.com"
-			}
-		}
-		filter {
-			includeGroup "curse.maven"
-		}
-	}
+    exclusiveContent {
+        forRepository {
+            maven {
+                url "https://cursemaven.com"
+            }
+        }
+        filter {
+            includeGroup "curse.maven"
+        }
+    }
+    maven {
+        name = "FzzyMaven"
+        url = uri("https://maven.fzzyhmstrs.me/")
+    }
     maven { url 'https://jitpack.io' }
 	mavenCentral()
 	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
@@ -83,12 +87,25 @@ dependencies {
         transitive = false
     }
 
+    //FzzyConfig
+    modImplementation "me.fzzyhmstrs:fzzy_config:${project.fzzyconfig_version}"
+
+    //OpenPartiesAndClaims
+    modCompileOnly "maven.modrinth:open-parties-and-claims:${project.opac_version}"
+
     //SchemConvert
     include (implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT')
     //implementation 'com.github.PiTheGuy:SchemConvert:v1.2.5 '
 
 
 }
+
+fabricApi {
+    configureDataGeneration() {
+        client = true
+    }
+}
+
 
 processResources {
     inputs.property "version", project.version
