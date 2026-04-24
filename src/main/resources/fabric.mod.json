@@ -24,6 +24,14 @@
 		],
 		"modmenu": [
 			"me.emafire003.dev.ohmymeteors.compat.modmenu.ModMenuIntegration"
+		],
+		"fabric-datagen": [
+			"me.emafire003.dev.ohmymeteors.datagen.OMMDataGen"
+		]
+	},
+	"custom": {
+		"fzzy_config": [
+			"ohmymeteors"
 		]
 	},
 	"mixins": [
