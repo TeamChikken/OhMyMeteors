@@ -1,8 +1,6 @@
 package me.emafire003.dev.ohmymeteors.config;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
-import me.emafire003.dev.ohmymeteors.util.MeteorEntityTextureMode;
-import me.emafire003.dev.ohmymeteors.util.ParticleMode;
 import me.fzzyhmstrs.fzzy_config.annotations.*;
 import me.fzzyhmstrs.fzzy_config.api.SaveType;
 import me.fzzyhmstrs.fzzy_config.config.Config;
@@ -32,7 +30,6 @@ public class OMMConfigV2 extends Config {
     }
 
     @Name("Meteor Spawning")
-    @Comment("Meteor Spawning")
     public MeteorSpawningSection meteorSpawning = new MeteorSpawningSection();
 
     public static class MeteorSpawningSection extends ConfigSection {
@@ -86,7 +83,7 @@ public class OMMConfigV2 extends Config {
         //configs.addKeyValuePair(new Pair<>("should_cooldown_between_meteors", true),);
 
         @Comment("The minimum time interval (in seconds) between spawning a meteor and then another")
-        public int min_meteor_cooldown_time = 20;
+        public double min_meteor_cooldown_time = 20.0;
         //configs.addKeyValuePair(new Pair<>("min_meteor_cooldown_time", 20),);
 
         @ConfigGroup.Pop
@@ -99,7 +96,7 @@ public class OMMConfigV2 extends Config {
         @Comment("A list of the IDs of the dimensions in which meteors can or cannot naturally spawn in (see mode setting below), vanilla or not.")
         public List<String> spawn_dimensions = List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString());
         //configs.addKeyValuePair(new Pair<>("spawn_dimensions", List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString())),"A list of the IDs of the dimensions in which meteors can naturally spawn in, vanilla or not.");
-//TODO new setting write in changelog
+//TODO new setting write in changelog and implenent
         @Comment("If set to false will behave like a blacklist, aka meteors won't spawn in those dimensions. If true will behave like a whitelist, meteors will spawn ONLY in those dimensions.")
         public boolean dimension_list_mode = true; //TODO migrate to enum?
 
@@ -177,7 +174,6 @@ public class OMMConfigV2 extends Config {
     }
 
     @Name("Meteor Behaviour")
-    @Comment("Meteor Behaviour")
     public MeteorBehaviourSection meteorBehaviourSection = new MeteorBehaviourSection();
 
     public static class MeteorBehaviourSection extends ConfigSection{
@@ -185,9 +181,9 @@ public class OMMConfigV2 extends Config {
         @Comment("A factor to ADD to the explosion power (by default, the power is equal to the meteor size), thus increasing the damage and radius of the explosion. Also supports negative numbers")
         public int explosion_power_modifier = 0;
         //configs.addKeyValuePair(new Pair<>("explosion_power_modifier", 0), );
-//TODO new setting  changelog
+//TODO new setting implement and changelog
         @Comment("A factor to MULTIPLY the explosion power (by default, the power is equal to the meteor size), thus increasing the damage and radius of the explosion.")
-        public float explosion_power_multiplier = 1.0f;
+        public double explosion_power_multiplier = 1.0;
 
         @Comment("Should meteors be able to destroy blocks on impact?")
         public boolean meteor_griefing = true;
@@ -200,7 +196,7 @@ public class OMMConfigV2 extends Config {
         @Comment("Should the meteor structure only replace air blocks?")
         public boolean only_replace_air = false;
         //configs.addKeyValuePair(new Pair<>("only_replace_air", false),);
-//TODO new setting, wiki
+//TODO new setting, wiki & implementation
         @Comment("Should scatter meteors be spawned when a Basic laser destroys a bigger meteor?")
         public boolean spawn_scatter_meteors = false;
         //configs.addKeyValuePair(new Pair<>("only_replace_air", false),);
@@ -233,27 +229,18 @@ public class OMMConfigV2 extends Config {
         public int downwards_speed_modifier = 0;
         //configs.addKeyValuePair(new Pair<>("downwards_speed_modifier", 0),);
 
-//TODO new setting changelog
+//TODO new setting implement and changelog
         @Comment("A factor to MULTIPLY the speed at which the meteor falls downwards. It is added to a randomly generated number between 1 and 0")
-        public double downwards_speed_multiplier = 1.0;
+        public double downwards_speed_multiplier = 0;
 
         @Comment("Should meteors be (more or less) directed towards the nearest player?")
         public boolean homing_meteors = false;
         //configs.addKeyValuePair(new Pair<>("homing_meteors", false),);
 
-//TODO new setting changelog
-        @Comment("If true meteors will try to load chunks like enderpearls, hopefully making contact and exploding")
-        public boolean meteors_load_chunks = false;
-//TODO new setting changelog
-        @Comment("How many chunks should be loaded before the meteors gets discarded? Aka how many loaded chunks are too many? (Each chunk is 16 blocks")
-        public int chunk_loading_limit = 25;
-
     }
 
     @Name("Notifications")
-    @Comment("Notifications")
     public NotificationSection notificationSection = new NotificationSection();
-
     public static class NotificationSection extends ConfigSection{
         public NotificationSection(){
             super();
@@ -290,15 +277,10 @@ public class OMMConfigV2 extends Config {
         @Comment("The radius in blocks of the area in which the sound of the meteor will be heard if the option above is true")
         public int area_explosion_sound_radius = 500;
         //configs.addKeyValuePair(new Pair<>("area_explosion_sound_radius", 500),);
-//TODO new config, changelog thingy
-        @ConfigGroup.Pop
-        @Comment("Set this to true to have more info while debugging")
-        public boolean verbose = false;
 
     }
 
     @Name("Lasers")
-    @Comment("Lasers")
     public LasersSection lasersSection = new LasersSection();
     public static class LasersSection extends ConfigSection{
         public LasersSection(){
@@ -341,7 +323,6 @@ public class OMMConfigV2 extends Config {
     }
 
     @Name("Visuals")
-    @Comment("Visuals")
     public VisualsSection visualsSection = new VisualsSection();
     public static class VisualsSection extends ConfigSection{
         public VisualsSection(){
@@ -351,10 +332,6 @@ public class OMMConfigV2 extends Config {
         @Comment("Should meteor and laser particles be forced? They will be rendered further away and look better, but if there are too many of them you may want to disable this for lag reasons. Note: some particles will never displays as forced, like the lasers target box")
         public boolean use_forced_particles = true;
         //configs.addKeyValuePair(new Pair<>("use_forced_particles", true),);
-    //TODO new setting
-
-        @Comment("Note: this setting influences client AND server performance a lot. It is a serverside setting. \nFANCY: the best particle animations, when spawning a lot of meteors can be laggy, \nLESS: a compromise, a bit less lag with still good looking particles ,\nMINIMAL: a compromise, a lot less laggy with some particles, \nNONE: most performant, no particles will be sent to clients ")
-        public ParticleMode particles_mode = ParticleMode.FANCY;
 
         //TODO should be .RESTART
         //@RequiresAction(action = Action.RELOG)
@@ -371,19 +348,9 @@ public class OMMConfigV2 extends Config {
         public ValidatedColor meteor_skyglow_color = new ValidatedColor(4,141,161);
         //configs.addKeyValuePair(new Pair<>("meteor_skyglow_color", "#048da5"),);
 
-    //TODO new setting
-        @Comment("Chose how the meteor entity projectile looks. \nDYNAMIC_AUTO: The texture goes from normal to hot the closer it gets to ground level or the longer it travels even horizonatally \nDYNAMIC_HEIGHT: The texture goes from normal to hot the closer it gets to ground level \nDYNAMIC_DISTANCE: The texture goes from normal to hot the more it travels \nNORMAL: Fixed texture on the Normal one \nMID: Fixed texture to the Mid level of hotness texture \nHOT: Fixed texture to the Hot level of hotness texture ")
-        public MeteorEntityTextureMode meteor_texture_mode = MeteorEntityTextureMode.DYNAMIC_AUTO;
-    //TODO new setting
-        @Comment("The distance in blocks between texture changes from mid to hot when the meteor texture mode is set on DYNAMIC_DISTANCE (or auto using distance)")
-        public int texture_change_distance_hot = 70;
-        @Comment("The distance in blocks between texture changes from normal to mid when the meteor texture mode is set on DYNAMIC_DISTANCE (or auto using distance)")
-        public int texture_change_distance_mid = 70;
-
     }
 
     @Name("Meteor Showers")
-    @Comment("Meteor Showers")
     public MeteorShowerSection meteorShowerSection = new MeteorShowerSection();
     public static class MeteorShowerSection extends ConfigSection{
         public MeteorShowerSection(){
