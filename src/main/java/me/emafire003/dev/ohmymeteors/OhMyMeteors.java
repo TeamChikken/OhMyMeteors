@@ -60,6 +60,8 @@ public class OhMyMeteors implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 		Config.FILEPATH = PATH.resolve(OhMyMeteors.MOD_ID + "_config.yml");
+		//register new config
+		CONFIG = ConfigApiJava.registerAndLoadConfig(OMMConfigV2::new);
 
 		OMMCommands.registerArguments();
 		CommandRegistrationCallback.EVENT.register(OMMCommands::registerCommands);
@@ -81,9 +83,6 @@ public class OhMyMeteors implements ModInitializer {
 			//TODO maybe just pick one? Datapacks aren't per-dimension right? But multiverse and stuff exists so idk
 			minecraftServer.getAllLevels().forEach(OhMyMeteors::reInitStructures);
 		});
-
-		//register new config
-		CONFIG = ConfigApiJava.registerAndLoadConfig(OMMConfigV2::new);
 
 		AtomicBoolean shouldWarn = new AtomicBoolean(false);
 		//loads the config file on server startup and the scheduler

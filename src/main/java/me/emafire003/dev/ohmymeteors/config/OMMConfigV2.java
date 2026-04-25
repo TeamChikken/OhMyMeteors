@@ -30,6 +30,7 @@ public class OMMConfigV2 extends Config {
     }
 
     @Name("Meteor Spawning")
+    @Comment("Meteor Spawning")
     public MeteorSpawningSection meteorSpawning = new MeteorSpawningSection();
 
     public static class MeteorSpawningSection extends ConfigSection {
@@ -174,6 +175,7 @@ public class OMMConfigV2 extends Config {
     }
 
     @Name("Meteor Behaviour")
+    @Comment("Meteor Behaviour")
     public MeteorBehaviourSection meteorBehaviourSection = new MeteorBehaviourSection();
 
     public static class MeteorBehaviourSection extends ConfigSection{
@@ -240,7 +242,9 @@ public class OMMConfigV2 extends Config {
     }
 
     @Name("Notifications")
+    @Comment("Notifications")
     public NotificationSection notificationSection = new NotificationSection();
+
     public static class NotificationSection extends ConfigSection{
         public NotificationSection(){
             super();
@@ -281,6 +285,7 @@ public class OMMConfigV2 extends Config {
     }
 
     @Name("Lasers")
+    @Comment("Lasers")
     public LasersSection lasersSection = new LasersSection();
     public static class LasersSection extends ConfigSection{
         public LasersSection(){
@@ -323,6 +328,7 @@ public class OMMConfigV2 extends Config {
     }
 
     @Name("Visuals")
+    @Comment("Visuals")
     public VisualsSection visualsSection = new VisualsSection();
     public static class VisualsSection extends ConfigSection{
         public VisualsSection(){
@@ -351,6 +357,7 @@ public class OMMConfigV2 extends Config {
     }
 
     @Name("Meteor Showers")
+    @Comment("Meteor Showers")
     public MeteorShowerSection meteorShowerSection = new MeteorShowerSection();
     public static class MeteorShowerSection extends ConfigSection{
         public MeteorShowerSection(){
