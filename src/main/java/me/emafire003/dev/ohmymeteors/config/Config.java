@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,7 @@ public class Config {
     public static SimpleConfig CONFIG;
     private static ConfigProvider configs;
 
-    private static final int ver = 7;
+    private static final int ver = 8;
     public static Path FILEPATH;
 
     public static int VERSION;
@@ -144,11 +145,25 @@ public class Config {
     //V7
     public static double METEOR_DISPERSION_FACTOR = 3.1;
     public static boolean SPAWN_FIRE_WITH_METEOR = true;
-
+    
     public static void handleVersionChange(){
         int version_found = CONFIG.getOrDefault("version", ver);
         if(version_found != ver){
             LOGGER.warn("DIFFERENT CONFIG VERSION DETECTED, updating...");
+            if(version_found == 7){
+                LOGGER.warn("TRYING TO CONVERT CONFIG TO NEW FORMAT...");
+                List<String> settings = new ArrayList<>();
+                CONFIG.getConfigCopy().forEach((key, value) -> settings.add(key));
+                try {
+                    CONFIG.migrateToNew(settings);
+
+                } catch (IOException e) {
+                    LOGGER.error("There was an error during the conversion!");
+                    throw new RuntimeException(e);
+                }
+                LOGGER.info("Conversion completed!");
+                return;
+            }
             HashMap<String, String> config_old = CONFIG.getConfigCopy();
             try {
                 CONFIG.delete();
@@ -163,6 +178,8 @@ public class Config {
             }
         }
     }
+
+
     /**
      * @return true if all was good, false if the config was rolled back to normal
      */

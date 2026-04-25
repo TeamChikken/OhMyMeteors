@@ -21,7 +21,7 @@ public class ConfigCommand implements OMMCommand {
         try{
             CommandSourceStack source = context.getSource();
             if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.SERVER)){
-                source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Warning! The config file is located on the server, go to your server's config folder and edit '").withStyle(ChatFormatting.GOLD).append(Component.literal(Config.FILEPATH.toFile().toString()).withStyle(ChatFormatting.LIGHT_PURPLE).append(Component.literal("'").withStyle(ChatFormatting.GOLD)))));
+                source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Warning! The config file is located on the server, go to your server's config folder and edit it or use the Modmenu buttons!'").withStyle(ChatFormatting.GOLD).append(Component.literal(Config.FILEPATH.toFile().toString()).withStyle(ChatFormatting.LIGHT_PURPLE).append(Component.literal("'").withStyle(ChatFormatting.GOLD)))));
                 return 2;
             }
 
@@ -38,10 +38,7 @@ public class ConfigCommand implements OMMCommand {
 
     private int reloadConfig(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
-            if(!Config.reloadConfig()){
-                context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("§cWarning! The config file has been restored to the default settings because something could have gone wrong! A copy of the old file has been created.")));
-                return 0;
-            }
+            OhMyMeteors.CONFIG.save();
             context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX+"§rConfig reloaded!"));
             return 1;
         }catch (Exception e){
