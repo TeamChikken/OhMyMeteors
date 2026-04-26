@@ -93,7 +93,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
-        return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, OMMBlocks.BASIC_METEOR_LASER_BLOCK_ENTITY.get(), BasicMeteorLaserBlock::tick) : null;
+        return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, OMMBlocks.BASIC_METEOR_LASER_BLOCK_ENTITY, BasicMeteorLaserBlock::tick) : null;
     }
 
         /**
@@ -108,7 +108,6 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
         return AWAKE;
     }
 
-    //TODO it remains active for some reason after firing
 
     @Override
     protected @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
@@ -116,9 +115,9 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
         if(stack.is(OMMItems.FOCUSING_LENSES)){
             BlockState blockState = state.cycle(SHOW_AREA);
             if(blockState.getValue(SHOW_AREA)){
-                world.playSound(null, pos, OMMSounds.LASER_AREA_ON.get(), SoundSource.BLOCKS, 0.7f, 1f);
+                world.playSound(null, pos, OMMSounds.LASER_AREA_ON, SoundSource.BLOCKS, 0.7f, 1f);
             }else{
-                world.playSound(null, pos, OMMSounds.LASER_AREA_OFF.get(), SoundSource.BLOCKS, 0.7f, 1f);
+                world.playSound(null, pos, OMMSounds.LASER_AREA_OFF, SoundSource.BLOCKS, 0.7f, 1f);
             }
             world.setBlock(pos, blockState, Block.UPDATE_CLIENTS);
         }
@@ -162,7 +161,9 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
                 return;
             }
 
+            //TODO figure how to fix this. it's making weird stuff like changing in width while changing the height
             AABB box = new AABB(new BlockPos(pos.getX(), Math.min(pos.getY()+getYLevelAreaCoverage(), CONFIG.meteorSpawning.meteor_spawn_height), pos.getZ())).inflate(getRadiusAreaCoverage(), 1, getRadiusAreaCoverage());
+
 
             //useful to see where the box is, gets shown when the the show area blockstate property is true
             if(state.getValue(SHOW_AREA)){
@@ -225,7 +226,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
             }
 
             List<MeteorProjectileEntity> meteors = world.getEntitiesOfClass(MeteorProjectileEntity.class, box, (meteorProjectileEntity -> true));
-            if(meteors.isEmpty()){
+            if(meteors == null || meteors.isEmpty()){
                 return;
             }
             //From here it means there is at least one meteor, so activate the laser with the firing texture and stuff
@@ -241,10 +242,10 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
                     meteorProjectileEntity.detonateSimple();
                 }
 
-                serverWorld.sendParticles(OMMParticles.LASER_FLASH_PARTICLE.get(), pos.above().above().getX(), pos.above().above().getY(), pos.above().above().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
+                serverWorld.sendParticles(OMMParticles.LASER_FLASH_PARTICLE, pos.above().above().getX(), pos.above().above().getY(), pos.above().above().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
 
                 LineEffect lineEffect = LineEffect
-                        .builder(serverWorld, OMMParticles.LASER_PARTICLE.get(), pos.getCenter().add(0, 0.5, 0))
+                        .builder(serverWorld, OMMParticles.LASER_PARTICLE, pos.getCenter().add(0, 0.5, 0))
                         .targetPos(meteorProjectileEntity.position())
                         .forced(CONFIG.visualsSection.use_forced_particles)
                         .particles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*3))
@@ -259,7 +260,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
 
 
                 //Plays the "pew" laser firing sound
-                world.playSound(null, pos, OMMSounds.LASER_FIRE.get(), SoundSource.BLOCKS, 1f, 1.25f);
+                world.playSound(null, pos, OMMSounds.LASER_FIRE, SoundSource.BLOCKS, 1f, 1.25f);
 
                 if(CONFIG.notificationSection.announce_meteor_destroyed){
                     if(CONFIG.notificationSection.announce_location){

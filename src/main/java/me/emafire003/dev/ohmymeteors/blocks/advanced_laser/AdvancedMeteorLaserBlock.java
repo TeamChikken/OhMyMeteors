@@ -64,7 +64,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
-        return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, OMMBlocks.ADVANCED_METEOR_LASER_BLOCK_ENTITY.get(), AdvancedMeteorLaserBlock::tick) : null;
+        return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, OMMBlocks.ADVANCED_METEOR_LASER_BLOCK_ENTITY, AdvancedMeteorLaserBlock::tick) : null;
     }
 
     /**
@@ -106,6 +106,8 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
      */
     private static void tick(Level world, BlockPos pos, BlockState state, AdvancedMeteorLaserBlockEntity blockEntity) {
         if(world instanceof ServerLevel serverWorld && world.canSeeSky(pos.above())){
+
+
             if(CONFIG.lasersSection.should_advanced_laser_cooldown && BLOCKS_IN_COOLDOWN.containsKey(blockEntity)){
                 //The cooldown is ended, keep on with the rest
                 if(BLOCKS_IN_COOLDOWN.get(blockEntity) > CONFIG.lasersSection.advanced_laser_cooldown*20){
@@ -121,7 +123,9 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 return;
             }
 
+            //TODO figure how to fix this. it's making weird stuff like changing in width while changing the height
             AABB box = new AABB(new BlockPos(pos.getX(), Math.min(pos.getY()+getYLevelAreaCoverage(), CONFIG.meteorSpawning.meteor_spawn_height), pos.getZ())).inflate(getRadiusAreaCoverage(), 1, getRadiusAreaCoverage());
+
 
             //useful to see where the box is, gets shown when the the show area blockstate property is true
             if(state.getValue(SHOW_AREA)){
@@ -197,17 +201,17 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
 
                 meteorProjectileEntity.detonateSimple();
 
-                serverWorld.sendParticles(OMMParticles.LASER_FLASH_PARTICLE.get(), pos.above().above().getX(), pos.above().above().getY(), pos.above().above().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
+                serverWorld.sendParticles(OMMParticles.LASER_FLASH_PARTICLE, pos.above().above().getX(), pos.above().above().getY(), pos.above().above().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
 
                 //BUBBLE_POP could also work?
                 LineEffect lineEffect = LineEffect
-                        .builder(serverWorld, OMMParticles.LASER_PARTICLE.get(), pos.above().getCenter())
+                        .builder(serverWorld, OMMParticles.LASER_PARTICLE, pos.above().getCenter())
                         .targetPos(meteorProjectileEntity.position())
                         .particles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*2))
                         .forced(CONFIG.visualsSection.use_forced_particles)
                         .build();
 
-                lineEffect.setParticle(OMMParticles.LASER_PARTICLE_SMALL.get());
+                lineEffect.setParticle(OMMParticles.LASER_PARTICLE_SMALL);
                 lineEffect.setOriginPos(pos.above().getCenter().add(0.5, -0.5, 0));
                 lineEffect.setParticles((int) (pos.above().getCenter().add(0.5, -0.5, 0).distanceTo(meteorProjectileEntity.position())*2));
                 lineEffect.runFor(1);
@@ -224,7 +228,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 lineEffect.setParticles((int) (pos.above().getCenter().add(0, -0.5, -0.5).distanceTo(meteorProjectileEntity.position())*2));
                 lineEffect.runFor(1);
 
-                lineEffect.setParticle(OMMParticles.LASER_PARTICLE.get());
+                lineEffect.setParticle(OMMParticles.LASER_PARTICLE);
                 lineEffect.setOriginPos(pos.above().getCenter());
                 lineEffect.setTargetPos(meteorProjectileEntity.position());
                 lineEffect.setParticles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*2));
@@ -238,7 +242,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 });
 
                 //Plays the "pew" laser firing sound
-                world.playSound(null, pos, OMMSounds.LASER_FIRE.get(), SoundSource.BLOCKS, 1f, 1.4f);
+                world.playSound(null, pos, OMMSounds.LASER_FIRE, SoundSource.BLOCKS, 1f, 1.4f);
 
 
                 if(CONFIG.notificationSection.announce_meteor_destroyed){

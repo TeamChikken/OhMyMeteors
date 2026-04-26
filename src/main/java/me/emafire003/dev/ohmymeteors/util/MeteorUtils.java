@@ -2,11 +2,11 @@ package me.emafire003.dev.ohmymeteors.util;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
-import me.emafire003.dev.ohmymeteors.compat.opac.OPACCompat;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +19,6 @@ import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
+
 
 public class MeteorUtils {
 
@@ -89,7 +89,7 @@ public class MeteorUtils {
      * Gets a meteor object to be spawned in, with a velocity oriented downwards and a spawn position already set up
      * */
     public static MeteorProjectileEntity getDownwardsMeteor(Vec3 originPos, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height, int min_size, int max_size, boolean homing){
-        MeteorProjectileEntity meteor = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), world);
+        MeteorProjectileEntity meteor = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
 
         Tuple<Vec3, Vec3> pos_vel = getDownwardsMeteorPosAndVelocity(originPos, world, min_spawn_d, max_spawn_d, spawn_height);
 
@@ -112,7 +112,7 @@ public class MeteorUtils {
      * Returns a new meteor object with a general direction similar to the specified one, but slightly different origin and velocity
      * The spawn distances are for the new spread, so keep the generally low*/
     public static MeteorProjectileEntity getDownwardsMeteorSameDirection(Vec3 prev_origin, Vec3 prev_vel, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height, int min_size, int max_size, boolean homing){
-        MeteorProjectileEntity meteor = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), world);
+        MeteorProjectileEntity meteor = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
 
         //The invert is to also have a chance at having negative coordinates, otherwise they would always be positive
         int invert_x = 1;
@@ -167,8 +167,8 @@ public class MeteorUtils {
             return;
         }
         MeteorProjectileEntity meteor = getDownwardsMeteor(p.position(), world.getLevel(),
-                CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance,
-                CONFIG.meteorSpawning.meteor_spawn_height, CONFIG.meteorSpawning.natural_meteor_min_size,
+                CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance, 
+                CONFIG.meteorSpawning.meteor_spawn_height, CONFIG.meteorSpawning.natural_meteor_min_size, 
                 CONFIG.meteorSpawning.natural_meteor_max_size, CONFIG.meteorBehaviourSection.homing_meteors
         );
 
@@ -179,8 +179,8 @@ public class MeteorUtils {
         if(CONFIG.meteorSpawning.spawn_huge_meteors){
             if(world.getRandom().nextIntBetweenInclusive(0, CONFIG.meteorSpawning.huge_meteor_chance) == 0){
                 meteor = getDownwardsMeteor(p.position(), world.getLevel(),
-                        CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance,
-                        CONFIG.meteorSpawning.meteor_spawn_height, CONFIG.meteorSpawning.max_big_meteor_size,
+                        CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance, 
+                        CONFIG.meteorSpawning.meteor_spawn_height, CONFIG.meteorSpawning.max_big_meteor_size, 
                         CONFIG.meteorSpawning.huge_meteor_size_limit, CONFIG.meteorBehaviourSection.homing_meteors
                 );
 
@@ -196,10 +196,10 @@ public class MeteorUtils {
         if(CONFIG.notificationSection.announce_meteor_spawn && !meteor.isSilenced()){
             if(CONFIG.notificationSection.announce_location){
                 String meteorPos = meteor.blockPosition().getX() + " x, " + meteor.blockPosition().getZ() + " z!";
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", meteorPos).withStyle(ChatFormatting.RED)),
+                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", meteorPos).withStyle(ChatFormatting.RED)), 
                         CONFIG.notificationSection.actionbar_announcements));
             }else{
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)),
+                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), 
                         CONFIG.notificationSection.actionbar_announcements));
             }
         }
@@ -375,47 +375,21 @@ public class MeteorUtils {
         }
     }
 
-
-    public static boolean canSpawnInModdedRegion(ServerLevel level, BlockPos pos){
-        return canSpawnInModdedRegion(null, level, pos);
-    }
-
-    public static boolean canSpawnInModdedRegion(ServerPlayer player, BlockPos pos){
-        return canSpawnInModdedRegion(player, (ServerLevel) player.level(), pos);
-    }
-
     /**Checks if the meteor can spawn in the given modded region
      *
      * @param p The player at whose position the meteor is going to spawn
-     * @param level The world/level in which the meteor is going to spawn or has spawned
-     * @param pos The position to check
      * @return true if the meteor can spawn in there, false otherwise
      * */
-    public static boolean canSpawnInModdedRegion(ServerPlayer p, ServerLevel level, BlockPos pos){
-        if(ModList.get().isLoaded("flan")){
-            if(!FlanCompat.canSpawnHere(p, pos)){
-                if(CONFIG.notificationSection.verbose) {
-                    OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by a Flan claim, it has been discarded!");
-                }
+    public static boolean canSpawnInModdedRegion(ServerPlayer p){
+        if(FabricLoader.getInstance().isModLoaded("flan")){
+            if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
                 return false;
             }
         }
 
-        if(ModList.get().isLoaded("yawp")){
+        if(FabricLoader.getInstance().isModLoaded("yawp")){
             //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere(level, pos)) || YawpCompat.canSpawnHere(level, new BlockPos(pos.getX(), CONFIG.meteorSpawning.meteor_spawn_height, pos.getZ()))) {
-                if(CONFIG.notificationSection.verbose){
-                    OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by a YetAnotherWorldProtector claim, it has been discarded!");
-                }
-                return false;
-            }
-        }
-
-        if(ModList.get().isLoaded("yawp")){
-            if(!OPACCompat.canSpawnHere(level, pos)){
-                if(CONFIG.notificationSection.verbose){
-                    OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by an OpenPartiesAndClaims claim, it has been discarded!");
-                }
+            if(!(YawpCompat.canSpawnHere((ServerLevel) p.level(), p.blockPosition()) || YawpCompat.canSpawnHere((ServerLevel) p.level(), new BlockPos(p.blockPosition().getX(), CONFIG.meteorSpawning.meteor_spawn_height, p.blockPosition().getZ())))){
                 return false;
             }
         }
@@ -424,7 +398,7 @@ public class MeteorUtils {
 
     /** Check if the meteor can spawn in a given location and sends out error messages if verbose is true */
     public static boolean canMeteorSpawn(ServerPlayer p, Holder<DimensionType> current_dim, Holder<Biome> current_biome){
-        if(!canSpawnInModdedRegion(p, p.blockPosition())){
+        if(!canSpawnInModdedRegion(p)){
             return false;
         }
         if(!canSpawnInDimension(current_dim)){
@@ -438,7 +412,7 @@ public class MeteorUtils {
     }
 
     public static boolean canMeteorSpawnVerbose(ServerPlayer p, CommandSourceStack source, Holder<DimensionType> current_dim, Holder<Biome> current_biome){
-        if(!canSpawnInModdedRegion(p, p.blockPosition())){
+        if(!canSpawnInModdedRegion(p)){
             String msg = "The meteor cannot spawn at " + p.blockPosition() + " because of a region flag from Flan or YAWP prevents it in that location! (maybe you added a region in that location?)";
             source.sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Tried spawning meteor around player '"+p.getDisplayName().getString()+"' but failed.")).append(Component.literal(msg)));
             OhMyMeteors.LOGGER.warn(msg);

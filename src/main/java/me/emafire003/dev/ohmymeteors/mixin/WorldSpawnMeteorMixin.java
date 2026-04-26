@@ -14,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,7 +50,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
     @Inject(method = "tick", at = @At(value = "TAIL"))
     public void tickSpawnMeteor(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
         //If chance is negative, it means that no natural meteor should spawn so return early
-        if(CONFIG.meteorSpawning.meteor_spawn_chance < 0 || tickRateManager().isFrozen()){
+        if(CONFIG.meteorSpawning.meteor_spawn_chance < 0){
             return;
         }
 
@@ -72,6 +71,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
         if(!MeteorUtils.canMeteorSpawn(p, current_dim, current_biome)){
             return;
         }
+
 
         /// For the chance, biome > dim > global
         /// Aka the biome chance overrides the dimension chance which in turn overrides the global parameter

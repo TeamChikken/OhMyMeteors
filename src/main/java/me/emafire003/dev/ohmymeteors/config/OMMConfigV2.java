@@ -84,7 +84,7 @@ public class OMMConfigV2 extends Config {
         //configs.addKeyValuePair(new Pair<>("should_cooldown_between_meteors", true),);
 
         @Comment("The minimum time interval (in seconds) between spawning a meteor and then another")
-        public double min_meteor_cooldown_time = 20.0;
+        public int min_meteor_cooldown_time = 20;
         //configs.addKeyValuePair(new Pair<>("min_meteor_cooldown_time", 20),);
 
         @ConfigGroup.Pop
@@ -185,7 +185,7 @@ public class OMMConfigV2 extends Config {
         //configs.addKeyValuePair(new Pair<>("explosion_power_modifier", 0), );
 //TODO new setting implement and changelog
         @Comment("A factor to MULTIPLY the explosion power (by default, the power is equal to the meteor size), thus increasing the damage and radius of the explosion.")
-        public double explosion_power_multiplier = 1.0;
+        public float explosion_power_multiplier = 1.0f;
 
         @Comment("Should meteors be able to destroy blocks on impact?")
         public boolean meteor_griefing = true;
@@ -233,7 +233,7 @@ public class OMMConfigV2 extends Config {
 
 //TODO new setting implement and changelog
         @Comment("A factor to MULTIPLY the speed at which the meteor falls downwards. It is added to a randomly generated number between 1 and 0")
-        public double downwards_speed_multiplier = 0;
+        public double downwards_speed_multiplier = 1.0;
 
         @Comment("Should meteors be (more or less) directed towards the nearest player?")
         public boolean homing_meteors = false;

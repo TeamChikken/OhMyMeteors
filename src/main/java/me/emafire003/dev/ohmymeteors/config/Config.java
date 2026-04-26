@@ -134,7 +134,7 @@ public class Config {
     public static int MAX_METEORS_IN_SHOWER = 20;
     public static boolean ANNOUNCE_LOCATION = true;
     public static boolean ONLY_REPLACE_AIR = false;
-    public static boolean SCATTER_ONLY_REPALCE_AIR = false;
+    public static boolean SCATTER_ONLY_REPLACE_AIR = false;
 
     //V6
     public static int METEOR_SHOWER_DELAY_TICKS = 15;
@@ -145,7 +145,8 @@ public class Config {
     //V7
     public static double METEOR_DISPERSION_FACTOR = 3.1;
     public static boolean SPAWN_FIRE_WITH_METEOR = true;
-    
+
+
     public static void handleVersionChange(){
         int version_found = CONFIG.getOrDefault("version", ver);
         if(version_found != ver){
@@ -348,6 +349,8 @@ public class Config {
         configs.addKeyValuePair(new Pair<>("meteor_shower_delay_ticks", 15),"The delay (in ticks) between each meteor that gets spawned in delayed and direction delayed meteor showers");
 
         configs.addKeyValuePair(new Pair<>("spacer", "spacer"), "");
+
+
     }
 
     /**
@@ -443,7 +446,7 @@ public class Config {
         MIN_METEORS_IN_SHOWER = CONFIG.getOrDefault("min_meteors_in_shower", 5);
         MAX_METEORS_IN_SHOWER = CONFIG.getOrDefault("max_meteors_in_shower", 20);
         ONLY_REPLACE_AIR = CONFIG.getOrDefault("only_replace_air", false);
-        SCATTER_ONLY_REPALCE_AIR = CONFIG.getOrDefault("only_repalcer_air_scatter", false);
+        SCATTER_ONLY_REPLACE_AIR = CONFIG.getOrDefault("only_repalcer_air_scatter", false);
 
         //V6
         METEOR_SHOWER_DELAY_TICKS = CONFIG.getOrDefault("meteor_shower_delay_ticks", 15);
