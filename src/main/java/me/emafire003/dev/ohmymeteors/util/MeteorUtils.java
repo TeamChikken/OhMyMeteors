@@ -2,6 +2,7 @@ package me.emafire003.dev.ohmymeteors.util;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
+import me.emafire003.dev.ohmymeteors.compat.opac.OPACCompat;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
@@ -375,21 +376,47 @@ public class MeteorUtils {
         }
     }
 
+
+    public static boolean canSpawnInModdedRegion(ServerLevel level, BlockPos pos){
+        return canSpawnInModdedRegion(null, level, pos);
+    }
+
+    public static boolean canSpawnInModdedRegion(ServerPlayer player, BlockPos pos){
+        return canSpawnInModdedRegion(player, (ServerLevel) player.level(), pos);
+    }
+
     /**Checks if the meteor can spawn in the given modded region
      *
      * @param p The player at whose position the meteor is going to spawn
+     * @param level The world/level in which the meteor is going to spawn or has spawned
+     * @param pos The position to check
      * @return true if the meteor can spawn in there, false otherwise
      * */
-    public static boolean canSpawnInModdedRegion(ServerPlayer p){
+    public static boolean canSpawnInModdedRegion(ServerPlayer p, ServerLevel level, BlockPos pos){
         if(FabricLoader.getInstance().isModLoaded("flan")){
-            if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
+            if(!FlanCompat.canSpawnHere(p, pos)){
+                if(CONFIG.notificationSection.verbose) {
+                    OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by a Flan claim, it has been discarded!");
+                }
                 return false;
             }
         }
 
         if(FabricLoader.getInstance().isModLoaded("yawp")){
             //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere((ServerLevel) p.level(), p.blockPosition()) || YawpCompat.canSpawnHere((ServerLevel) p.level(), new BlockPos(p.blockPosition().getX(), CONFIG.meteorSpawning.meteor_spawn_height, p.blockPosition().getZ())))){
+            if(!(YawpCompat.canSpawnHere(level, pos)) || YawpCompat.canSpawnHere(level, new BlockPos(pos.getX(), CONFIG.meteorSpawning.meteor_spawn_height, pos.getZ()))) {
+                if(CONFIG.notificationSection.verbose){
+                    OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by a YetAnotherWorldProtector claim, it has been discarded!");
+                }
+                return false;
+            }
+        }
+
+        if(FabricLoader.getInstance().isModLoaded("openpartiesandclaims")){
+            if(!OPACCompat.canSpawnHere(level, pos)){
+                if(CONFIG.notificationSection.verbose){
+                    OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by an OpenPartiesAndClaims claim, it has been discarded!");
+                }
                 return false;
             }
         }
@@ -398,7 +425,7 @@ public class MeteorUtils {
 
     /** Check if the meteor can spawn in a given location and sends out error messages if verbose is true */
     public static boolean canMeteorSpawn(ServerPlayer p, Holder<DimensionType> current_dim, Holder<Biome> current_biome){
-        if(!canSpawnInModdedRegion(p)){
+        if(!canSpawnInModdedRegion(p, p.blockPosition())){
             return false;
         }
         if(!canSpawnInDimension(current_dim)){
@@ -412,7 +439,7 @@ public class MeteorUtils {
     }
 
     public static boolean canMeteorSpawnVerbose(ServerPlayer p, CommandSourceStack source, Holder<DimensionType> current_dim, Holder<Biome> current_biome){
-        if(!canSpawnInModdedRegion(p)){
+        if(!canSpawnInModdedRegion(p, p.blockPosition())){
             String msg = "The meteor cannot spawn at " + p.blockPosition() + " because of a region flag from Flan or YAWP prevents it in that location! (maybe you added a region in that location?)";
             source.sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Tried spawning meteor around player '"+p.getDisplayName().getString()+"' but failed.")).append(Component.literal(msg)));
             OhMyMeteors.LOGGER.warn(msg);

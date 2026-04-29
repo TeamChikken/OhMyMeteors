@@ -106,8 +106,6 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
      */
     private static void tick(Level world, BlockPos pos, BlockState state, AdvancedMeteorLaserBlockEntity blockEntity) {
         if(world instanceof ServerLevel serverWorld && world.canSeeSky(pos.above())){
-
-
             if(CONFIG.lasersSection.should_advanced_laser_cooldown && BLOCKS_IN_COOLDOWN.containsKey(blockEntity)){
                 //The cooldown is ended, keep on with the rest
                 if(BLOCKS_IN_COOLDOWN.get(blockEntity) > CONFIG.lasersSection.advanced_laser_cooldown*20){
@@ -123,9 +121,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 return;
             }
 
-            //TODO figure how to fix this. it's making weird stuff like changing in width while changing the height
             AABB box = new AABB(new BlockPos(pos.getX(), Math.min(pos.getY()+getYLevelAreaCoverage(), CONFIG.meteorSpawning.meteor_spawn_height), pos.getZ())).inflate(getRadiusAreaCoverage(), 1, getRadiusAreaCoverage());
-
 
             //useful to see where the box is, gets shown when the the show area blockstate property is true
             if(state.getValue(SHOW_AREA)){
