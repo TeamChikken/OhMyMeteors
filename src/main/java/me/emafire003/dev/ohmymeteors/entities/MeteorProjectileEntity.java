@@ -3,8 +3,6 @@ package me.emafire003.dev.ohmymeteors.entities;
 import com.google.common.annotations.VisibleForTesting;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
-import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
-import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
 import me.emafire003.dev.ohmymeteors.events.MeteorSpawnEvent;
 import me.emafire003.dev.ohmymeteors.particles.meteor_flash.FlashScaleParticleOptions;
 import me.emafire003.dev.ohmymeteors.particles.meteor_smoke.MeteorSmokeScaledOptions;
@@ -12,7 +10,6 @@ import me.emafire003.dev.ohmymeteors.util.ExplosionUtils;
 import me.emafire003.dev.ohmymeteors.util.MeteorSizeClass;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
@@ -733,20 +730,10 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
         //It also registers Air blocks as a collision so we need to avoid such cases
         if(!state.isAir()){
-            if(FabricLoader.getInstance().isModLoaded("flan") && !this.level().isClientSide()){
-                if(!FlanCompat.canSpawnHere(null, blockHitResult.getBlockPos())){
-                    this.discard();
-                    OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by a Flan claim, it has been discarded!");
-                    return;
-                }
-            }
 
-            if(FabricLoader.getInstance().isModLoaded("yawp") && !this.level().isClientSide()){
-                if(!YawpCompat.canSpawnHere((ServerLevel) this.level(), blockHitResult.getBlockPos())){
-                    this.discard();
-                    OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by YetAnotherWorldProtector 'EXPLOSION_ENTITY' flag, it has been discarded!");
-                    return;
-                }
+            if(!level().isClientSide() && !MeteorUtils.canSpawnInModdedRegion((ServerLevel) level(), blockPosition())){
+                this.discard();
+                return;
             }
 
             //Checks if the block should be bypassed or not
@@ -785,23 +772,12 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         if(exploded || !CONFIG.meteorBehaviourSection.explode_on_entity_collision){
             return;
         }
-        super.onHitEntity(entityHitResult);
         BlockPos collisionPos = entityHitResult.getEntity().getOnPos();
-        if(FabricLoader.getInstance().isModLoaded("flan") && !this.level().isClientSide()){
-            if(!FlanCompat.canSpawnHere(null, collisionPos)){
-                this.discard();
-                OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by a Flan claim, it has been discarded!");
-                return;
-            }
+        if(!level().isClientSide() && MeteorUtils.canSpawnInModdedRegion((ServerLevel) level(), collisionPos)){
+            this.discard();
+            return;
         }
-
-        if(FabricLoader.getInstance().isModLoaded("yawp") && !this.level().isClientSide()){
-            if(!YawpCompat.canSpawnHere((ServerLevel) this.level(), collisionPos)){
-                this.discard();
-                OhMyMeteors.LOGGER.warn("A meteor had entered a space protected by YetAnotherWorldProtector 'EXPLOSION_ENTITY' flag, it has been discarded!");
-                return;
-            }
-        }
+        super.onHitEntity(entityHitResult);
         explodeMeteor();
     }
 

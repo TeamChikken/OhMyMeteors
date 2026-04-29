@@ -97,7 +97,7 @@ public class OMMConfigV2 extends Config {
         @Comment("A list of the IDs of the dimensions in which meteors can or cannot naturally spawn in (see mode setting below), vanilla or not.")
         public List<String> spawn_dimensions = List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString());
         //configs.addKeyValuePair(new Pair<>("spawn_dimensions", List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString())),"A list of the IDs of the dimensions in which meteors can naturally spawn in, vanilla or not.");
-//TODO new setting write in changelog and implenent
+//TODO new setting write in changelog
         @Comment("If set to false will behave like a blacklist, aka meteors won't spawn in those dimensions. If true will behave like a whitelist, meteors will spawn ONLY in those dimensions.")
         public boolean dimension_list_mode = true; //TODO migrate to enum?
 
@@ -183,7 +183,7 @@ public class OMMConfigV2 extends Config {
         @Comment("A factor to ADD to the explosion power (by default, the power is equal to the meteor size), thus increasing the damage and radius of the explosion. Also supports negative numbers")
         public int explosion_power_modifier = 0;
         //configs.addKeyValuePair(new Pair<>("explosion_power_modifier", 0), );
-//TODO new setting implement and changelog
+//TODO new setting  changelog
         @Comment("A factor to MULTIPLY the explosion power (by default, the power is equal to the meteor size), thus increasing the damage and radius of the explosion.")
         public float explosion_power_multiplier = 1.0f;
 
@@ -198,7 +198,7 @@ public class OMMConfigV2 extends Config {
         @Comment("Should the meteor structure only replace air blocks?")
         public boolean only_replace_air = false;
         //configs.addKeyValuePair(new Pair<>("only_replace_air", false),);
-//TODO new setting, wiki & implementation
+//TODO new setting, wiki
         @Comment("Should scatter meteors be spawned when a Basic laser destroys a bigger meteor?")
         public boolean spawn_scatter_meteors = false;
         //configs.addKeyValuePair(new Pair<>("only_replace_air", false),);
@@ -231,7 +231,7 @@ public class OMMConfigV2 extends Config {
         public int downwards_speed_modifier = 0;
         //configs.addKeyValuePair(new Pair<>("downwards_speed_modifier", 0),);
 
-//TODO new setting implement and changelog
+//TODO new setting changelog
         @Comment("A factor to MULTIPLY the speed at which the meteor falls downwards. It is added to a randomly generated number between 1 and 0")
         public double downwards_speed_multiplier = 1.0;
 
@@ -281,6 +281,10 @@ public class OMMConfigV2 extends Config {
         @Comment("The radius in blocks of the area in which the sound of the meteor will be heard if the option above is true")
         public int area_explosion_sound_radius = 500;
         //configs.addKeyValuePair(new Pair<>("area_explosion_sound_radius", 500),);
+//TODO new config, changelog thingy
+        @ConfigGroup.Pop
+        @Comment("Set this to true to have more info while debugging")
+        public boolean verbose = false;
 
     }
 

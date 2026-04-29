@@ -92,6 +92,9 @@ dependencies {
     //FzzyConfig
     modImplementation "me.fzzyhmstrs:fzzy_config:${project.fzzyconfig_version}"
 
+    //OpenPartiesAndClaims
+    modCompileOnly "maven.modrinth:open-parties-and-claims:${project.opac_version}"
+
     //SchemConvert
     include (implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT')
     //implementation 'com.github.PiTheGuy:SchemConvert:v1.2.5 '

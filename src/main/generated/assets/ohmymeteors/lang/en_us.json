@@ -121,6 +121,7 @@
   "ohmymeteors.ohmymeteors_config.notificationSection.area_explosion_sound_radius.desc": "The radius in blocks of the area in which the sound of the meteor will be heard if the option above is true",
   "ohmymeteors.ohmymeteors_config.notificationSection.desc": "Notifications",
   "ohmymeteors.ohmymeteors_config.notificationSection.global_explosion_sound.desc": "Should the explosion sound of the meteor be heard by all players online?",
+  "ohmymeteors.ohmymeteors_config.notificationSection.verbose.desc": "Set this to true to have more info while debugging",
   "ohmymeteors.ohmymeteors_config.visualsSection": "Visuals",
   "ohmymeteors.ohmymeteors_config.visualsSection.desc": "Visuals",
   "ohmymeteors.ohmymeteors_config.visualsSection.meteor_render_distance.desc": "How far should meteors be rendered. WARNING: YOU NEED TO RESTART YOUR SERVER AND CLIENT IF YOU CHANGE THIS VALUE in order for it to take effect. It is multiplied by the 'entity' render distance of the server",

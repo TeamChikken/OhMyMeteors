@@ -161,9 +161,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
                 return;
             }
 
-            //TODO figure how to fix this. it's making weird stuff like changing in width while changing the height
             AABB box = new AABB(new BlockPos(pos.getX(), Math.min(pos.getY()+getYLevelAreaCoverage(), CONFIG.meteorSpawning.meteor_spawn_height), pos.getZ())).inflate(getRadiusAreaCoverage(), 1, getRadiusAreaCoverage());
-
 
             //useful to see where the box is, gets shown when the the show area blockstate property is true
             if(state.getValue(SHOW_AREA)){
