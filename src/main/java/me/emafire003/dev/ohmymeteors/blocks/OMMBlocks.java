@@ -47,7 +47,31 @@ public class OMMBlocks {
 
 
     public static final Block METEORIC_ROCK = registerBlock("meteoric_rock",
-            new MeteoricRockBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops().strength(4F).forceSolidOn()),
+            new MeteoricRockBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
+                    .emissiveRendering((blockState, getter, pos) -> {
+                        switch (blockState.getValue(OMMProperties.ROCK_TEMPERATURE)){
+                            case MID -> {
+                                return true;
+                            }case HOT -> {
+                                return true;
+                            }default -> {
+                                return false;
+                            }
+                        }
+                    })
+                    .lightLevel((blockState) -> {
+                        switch (blockState.getValue(OMMProperties.ROCK_TEMPERATURE)){
+                            case MID -> {
+                                return 2;
+                            }case HOT -> {
+                                return 3;
+                            }default -> {
+                                return 0;
+                            }
+                        }
+                    })
+            .strength(4F).forceSolidOn()),
+
             //new Block(AbstractBlock.Settings.copy(Blocks.DEEPSLATE_IRON_ORE)),
             CreativeModeTabs.NATURAL_BLOCKS, Items.SMOOTH_BASALT);
 

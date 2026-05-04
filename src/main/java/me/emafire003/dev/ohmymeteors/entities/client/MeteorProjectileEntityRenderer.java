@@ -26,8 +26,9 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
 
         matrices.pushPose();
 
+        //TODO add switcher for texture
         VertexConsumer vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+                this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid.png")), false, false);
 
         matrices.translate(0, -entity.getDimensions(entity.getPose()).height()/1.5, 0);
 
@@ -44,6 +45,7 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
 
     @Override
     public @NotNull ResourceLocation getTextureLocation(T entity) {
-        return OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png");
+        //OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")
+        return OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid.png");
     }
 }
