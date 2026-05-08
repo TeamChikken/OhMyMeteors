@@ -239,6 +239,13 @@ public class OMMConfigV2 extends Config {
         public boolean homing_meteors = false;
         //configs.addKeyValuePair(new Pair<>("homing_meteors", false),);
 
+//TODO new setting changelog
+        @Comment("If true meteors will try to load chunks like enderpearls, hopefully making contact and exploding")
+        public boolean meteors_load_chunks = false;
+//TODO new setting changelog
+        @Comment("How many chunks should be loaded before the meteors gets discarded? Aka how many loaded chunks are too many? (Each chunk is 16 blocks")
+        public int chunk_loading_limit = 25;
+
     }
 
     @Name("Notifications")

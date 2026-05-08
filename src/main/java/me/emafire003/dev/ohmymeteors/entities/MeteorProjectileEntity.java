@@ -174,7 +174,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                     chunksLoaded++;
                 }
                 //So it avoids loading chunks forever and slowing down the game
-                if(chunksLoaded > 100){
+                if(chunksLoaded > CONFIG.meteorBehaviourSection.chunk_loading_limit){
                     OhMyMeteors.LOGGER.warn("Discarded meteor projectile at " + this.position() + " after having loaded too many chunks (" + chunksLoaded + ")");
                     this.discard();
                 }
@@ -190,7 +190,9 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
     @Override
     public void tick() {
-        loadChunk();
+        if(CONFIG.meteorBehaviourSection.meteors_load_chunks){
+            loadChunk();
+        }
         if(this.level().isClientSide()){
             setupAnimationStates();
         }

@@ -17,14 +17,7 @@ public class SchedulerUtils {
         }
 
         public static void tick(MinecraftServer server) {
-            TASKS.removeIf(task -> {
-                boolean b = !task.tick(server);
-                if(b){
-                    System.gc();
-                    OhMyMeteors.LOGGER.debug("running gc");
-                }
-                return b;
-            });
+            TASKS.removeIf(task -> !task.tick(server));
         }
     }
 
