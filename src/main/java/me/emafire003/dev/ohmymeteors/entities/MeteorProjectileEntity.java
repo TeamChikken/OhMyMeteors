@@ -232,7 +232,12 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             if (particleEffect != null) {
                 this.getWorld().addParticle(particleEffect, d, e + 0.5, f, 0.0, 0.0, 0.0);
             }*/
-            particleAnimation(d, e, f);
+
+            switch (CONFIG.visualsSection.particles_mode){
+                case FANCY -> particleAnimation(d, e,f);
+                case MINIMAL -> simpleParticleAnimation(d, e, f);
+            }
+
 
             this.setPos(d, e, f);
         } else {
@@ -266,6 +271,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         this.level().addParticle(new FlashScaleParticleOptions(this.getSize()), CONFIG.visualsSection.use_forced_particles, d, e + 0.5, f, 0.0, 0.0, 0.0);
         this.level().addParticle(ParticleTypes.EXPLOSION, CONFIG.visualsSection.use_forced_particles, d, e + 0.5, f, 0.0, 0.0, 0.0);
 
+        //TODO actually see if using the addParticle solves it. Maybe only client side thingy
         if(this.level() instanceof ServerLevel world && !this.getDeltaMovement().equals(Vec3.ZERO)){
             world.players().forEach(p -> {
                 world.sendParticles(p, ParticleTypes.FLAME, CONFIG.visualsSection.use_forced_particles, d,e,f, 30+this.getSize()*5, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.02+ (double) this.getSize() /100, 0.1);
@@ -278,6 +284,15 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                 if(!prevPos.equals(Vec3.ZERO)){
                     world.sendParticles(p, ParticleTypes.CAMPFIRE_COSY_SMOKE, CONFIG.visualsSection.use_forced_particles, prevPos.x(), prevPos.y(), prevPos.z(), 1+this.getSize(), 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.02+(double) this.getSize()/100, 0.1);
                 }
+            });
+        }
+    }
+
+    public void simpleParticleAnimation(double d, double e, double f){
+        this.level().addParticle(new FlashScaleParticleOptions(this.getSize()), CONFIG.visualsSection.use_forced_particles, d, e + 0.5, f, 0.0, 0.0, 0.0);
+        if(this.level() instanceof ServerLevel world && !this.getDeltaMovement().equals(Vec3.ZERO)){
+            world.players().forEach(p -> {
+                world.sendParticles(p, new MeteorSmokeScaledOptions((float) getSize()*2/3), CONFIG.visualsSection.use_forced_particles, d,e,f, 1, 0,0,0, 0.12);
             });
         }
     }
@@ -526,9 +541,8 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         Vec3 size_factors = Vec3.atLowerCornerOf(template.get().getSize());
         BlockPos nonair_pos = BlockPos.containing(this.position()).offset(0, -(int) size_factors.y()/3, 0);
         switch (sizeClass){
-            case SMALL -> {
-                offset = new BlockPos(-1, 0, -1);
-            }case MEDIUM -> {
+            case SMALL -> offset = new BlockPos(-1, 0, -1);
+            case MEDIUM -> {
                 offset = new BlockPos(-2, +1, -2);
                 if(this.getXRot() < 27){
                     nonair_pos.offset((int) (this.getDeltaMovement().x()*2), 0, (int) (this.getDeltaMovement().z()*2));

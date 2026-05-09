@@ -61,6 +61,7 @@
   "ohmymeteors.ohmymeteors_config.lasersSection.should_advanced_laser_cooldown.desc": "Should the laser be in a cooldown where it can't fire, after it has just fired?",
   "ohmymeteors.ohmymeteors_config.lasersSection.should_basic_laser_cooldown.desc": "Should the laser be in a cooldown where it can't fire, after it has just fired?",
   "ohmymeteors.ohmymeteors_config.meteorBehaviourSection": "Meteor Behaviour",
+  "ohmymeteors.ohmymeteors_config.meteorBehaviourSection.chunk_loading_limit.desc": "How many chunks should be loaded before the meteors gets discarded? Aka how many loaded chunks are too many? (Each chunk is 16 blocks",
   "ohmymeteors.ohmymeteors_config.meteorBehaviourSection.desc": "Meteor Behaviour",
   "ohmymeteors.ohmymeteors_config.meteorBehaviourSection.downwards_speed_modifier.desc": "A factor to ADD to the speed at which the meteor falls downwards. It is added to a randomly generated number between 1 and 0. Also supports negative numbers (the meteor may go upwards tho!)",
   "ohmymeteors.ohmymeteors_config.meteorBehaviourSection.downwards_speed_multiplier.desc": "A factor to MULTIPLY the speed at which the meteor falls downwards. It is added to a randomly generated number between 1 and 0",
@@ -70,6 +71,7 @@
   "ohmymeteors.ohmymeteors_config.meteorBehaviourSection.homing_meteors.desc": "Should meteors be (more or less) directed towards the nearest player?",
   "ohmymeteors.ohmymeteors_config.meteorBehaviourSection.meteor_griefing.desc": "Should meteors be able to destroy blocks on impact?",
   "ohmymeteors.ohmymeteors_config.meteorBehaviourSection.meteor_structure.desc": "Should meteors spawn the meteor structure after impact?",
+  "ohmymeteors.ohmymeteors_config.meteorBehaviourSection.meteors_load_chunks.desc": "If true meteors will try to load chunks like enderpearls, hopefully making contact and exploding",
   "ohmymeteors.ohmymeteors_config.meteorBehaviourSection.only_replace_air.desc": "Should the meteor structure only replace air blocks?",
   "ohmymeteors.ohmymeteors_config.meteorBehaviourSection.scatter_meteor_griefing.desc": "Should the meteors that come out of a bigger meteor when it's broken be able to destroy blocks on impact?",
   "ohmymeteors.ohmymeteors_config.meteorBehaviourSection.scatter_meteor_structure.desc": "Should the meteors that come out of a bigger meteor when it's broken be able to destroy spawn structures on impact?",
@@ -127,5 +129,6 @@
   "ohmymeteors.ohmymeteors_config.visualsSection.meteor_render_distance.desc": "How far should meteors be rendered. WARNING: YOU NEED TO RESTART YOUR SERVER AND CLIENT IF YOU CHANGE THIS VALUE in order for it to take effect. It is multiplied by the 'entity' render distance of the server",
   "ohmymeteors.ohmymeteors_config.visualsSection.meteor_skyglow.desc": "If true, makes the sky glow a certain color when a meteor passes by. This only applies if the meteor is in rendering range and not world or server wide.",
   "ohmymeteors.ohmymeteors_config.visualsSection.meteor_skyglow_color.desc": "The color to apply to the sky when a meteor passes by if it's enabled. By default it's a lightblue-cyan color. Bear in mind that Minecraft still applies its own colors, so some shades (like green) work less well than others (blue)",
+  "ohmymeteors.ohmymeteors_config.visualsSection.particles_mode.desc": "Note: this setting influences client AND server performance a lot. It is a serverside setting. \nFANCY: the best particle animations, when spawning a lot of meteors can be laggy, \nMINIMAL: a compromise, less laggy with some particles, \nNONE: most performant, no particles will be sent to clients ",
   "ohmymeteors.ohmymeteors_config.visualsSection.use_forced_particles.desc": "Should meteor and laser particles be forced? They will be rendered further away and look better, but if there are too many of them you may want to disable this for lag reasons. Note: some particles will never displays as forced, like the lasers target box"
 }
