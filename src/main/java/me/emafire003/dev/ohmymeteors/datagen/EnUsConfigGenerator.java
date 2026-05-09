@@ -22,6 +22,10 @@ public class EnUsConfigGenerator extends FabricLanguageProvider {
         //call the api method and provide the builder to automatically append the config lang
         //That's it! You can of course put any other language translating here too.
         ConfigApiJava.buildTranslations(OMMConfigV2.class, ResourceLocation.fromNamespaceAndPath(OhMyMeteors.MOD_ID, "ohmymeteors_config"), "en_us", true, builder::add);
+        builder.add("ohmymeteors.particle_mode_enum.FANCY", "FANCY");
+        builder.add("ohmymeteors.particle_mode_enum.LESS", "LESS");
+        builder.add("ohmymeteors.particle_mode_enum.MINIMAL", "MINIMAL");
+        builder.add("ohmymeteors.particle_mode_enum.NONE", "NONE");
     }
 
     public void generateModTranslations(TranslationBuilder translationBuilder){
