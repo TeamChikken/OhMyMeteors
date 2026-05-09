@@ -352,7 +352,7 @@ public class OMMConfigV2 extends Config {
         //configs.addKeyValuePair(new Pair<>("use_forced_particles", true),);
     //TODO new setting
 
-        @Comment("Note: this setting influences client AND server performance a lot. It is a serverside setting. \nFANCY: the best particle animations, when spawning a lot of meteors can be laggy, \nMINIMAL: a compromise, less laggy with some particles, \nNONE: most performant, no particles will be sent to clients ")
+        @Comment("Note: this setting influences client AND server performance a lot. It is a serverside setting. \nFANCY: the best particle animations, when spawning a lot of meteors can be laggy, \nLESS: a compromise, a bit less lag with still good looking particles ,\nMINIMAL: a compromise, a lot less laggy with some particles, \nNONE: most performant, no particles will be sent to clients ")
         public ParticleMode particles_mode = ParticleMode.FANCY;
 
         //TODO should be .RESTART
