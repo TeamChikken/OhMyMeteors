@@ -50,7 +50,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
     @Inject(method = "tick", at = @At(value = "TAIL"))
     public void tickSpawnMeteor(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
         //If chance is negative, it means that no natural meteor should spawn so return early
-        if(CONFIG.meteorSpawning.meteor_spawn_chance < 0){
+        if(CONFIG.meteorSpawning.meteor_spawn_chance < 0 || tickRateManager().isFrozen()){
             return;
         }
 

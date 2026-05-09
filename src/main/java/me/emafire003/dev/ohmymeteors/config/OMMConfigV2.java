@@ -1,6 +1,7 @@
 package me.emafire003.dev.ohmymeteors.config;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.util.ParticleMode;
 import me.fzzyhmstrs.fzzy_config.annotations.*;
 import me.fzzyhmstrs.fzzy_config.api.SaveType;
 import me.fzzyhmstrs.fzzy_config.config.Config;
@@ -349,6 +350,10 @@ public class OMMConfigV2 extends Config {
         @Comment("Should meteor and laser particles be forced? They will be rendered further away and look better, but if there are too many of them you may want to disable this for lag reasons. Note: some particles will never displays as forced, like the lasers target box")
         public boolean use_forced_particles = true;
         //configs.addKeyValuePair(new Pair<>("use_forced_particles", true),);
+    //TODO new setting
+
+        @Comment("Note: this setting influences client AND server performance a lot. It is a serverside setting. \nFANCY: the best particle animations, when spawning a lot of meteors can be laggy, \nMINIMAL: a compromise, less laggy with some particles, \nNONE: most performant, no particles will be sent to clients ")
+        public ParticleMode particles_mode = ParticleMode.FANCY;
 
         //TODO should be .RESTART
         //@RequiresAction(action = Action.RELOG)
