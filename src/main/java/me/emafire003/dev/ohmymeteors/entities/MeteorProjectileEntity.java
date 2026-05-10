@@ -140,6 +140,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         this.setSize(j);
         //TODO this doesn't really make sense tbh
         MeteorSpawnEvent.EVENT.invoker().meteorSpawned(this);
+        calculateTextureChangePositions();
 
         if(this.level().isClientSide()){
             MeteorUtils.addAliveMeteor(this.getUUID());
@@ -253,6 +254,21 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         } else {
             --this.rotationStateTimeout;
         }
+    }
+
+    //TODO move these to the render state in 1.21.11+
+    public int groundLevel = -1;
+    public int distFromGround = -1;
+    public int moltenPos = -1;
+    public int midPos = -1;
+
+    protected void calculateTextureChangePositions(){
+        Optional<BlockPos> ground;
+        ground = BlockPos.MutableBlockPos.findClosestMatch(blockPosition(), 1, level().getHeight(), blockPos -> !level().getBlockState(blockPos).isAir());
+        groundLevel = ground.orElse(new BlockPos(0, 64, 0)).getY();
+                distFromGround = OhMyMeteors.CONFIG.meteorSpawning.meteor_spawn_height-groundLevel;
+        moltenPos = (distFromGround/3)+groundLevel;
+        midPos = (distFromGround*2/3)+groundLevel;
     }
 
     

@@ -20,15 +20,26 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
         this.model = new MeteorProjectileEntityModel<>(ctx.bakeLayer(MeteorProjectileEntityModel.METEOR));
     }
 
+
     @Override
     public void render(T entity, float yaw, float tickDelta, PoseStack matrices,
                        MultiBufferSource vertexConsumers, int light) {
 
         matrices.pushPose();
 
-        //TODO add switcher for texture
-        VertexConsumer vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid.png")), false, false);
+        VertexConsumer vertexconsumer; //If the dist goes up the height should go up as well. currenyly it goes down
+        //On default settings, with ground at 64, around y 177
+
+        if(entity.position().y() < entity.moltenPos){
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot.png")), false, false);
+        }else if(entity.position().y() < entity.midPos){
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid.png")), false, false);
+        }else{
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+        }
 
         matrices.translate(0, -entity.getDimensions(entity.getPose()).height()/1.5, 0);
 
