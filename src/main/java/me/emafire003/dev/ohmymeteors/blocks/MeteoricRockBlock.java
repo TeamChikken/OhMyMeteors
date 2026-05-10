@@ -59,13 +59,11 @@ public class MeteoricRockBlock extends Block {
         }
         if(stack.is(Items.ECHO_SHARD)){
             if(state.getValue(PRESERVED)){
-                //the wax and unwax thingies
                 ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.WAX_OFF, CONFIG.visualsSection.use_forced_particles,
                         pos.getCenter().x(), pos.getCenter().y(), pos.getCenter().z(),
                         30, 0.5, 0.5, 0.5, 1.0);
                 level.setBlockAndUpdate(pos, state.setValue(PRESERVED, false));
             }else{
-                //green particles
                 ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.WAX_ON, CONFIG.visualsSection.use_forced_particles,
                         pos.getCenter().x(), pos.getCenter().y(), pos.getCenter().z(),
                         30, 0.5, 0.5, 0.5, 1.0);
@@ -77,7 +75,6 @@ public class MeteoricRockBlock extends Block {
             return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
         }
         if(stack.is(Items.FLINT_AND_STEEL) || stack.is(Items.FIRE_CHARGE)){
-            //TODO sound and particle
             ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.SMOKE, CONFIG.visualsSection.use_forced_particles,
                     pos.getCenter().x(), pos.getCenter().y(), pos.getCenter().z(),
                     30, 0.05, 0.05, 0.05, 0.2);
@@ -91,7 +88,6 @@ public class MeteoricRockBlock extends Block {
                     30, 0.05, 0.05, 0.05, 0.5);
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1.4f);
             demoteHotness(state, pos, level);
-            //TODO sound and particle
             return ItemInteractionResult.SUCCESS;
         }
 
@@ -137,8 +133,7 @@ public class MeteoricRockBlock extends Block {
         if(state.getValue(PRESERVED)){
             return;
         }
-        //TODO fix this, and also fix the emissivness
-        if ((random.nextInt(10000) == 0 || this.fewerNeigboursThan(level, pos, 4))) {
+        if ((random.nextInt(100) == 0 || (this.fewerNeigboursThan(level, pos, 4) && random.nextInt(25) == 0))) {
             BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
 
             demoteHotness(state, pos, level);
