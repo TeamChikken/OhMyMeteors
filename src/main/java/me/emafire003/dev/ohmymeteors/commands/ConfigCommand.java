@@ -6,6 +6,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.config.Config;
+import me.emafire003.dev.ohmymeteors.util.ParticleMode;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandBuildContext;
@@ -48,6 +49,41 @@ public class ConfigCommand implements OMMCommand {
         }
     }
 
+    private int presetPerformance(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        try{
+            OhMyMeteors.CONFIG.visualsSection.use_forced_particles = false;
+            OhMyMeteors.CONFIG.visualsSection.particles_mode = ParticleMode.MINIMAL;
+            OhMyMeteors.CONFIG.meteorShowerSection.meteor_showers_enabled = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.meteors_load_chunks = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.use_better_explosions = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.spawn_scatter_meteors = false;
+            OhMyMeteors.CONFIG.save();
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX+"§rConfig settings adjusted to have more performance!"));
+            return 1;
+        }catch (Exception e){
+            context.getSource().sendFailure(Component.literal("[Oh My, Meteors!] ").append("§cThere has been an error while reloading the config, check the logs"));
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    private int presetNoGriefing(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        try{
+            OhMyMeteors.CONFIG.meteorBehaviourSection.meteor_structure = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.meteor_griefing = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.scatter_meteor_structure = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.scatter_meteor_griefing = false;
+            OhMyMeteors.CONFIG.meteorBehaviourSection.spawn_fire_with_meteor = false;
+            OhMyMeteors.CONFIG.save();
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX+"§rConfig settings adjusted to have no griefing!"));
+            return 1;
+        }catch (Exception e){
+            context.getSource().sendFailure(Component.literal("[Oh My, Meteors!] ").append("§cThere has been an error while reloading the config, check the logs"));
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     @Override
     public LiteralCommandNode<CommandSourceStack> getNode(CommandBuildContext registryAccess) {
         return Commands
@@ -57,6 +93,14 @@ public class ConfigCommand implements OMMCommand {
                         Commands.literal("reload").executes(this::reloadConfig)
                 ).then(
                         Commands.literal("open").executes(this::openConfig)
+                )
+                .then(
+                        Commands.literal("preset")
+                                .then(
+                                        Commands.literal("performance").executes(this::presetPerformance)
+                                ).then(
+                                        Commands.literal("no_griefing").executes(this::presetNoGriefing)
+                                )
                 )
 
                 .build();
