@@ -26,6 +26,13 @@ public class EnUsConfigGenerator extends FabricLanguageProvider {
         builder.add("ohmymeteors.particle_mode_enum.LESS", "LESS");
         builder.add("ohmymeteors.particle_mode_enum.MINIMAL", "MINIMAL");
         builder.add("ohmymeteors.particle_mode_enum.NONE", "NONE");
+        builder.add("ohmymeteors.texture_mode_enum.DYNAMIC_HEIGHT", "DYNAMIC_HEIGHT");
+        builder.add("ohmymeteors.texture_mode_enum.DYNAMIC_DISTANCE", "DYNAMIC_DISTANCE");
+        builder.add("ohmymeteors.texture_mode_enum.DYNAMIC_AUTO", "DYNAMIC_AUTO");
+        builder.add("ohmymeteors.texture_mode_enum.HOT", "HOT");
+        builder.add("ohmymeteors.texture_mode_enum.MID", "MID");
+        builder.add("ohmymeteors.texture_mode_enum.NORMAL", "NORMAL");
+        //ohmymeteors.texture_mode_enum
     }
 
     public void generateModTranslations(TranslationBuilder translationBuilder){

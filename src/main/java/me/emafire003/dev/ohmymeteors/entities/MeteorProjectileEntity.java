@@ -145,11 +145,18 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         if(this.level().isClientSide()){
             MeteorUtils.addAliveMeteor(this.getUUID());
         }
+        lastPos = this.blockPosition();
     }
 
     @Override
     public final @NotNull EntityDimensions getDimensions(Pose pose) {
         return super.getDimensions(pose).scale(this.getSize());
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        //this.travelledBlocks = 0;
+        super.remove(reason);
     }
 
     /// these things are used to keep track of a chunk load, in order to not send a loading ticket each tick
@@ -194,9 +201,18 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         if(CONFIG.meteorBehaviourSection.meteors_load_chunks){
             loadChunk();
         }
+        if(blockPosition().getY() > 2000){
+            this.discard();
+            OhMyMeteors.LOGGER.warn("A meteor somehow reached 2000 blocks of height, it has been discarded");
+        }
         if(this.level().isClientSide()){
             setupAnimationStates();
         }
+        if(!lastPos.equals(blockPosition())){
+            travelledBlocks++;
+            lastPos = blockPosition();
+        }
+
         Entity entity = this.getOwner();
         if (this.level().isClientSide || (entity == null || !entity.isRemoved()) && this.level().hasChunkAt(this.blockPosition())) {
             super.tick();
@@ -261,6 +277,8 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
     public int distFromGround = -1;
     public int moltenPos = -1;
     public int midPos = -1;
+    public int travelledBlocks = 0;
+    public BlockPos lastPos;
 
     protected void calculateTextureChangePositions(){
         Optional<BlockPos> ground;
@@ -765,7 +783,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
     /// Since it likes to explode more times instead of just one, i'll put this here so it won't explode twice
     protected boolean exploded = false;
-    protected int travelledBlocks = 0;
+    protected int travelledBlocksAfterHit = 0;
     protected Vec3 explosionPos = null;
 
     /// This is the main method which does the meteor stuff on impact
@@ -805,8 +823,8 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
             if(explosionPos == null){
                 explosionPos = this.position();
             }
-            travelledBlocks++;
-            if(this.getSize()/2 > travelledBlocks){
+            travelledBlocksAfterHit++;
+            if(this.getSize()/2 > travelledBlocksAfterHit){
                 return;
             }
 

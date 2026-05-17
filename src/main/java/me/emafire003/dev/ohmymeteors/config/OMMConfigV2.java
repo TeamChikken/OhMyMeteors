@@ -1,6 +1,7 @@
 package me.emafire003.dev.ohmymeteors.config;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.util.MeteorEntityTextureMode;
 import me.emafire003.dev.ohmymeteors.util.ParticleMode;
 import me.fzzyhmstrs.fzzy_config.annotations.*;
 import me.fzzyhmstrs.fzzy_config.api.SaveType;
@@ -369,6 +370,15 @@ public class OMMConfigV2 extends Config {
         @Comment("The color to apply to the sky when a meteor passes by if it's enabled. By default it's a lightblue-cyan color. Bear in mind that Minecraft still applies its own colors, so some shades (like green) work less well than others (blue)")
         public ValidatedColor meteor_skyglow_color = new ValidatedColor(4,141,161);
         //configs.addKeyValuePair(new Pair<>("meteor_skyglow_color", "#048da5"),);
+
+    //TODO new setting
+        @Comment("Chose how the meteor entity projectile looks. \nDYNAMIC_AUTO: The texture goes from normal to hot the closer it gets to ground level or the longer it travels even horizonatally \nDYNAMIC_HEIGHT: The texture goes from normal to hot the closer it gets to ground level \nDYNAMIC_DISTANCE: The texture goes from normal to hot the more it travels \nNORMAL: Fixed texture on the Normal one \nMID: Fixed texture to the Mid level of hotness texture \nHOT: Fixed texture to the Hot level of hotness texture ")
+        public MeteorEntityTextureMode meteor_texture_mode = MeteorEntityTextureMode.DYNAMIC_AUTO;
+    //TODO new setting
+        @Comment("The distance in blocks between texture changes from mid to hot when the meteor texture mode is set on DYNAMIC_DISTANCE (or auto using distance)")
+        public int texture_change_distance_hot = 70;
+        @Comment("The distance in blocks between texture changes from normal to mid when the meteor texture mode is set on DYNAMIC_DISTANCE (or auto using distance)")
+        public int texture_change_distance_mid = 70;
 
     }
 
