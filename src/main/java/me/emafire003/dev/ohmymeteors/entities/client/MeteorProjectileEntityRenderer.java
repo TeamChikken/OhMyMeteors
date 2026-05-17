@@ -27,18 +27,25 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
 
         matrices.pushPose();
 
-        VertexConsumer vertexconsumer; //If the dist goes up the height should go up as well. currenyly it goes down
-        //On default settings, with ground at 64, around y 177
+        VertexConsumer vertexconsumer;
 
-        if(entity.position().y() < entity.moltenPos){
-            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+        switch (OhMyMeteors.CONFIG.visualsSection.meteor_texture_mode){
+            case HOT -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
                     this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot.png")), false, false);
-        }else if(entity.position().y() < entity.midPos){
-            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+            case MID -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
                     this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid.png")), false, false);
-        }else{
-            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+            case DYNAMIC_HEIGHT -> vertexconsumer = textureByHeight(entity, vertexConsumers);
+            case DYNAMIC_DISTANCE -> vertexconsumer = textureByDistance(entity, vertexConsumers);
+            case DYNAMIC_AUTO -> {
+                if(Math.abs(entity.getDeltaMovement().x()) > 0.85 || Math.abs(entity.getDeltaMovement().z()) > 0.85){
+                    vertexconsumer = textureByDistance(entity, vertexConsumers);
+                }else{
+                    vertexconsumer = textureByHeight(entity, vertexConsumers);
+                }
+            }
+            default -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
                     this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+
         }
 
         matrices.translate(0, -entity.getDimensions(entity.getPose()).height()/1.5, 0);
@@ -52,6 +59,36 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
         matrices.popPose();
 
         super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
+    }
+
+    public VertexConsumer textureByHeight(T entity, MultiBufferSource vertexConsumers){
+        VertexConsumer vertexconsumer;
+        if(entity.position().y() < entity.moltenPos){
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot.png")), false, false);
+        }else if(entity.position().y() < entity.midPos){
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid.png")), false, false);
+        }else{
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+        }
+        return vertexconsumer;
+    }
+
+    public VertexConsumer textureByDistance(T entity, MultiBufferSource vertexConsumers){
+        VertexConsumer vertexconsumer;
+        if(entity.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_hot+OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot.png")), false, false);
+        }else if(entity.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid.png")), false, false);
+        }else{
+            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+        }
+        return vertexconsumer;
     }
 
     @Override
