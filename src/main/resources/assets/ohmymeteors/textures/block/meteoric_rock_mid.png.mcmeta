@@ -3,7 +3,11 @@
     "frametime": 15,
     "interpolate": true,
     "frames": [
-      0
+      0,
+      1,
+      2,
+      2,
+      1
     ]
   }
 }
