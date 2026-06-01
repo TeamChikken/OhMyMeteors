@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //TODO maybe add here or in an addon a buildable siren and a cannon or gun or automatic laser that shoots incoming meteors. Maybe an addon.
 
 public class OhMyMeteors implements ModInitializer {
+
 	// This logger is used to write text to the console and the log file.
 	// It is considered best practice to use your mod id as the logger's name.
 	// That way, it's clear which mod wrote info, warnings, and errors.

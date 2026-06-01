@@ -7,21 +7,23 @@ import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.ParticleMode;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 
 public class ConfigCommand implements OMMCommand {
 
     private int openConfig(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
             CommandSourceStack source = context.getSource();
-            if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.SERVER)){
+            source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Please open the config file from Modmenu!").withStyle(ChatFormatting.GOLD).append(Component.literal(Config.FILEPATH.toFile().toString()).withStyle(ChatFormatting.LIGHT_PURPLE).append(Component.literal("'").withStyle(ChatFormatting.GOLD)))));
+            /*if(source.getEntity().level().isClientSide()){
+                ConfigApi.INSTANCE.openScreen(OhMyMeteors.MOD_ID);
+                return 1;
+            }*/ //TODO if i need to implement networking for something, also add this
+            /*if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.SERVER)){
                 source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Warning! The config file is located on the server, go to your server's config folder and edit it or use the Modmenu buttons!'").withStyle(ChatFormatting.GOLD).append(Component.literal(Config.FILEPATH.toFile().toString()).withStyle(ChatFormatting.LIGHT_PURPLE).append(Component.literal("'").withStyle(ChatFormatting.GOLD)))));
                 return 2;
             }
@@ -29,7 +31,7 @@ public class ConfigCommand implements OMMCommand {
             Util.getPlatform().openFile(Config.FILEPATH.toFile());
 
             source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Make sure to use ").append(Component.literal("/omm config reload").withStyle(ChatFormatting.BLUE).append(Component.literal(" when you have finished editing the config file!").withStyle(ChatFormatting.RESET)))));
-            return 1;
+            */return 1;
         }catch (Exception e){
             context.getSource().sendFailure(Component.literal("[Oh My, Meteors!] ").append("§cThere has been an error while reloading the config, check the logs"));
             e.printStackTrace();
