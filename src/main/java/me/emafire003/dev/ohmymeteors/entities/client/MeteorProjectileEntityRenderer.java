@@ -31,7 +31,7 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
 
         switch (OhMyMeteors.CONFIG.visualsSection.meteor_texture_mode){
             case HOT -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_old.png")), false, false);
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png")), false, false);
             case MID -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
                     this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png")), false, false);
             case DYNAMIC_HEIGHT -> vertexconsumer = textureByHeight(entity, vertexConsumers);
@@ -65,7 +65,7 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
         VertexConsumer vertexconsumer;
         if(entity.position().y() < entity.moltenPos){
             vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_old.png")), false, false);
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png")), false, false);
         }else if(entity.position().y() < entity.midPos){
             vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
                     this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png")), false, false);
@@ -81,7 +81,7 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
         VertexConsumer vertexconsumer;
         if(entity.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_hot+OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
             vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_old.png")), false, false);
+                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png")), false, false);
         }else if(entity.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
             vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
                     this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png")), false, false);
