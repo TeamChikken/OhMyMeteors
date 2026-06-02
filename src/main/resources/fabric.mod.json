@@ -1,0 +1,50 @@
+{
+	"schemaVersion": 1,
+	"id": "ohmymeteors",
+	"version": "${version}",
+	"name": "Oh My, Meteors!",
+	"description": "A mod that introduces meteors that fall from the sky! Extremely configurable, a lot of meteor sizes with different types of impact and generated structures. And also a new kitty! Commissioned by SlayerTheChikken",
+	"authors": [
+		"Emafire003, SlayerTheChikken"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/ohmymeteors",
+		"sources": "hhttps://github.com/TeamChikken/OhMyMeteors",
+		"issues": "https://github.com/TeamChikken/OhMyMeteors/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/ohmymeteors/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"me.emafire003.dev.ohmymeteors.OhMyMeteors"
+		],
+		"client": [
+			"me.emafire003.dev.ohmymeteors.OhMyMeteorsClient"
+		],
+		"modmenu": [
+			"me.emafire003.dev.ohmymeteors.compat.modmenu.ModMenuIntegration"
+		],
+		"fabric-datagen": [
+			"me.emafire003.dev.ohmymeteors.datagen.OMMDataGen"
+		]
+	},
+	"custom": {
+		"fzzy_config": [
+			"ohmymeteors"
+		]
+	},
+	"mixins": [
+      "ohmymeteors.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": ">=1.21-",
+		"java": ">=16",
+		"fabric-api": ">=0.116.9",
+		"fzzy_config": ">=0.7.6"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
