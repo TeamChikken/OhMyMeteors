@@ -74,11 +74,11 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
         this.registerDefaultState(this.stateDefinition.any().setValue(SHOW_AREA, false).setValue(IN_COOLDOWN, false).setValue(FIRING, false));
     }
 
-    @Override
+ /*   @Override
     protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(BasicMeteorLaserBlock::new);
     }
-
+*/
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new BasicMeteorLaserBlockEntity(pos, state);

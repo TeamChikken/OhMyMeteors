@@ -1,5 +1,6 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
+import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.core.RegistryAccess;
@@ -55,7 +56,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
     @Inject(method = "tick", at = @At(value = "TAIL"))
     public void tickSpawnMeteor(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
         //If chance is negative, it means that no natural meteor should spawn so return early
-        if(CONFIG.meteorSpawning.meteor_spawn_chance < 0 || tickRateManager().isFrozen()){
+        if(CONFIG.meteorSpawning.meteor_spawn_chance < 0){
             return;
         }
 
@@ -126,28 +127,6 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
             if(CONFIG.meteorSpawning.should_cooldown_between_meteors){
                 meteorCooldown = 20*CONFIG.meteorSpawning.min_meteor_cooldown_time;
             }
-        }
-    }
-
-
-    @Unique
-    public boolean checkDimension(Holder<DimensionType> current_dim){
-        //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
-        //and then stops checking
-        return Config.SPAWN_DIMENSIONS.contains(current_dim.unwrapKey().get().location().toString());
-    }
-
-    @Unique
-    public boolean checkBiome(Holder<Biome> current_biome){
-        //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
-        //and then stops checking
-
-        //If true means whitelist aka it HAS to be present
-        //if false means in MUST NOT be present
-        if(Config.BIOME_LIST_MODE){
-            return Config.BIOME_SPAWN_LIST.contains(current_biome.unwrapKey().get().location().toString());
-        }else{
-            return !Config.BIOME_SPAWN_LIST.contains(current_biome.unwrapKey().get().location().toString());
         }
     }
 
