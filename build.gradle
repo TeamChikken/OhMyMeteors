@@ -211,7 +211,7 @@ dependencies {
     //runtimeOnly("maven.modrinth:forge-config-api-port:v21.1.6-1.21.1-NeoForge")
 
     //FzzyConfig
-    implementation "me.fzzyhmstrs:fzzy_config:${project.fzzyconfig_version}"
+    modCompileOnly "me.fzzyhmstrs:fzzy_config:${project.fzzyconfig_version}"
 
     //OpenPartiesAndClaims
     compileOnly "maven.modrinth:open-parties-and-claims:${project.opac_version}"

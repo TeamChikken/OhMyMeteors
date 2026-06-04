@@ -28,7 +28,7 @@ import java.util.Map;
 public class OMMConfigV2 extends Config {
 
     public OMMConfigV2(){
-        super(ResourceLocation.fromNamespaceAndPath(OhMyMeteors.MOD_ID, "ohmymeteors_config"));
+        super(ResourceLocation.tryBuild(OhMyMeteors.MOD_ID, "ohmymeteors_config"));
     }
 
     @Name("Meteor Spawning")
