@@ -51,10 +51,10 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
         this.registerDefaultState(this.stateDefinition.any().setValue(SHOW_AREA, false).setValue(IN_COOLDOWN, false).setValue(FIRING, false));
     }
 
-    @Override
+    /*@Override
     protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(AdvancedMeteorLaserBlock::new);
-    }
+    }*/
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

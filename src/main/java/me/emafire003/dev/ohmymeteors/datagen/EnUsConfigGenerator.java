@@ -5,34 +5,13 @@ import me.emafire003.dev.ohmymeteors.config.OMMConfigV2;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.concurrent.CompletableFuture;
 
 public class EnUsConfigGenerator extends FabricLanguageProvider {
 
-    public EnUsConfigGenerator(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
-        super(dataOutput, "en_us", registryLookup);
-    }
+    public EnUsConfigGenerator(FabricDataOutput dataOutput) {
+        super(dataOutput, "en_us");
 
-    @Override
-    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder builder) {
-        generateModTranslations(builder);
-        //call the api method and provide the builder to automatically append the config lang
-        //That's it! You can of course put any other language translating here too.
-        ConfigApiJava.buildTranslations(OMMConfigV2.class, ResourceLocation.fromNamespaceAndPath(OhMyMeteors.MOD_ID, "ohmymeteors_config"), "en_us", true, builder::add);
-        builder.add("ohmymeteors.particle_mode_enum.FANCY", "FANCY");
-        builder.add("ohmymeteors.particle_mode_enum.LESS", "LESS");
-        builder.add("ohmymeteors.particle_mode_enum.MINIMAL", "MINIMAL");
-        builder.add("ohmymeteors.particle_mode_enum.NONE", "NONE");
-        builder.add("ohmymeteors.texture_mode_enum.DYNAMIC_HEIGHT", "DYNAMIC_HEIGHT");
-        builder.add("ohmymeteors.texture_mode_enum.DYNAMIC_DISTANCE", "DYNAMIC_DISTANCE");
-        builder.add("ohmymeteors.texture_mode_enum.DYNAMIC_AUTO", "DYNAMIC_AUTO");
-        builder.add("ohmymeteors.texture_mode_enum.HOT", "HOT");
-        builder.add("ohmymeteors.texture_mode_enum.MID", "MID");
-        builder.add("ohmymeteors.texture_mode_enum.NORMAL", "NORMAL");
-        //ohmymeteors.texture_mode_enum
     }
 
     public void generateModTranslations(TranslationBuilder translationBuilder){
@@ -92,5 +71,24 @@ public class EnUsConfigGenerator extends FabricLanguageProvider {
         translationBuilder.add("audio.ohmymeteors.laser_fire", "Meteor Laser fired!");
         translationBuilder.add("audio.ohmymeteors.laser_area_on", "Showing laser target area!");
         translationBuilder.add("audio.ohmymeteors.laser_area_off", "Stop showing laser target area!");
+    }
+
+    @Override
+    public void generateTranslations(TranslationBuilder builder) {
+        generateModTranslations(builder);
+        //call the api method and provide the builder to automatically append the config lang
+        //That's it! You can of course put any other language translating here too.
+        ConfigApiJava.buildTranslations(OMMConfigV2.class, ResourceLocation.tryBuild(OhMyMeteors.MOD_ID, "ohmymeteors_config"), "en_us", true, builder::add);
+        builder.add("ohmymeteors.particle_mode_enum.FANCY", "FANCY");
+        builder.add("ohmymeteors.particle_mode_enum.LESS", "LESS");
+        builder.add("ohmymeteors.particle_mode_enum.MINIMAL", "MINIMAL");
+        builder.add("ohmymeteors.particle_mode_enum.NONE", "NONE");
+        builder.add("ohmymeteors.texture_mode_enum.DYNAMIC_HEIGHT", "DYNAMIC_HEIGHT");
+        builder.add("ohmymeteors.texture_mode_enum.DYNAMIC_DISTANCE", "DYNAMIC_DISTANCE");
+        builder.add("ohmymeteors.texture_mode_enum.DYNAMIC_AUTO", "DYNAMIC_AUTO");
+        builder.add("ohmymeteors.texture_mode_enum.HOT", "HOT");
+        builder.add("ohmymeteors.texture_mode_enum.MID", "MID");
+        builder.add("ohmymeteors.texture_mode_enum.NORMAL", "NORMAL");
+        //ohmymeteors.texture_mode_enum
     }
 }

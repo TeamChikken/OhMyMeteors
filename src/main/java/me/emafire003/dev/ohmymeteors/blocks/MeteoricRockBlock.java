@@ -10,7 +10,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -54,10 +54,11 @@ public class MeteoricRockBlock extends Block {
     }
 
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
         if(level.isClientSide()){
-            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+            return super.use(state,level,pos,player,interactionHand,blockHitResult);
         }
+        ItemStack stack = player.getItemInHand(interactionHand);
         if(stack.is(Items.ECHO_SHARD)){
             if(state.getValue(PRESERVED)){
                 ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.WAX_OFF, CONFIG.visualsSection.use_forced_particles,
@@ -70,10 +71,10 @@ public class MeteoricRockBlock extends Block {
                         30, 0.5, 0.5, 0.5, 1.0);
                 level.setBlockAndUpdate(pos, state.setValue(PRESERVED, true));
             }
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         if(state.getValue(PRESERVED)){
-            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+            return super.use(state,level,pos,player,interactionHand,blockHitResult);
         }
         if(stack.is(Items.FLINT_AND_STEEL) || stack.is(Items.FIRE_CHARGE)){
             ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.SMOKE, CONFIG.visualsSection.use_forced_particles,
@@ -81,7 +82,7 @@ public class MeteoricRockBlock extends Block {
                     30, 0.05, 0.05, 0.05, 0.2);
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1.4f);
             promoteHotness(state, pos, level);
-            return ItemInteractionResult.CONSUME;
+            return InteractionResult.CONSUME;
         }
         if(stack.is(Items.SNOWBALL)){
             ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.SMOKE, CONFIG.visualsSection.use_forced_particles,
@@ -89,10 +90,10 @@ public class MeteoricRockBlock extends Block {
                     30, 0.05, 0.05, 0.05, 0.5);
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1.4f);
             demoteHotness(state, pos, level);
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        return super.use(state, level, pos, player, interactionHand, blockHitResult);
     }
 
     protected void promoteHotness(BlockState state, BlockPos pos, Level level){
@@ -129,8 +130,9 @@ public class MeteoricRockBlock extends Block {
         level.scheduleTick(pos, this, Mth.nextInt(level.getRandom(), 60, 120));
     }
 
+
     @Override
-    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if(state.getValue(PRESERVED)){
             return;
         }
@@ -152,7 +154,7 @@ public class MeteoricRockBlock extends Block {
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         if (neighborBlock.defaultBlockState().is(this) && this.fewerNeigboursThan(level, pos, 2)) {
             this.demoteHotness(state, pos, level);
         }

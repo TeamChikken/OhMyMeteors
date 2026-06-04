@@ -514,7 +514,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
                     this.blockPosition(), Mirror.NONE, Rotation.NONE, false, 1f, m_pos_offset);
 
                 if(CONFIG.meteorBehaviourSection.only_replace_air){
-                    placer.setOnlyReplaceTaggedBlocks(true, BlockTags.AIR);
+                    placer.setOnlyReplaceTaggedBlocks(true, OhMyMeteors.AIR_BLOCKS);
                 }
 
                 return placer;
@@ -550,7 +550,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
             }
         }
-        if(Config.ONLY_REPLACE_AIR){
+        if(CONFIG.meteorBehaviourSection.only_replace_air){
             placer.setOnlyReplaceTaggedBlocks(true, OhMyMeteors.AIR_BLOCKS);
         }
         return placer;
