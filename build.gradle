@@ -148,6 +148,10 @@ repositories {
         name = "FzzyMaven"
         url = uri("https://maven.fzzyhmstrs.me/")
     }
+    maven {
+        name = 'Kotlin for Forge'
+        url = 'https://thedarkcolour.github.io/KotlinForForge/'
+    }
     maven { url 'https://jitpack.io' }
     mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
@@ -211,7 +215,9 @@ dependencies {
     //runtimeOnly("maven.modrinth:forge-config-api-port:v21.1.6-1.21.1-NeoForge")
 
     //FzzyConfig
-    modCompileOnly "me.fzzyhmstrs:fzzy_config:${project.fzzyconfig_version}"
+    implementation "me.fzzyhmstrs:fzzy_config:${project.fzzyconfig_version}"
+    //required by fzzyconfig
+    implementation 'thedarkcolour:kotlinforforge-neoforge:4.11.0' //4.12.0
 
     //OpenPartiesAndClaims
     compileOnly "maven.modrinth:open-parties-and-claims:${project.opac_version}"
@@ -236,6 +242,9 @@ dependencies {
 mixin {
     add sourceSets.main, 'ohmymeteors.refmap.json'
     config 'ohmymeteors.mixins.json'
+
+    debug.verbose = true
+    debug.export = true
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

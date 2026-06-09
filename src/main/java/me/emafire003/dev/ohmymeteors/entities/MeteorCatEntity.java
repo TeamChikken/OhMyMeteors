@@ -1,7 +1,6 @@
 package me.emafire003.dev.ohmymeteors.entities;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
-import me.emafire003.dev.ohmymeteors.mixin.CatCollarInvoker;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -71,9 +70,9 @@ public class MeteorCatEntity extends Cat {
                 catEntity.setOwnerUUID(this.getOwnerUUID());
                 catEntity.setTame(true);
                 if (this.random.nextBoolean()) {
-                    ((CatCollarInvoker) catEntity).invokeSetCollarColor(this.getCollarColor());
+                    catEntity.setCollarColor(this.getCollarColor());
                 } else {
-                    ((CatCollarInvoker) catEntity).invokeSetCollarColor(this.getCollarColor());
+                    catEntity.setCollarColor(this.getCollarColor());
                 }
             }
         }

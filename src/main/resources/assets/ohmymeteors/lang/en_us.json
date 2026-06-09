@@ -123,5 +123,17 @@
   "ohmymeteors.ohmymeteors_config.visualsSection.meteor_render_distance.desc": "How far should meteors be rendered. WARNING: YOU NEED TO RESTART YOUR SERVER AND CLIENT IF YOU CHANGE THIS VALUE in order for it to take effect. It is multiplied by the 'entity' render distance of the server",
   "ohmymeteors.ohmymeteors_config.visualsSection.meteor_skyglow.desc": "If true, makes the sky glow a certain color when a meteor passes by. This only applies if the meteor is in rendering range and not world or server wide.",
   "ohmymeteors.ohmymeteors_config.visualsSection.meteor_skyglow_color.desc": "The color to apply to the sky when a meteor passes by if it's enabled. By default it's a lightblue-cyan color. Bear in mind that Minecraft still applies its own colors, so some shades (like green) work less well than others (blue)",
-  "ohmymeteors.ohmymeteors_config.visualsSection.use_forced_particles.desc": "Should meteor and laser particles be forced? They will be rendered further away and look better, but if there are too many of them you may want to disable this for lag reasons. Note: some particles will never displays as forced, like the lasers target box"
+  "ohmymeteors.ohmymeteors_config.visualsSection.use_forced_particles.desc": "Should meteor and laser particles be forced? They will be rendered further away and look better, but if there are too many of them you may want to disable this for lag reasons. Note: some particles will never displays as forced, like the lasers target box",
+  "creativetab.ohmymeteors.ohmymeteors_tab": "Oh My, Meteor stuff!",
+  "ohmymeteors.particle_mode_enum.FANCY": "FANCY",
+  "ohmymeteors.particle_mode_enum.LESS": "LESS",
+  "ohmymeteors.particle_mode_enum.MINIMAL": "MINIMAL",
+  "ohmymeteors.particle_mode_enum.NONE": "NONE",
+  "ohmymeteors.texture_mode_enum.DYNAMIC_AUTO": "DYNAMIC_AUTO",
+  "ohmymeteors.texture_mode_enum.DYNAMIC_DISTANCE": "DYNAMIC_DISTANCE",
+  "ohmymeteors.texture_mode_enum.DYNAMIC_HEIGHT": "DYNAMIC_HEIGHT",
+  "ohmymeteors.texture_mode_enum.HOT": "HOT",
+  "ohmymeteors.texture_mode_enum.MID": "MID",
+  "ohmymeteors.texture_mode_enum.NORMAL": "NORMAL"
+
 }

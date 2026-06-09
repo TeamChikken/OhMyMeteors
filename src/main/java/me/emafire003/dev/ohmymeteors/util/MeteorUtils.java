@@ -411,7 +411,7 @@ public class MeteorUtils {
             }
         }
 
-        if(ModList.get().isLoaded(("openpartiesandclaims")){
+        if(ModList.get().isLoaded("openpartiesandclaims")){
             if(!OPACCompat.canSpawnHere(level, pos)){
                 if(CONFIG.notificationSection.verbose){
                     OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by an OpenPartiesAndClaims claim, it has been discarded!");

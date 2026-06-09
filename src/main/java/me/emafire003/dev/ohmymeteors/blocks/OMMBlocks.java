@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -54,13 +53,9 @@ public class OMMBlocks {
                     AdvancedMeteorLaserBlockEntity::new, ADVANCED_METEOR_LASER.get()
             ).build(null));
 
-    public static final BlockEntityType<AdvancedMeteorLaserBlockEntity> ADVANCED_METEOR_LASER_BLOCK_ENTITY =
-            register("advanced_meteor_laser", AdvancedMeteorLaserBlockEntity::new, ADVANCED_METEOR_LASER);
 
-
-    //TODO fix
-    public static final Block METEORIC_ROCK = registerBlock("meteoric_rock",
-            new MeteoricRockBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
+    public static final RegistryObject<Block> METEORIC_ROCK = registerBlock("meteoric_rock",
+            () -> new MeteoricRockBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
                     .emissiveRendering((blockState, getter, pos) -> {
                         switch (blockState.getValue(OMMProperties.ROCK_TEMPERATURE)){
                             case MID -> {
@@ -83,10 +78,7 @@ public class OMMBlocks {
                             }
                         }
                     })
-            .strength(4F).forceSolidOn()),
-
-            //new Block(AbstractBlock.Settings.copy(Blocks.DEEPSLATE_IRON_ORE)),
-            CreativeModeTabs.NATURAL_BLOCKS, Items.SMOOTH_BASALT);
+                    .strength(4F).forceSolidOn()));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
