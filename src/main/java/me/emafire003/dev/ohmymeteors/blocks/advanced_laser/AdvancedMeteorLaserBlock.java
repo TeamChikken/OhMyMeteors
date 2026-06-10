@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.blocks.basic_laser.BasicMeteorLaserBlock;
-import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
@@ -26,11 +25,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
 
 //Ah remeber that the whole chunk is loaded when a meteor enters it so this will be loaded as well no need for fancy stuff
 public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
@@ -80,11 +82,11 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
     }
 
     protected static int getYLevelAreaCoverage(){
-        return Config.ADVANCED_LASER_HEIGHT;
+        return CONFIG.lasersSection.advanced_laser_height;
     }
 
     protected static int getRadiusAreaCoverage(){
-        return Config.ADVANCED_LASER_AREA_RADIUS;
+        return CONFIG.lasersSection.advanced_laser_area_radius;
     }
 
     /// Yes it's very hacky, but only a small amount of blocks are going to be in cooldown at the same time, if any.
@@ -106,11 +108,9 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
      */
     private static void tick(Level world, BlockPos pos, BlockState state, AdvancedMeteorLaserBlockEntity blockEntity) {
         if(world instanceof ServerLevel serverWorld && world.canSeeSky(pos.above())){
-
-
-            if(Config.SHOULD_ADVANCED_LASER_COOLDOWN && BLOCKS_IN_COOLDOWN.containsKey(blockEntity)){
+            if(CONFIG.lasersSection.should_advanced_laser_cooldown && BLOCKS_IN_COOLDOWN.containsKey(blockEntity)){
                 //The cooldown is ended, keep on with the rest
-                if(BLOCKS_IN_COOLDOWN.get(blockEntity) > Config.ADVANCED_LASER_COOLDOWN*20){
+                if(BLOCKS_IN_COOLDOWN.get(blockEntity) > CONFIG.lasersSection.advanced_laser_cooldown*20){
                     removeCooldown(blockEntity, state, world, pos);
 
                 }else{//Increases the cooldown timer
@@ -123,8 +123,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 return;
             }
 
-            AABB box = new AABB(new BlockPos(pos.getX(), Math.min(pos.getY()+getYLevelAreaCoverage(), Config.METEOR_SPAWN_HEIGHT), pos.getZ())).inflate(getRadiusAreaCoverage(), 1, getRadiusAreaCoverage());
-
+            AABB box = new AABB(new BlockPos(pos.getX(), Math.min(pos.getY()+getYLevelAreaCoverage(), CONFIG.meteorSpawning.meteor_spawn_height), pos.getZ())).inflate(getRadiusAreaCoverage(), 1, getRadiusAreaCoverage());
 
             //useful to see where the box is, gets shown when the the show area blockstate property is true
             if(state.getValue(SHOW_AREA)){
@@ -157,7 +156,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
-                line.setForced(Config.USE_FORCED_PARTICLES);
+                line.setForced(CONFIG.visualsSection.use_forced_particles);
                 line.run();
 
                 //The horizontal lines at the top which point to the corner of the box
@@ -207,7 +206,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                         .builder(serverWorld, OMMParticles.LASER_PARTICLE, pos.above().getCenter())
                         .targetPos(meteorProjectileEntity.position())
                         .particles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*2))
-                        .forced(Config.USE_FORCED_PARTICLES)
+                        .forced(CONFIG.visualsSection.use_forced_particles)
                         .build();
 
                 lineEffect.setParticle(OMMParticles.LASER_PARTICLE_SMALL);
@@ -244,19 +243,19 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                 world.playSound(null, pos, OMMSounds.LASER_FIRE, SoundSource.BLOCKS, 1f, 1.4f);
 
 
-                if(Config.ANNOUNCE_METEOR_DESTROYED){
-                    if(Config.ANNOUNCE_LOCATION){
-                        String meteorPos = String.valueOf(meteorProjectileEntity.blockPosition().getX()) + " x, " + String.valueOf(meteorProjectileEntity.blockPosition().getZ()) + " z!";
+                if(CONFIG.notificationSection.announce_meteor_destroyed){
+                    if(CONFIG.notificationSection.announce_location){
+                        String meteorPos = meteorProjectileEntity.blockPosition().getX() + " x, " + String.valueOf(meteorProjectileEntity.blockPosition().getZ()) + " z!";
                         if(meteorProjectileEntity.isHuge()){
-                            serverWorld.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge.localized", meteorPos).withStyle(ChatFormatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                            serverWorld.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge.localized", meteorPos).withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
                         }else{
-                            serverWorld.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.localized", meteorPos).withStyle(ChatFormatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                            serverWorld.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.localized", meteorPos).withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
                         }
                     }else{
                         if(meteorProjectileEntity.isHuge()){
-                            serverWorld.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge").withStyle(ChatFormatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                            serverWorld.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge").withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
                         }else{
-                            serverWorld.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed").withStyle(ChatFormatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                            serverWorld.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed").withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
                         }
                     }
 
