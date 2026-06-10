@@ -12,6 +12,8 @@ import me.emafire003.dev.ohmymeteors.util.OMMTags;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.projectile.*;
@@ -399,14 +401,15 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
 
         if(!this.level().isClientSide()){
+
             ((ServerLevel)this.level()).players().forEach(serverPlayerEntity -> {
                 //If it should play a sound for every player, do it, unless the player is close enough to the original one
                 if(CONFIG.notificationSection.global_explosion_sound && (serverPlayerEntity.position().distanceTo(this.position()) > 60)){
-                    serverPlayerEntity.playSound(SoundEvents.GENERIC_EXPLODE.value(), 0.5f, 0.8f);
+                    ((ServerLevel)this.level()).playSound(serverPlayerEntity, this.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 0.5f, 0.8f);
                 }else if(CONFIG.notificationSection.area_explosion_sound){
                     double dist = serverPlayerEntity.position().distanceTo(this.position());
                     if(dist < CONFIG.notificationSection.area_explosion_sound_radius && dist > 60){
-                        serverPlayerEntity.playSound(SoundEvents.GENERIC_EXPLODE.value(), 0.5f, 0.8f);
+                        ((ServerLevel)this.level()).playSound(serverPlayerEntity, this.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 0.5f, 0.8f);
                     }
                 }
                 ((ServerLevel)this.level()).sendParticles(serverPlayerEntity, ParticleTypes.EXPLOSION_EMITTER, CONFIG.visualsSection.use_forced_particles, CONFIG.visualsSection.use_forced_particles,  this.getX(), this.getY(), this.getZ(), 1, 0.1, 0.1, 0.1, 0.1);
