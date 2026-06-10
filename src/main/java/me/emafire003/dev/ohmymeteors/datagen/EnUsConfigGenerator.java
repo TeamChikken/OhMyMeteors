@@ -3,7 +3,7 @@ package me.emafire003.dev.ohmymeteors.datagen;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.config.OMMConfigV2;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
@@ -12,8 +12,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class EnUsConfigGenerator extends FabricLanguageProvider {
 
-    public EnUsConfigGenerator(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
-        super(dataOutput, "en_us", registryLookup);
+
+    protected EnUsConfigGenerator(FabricPackOutput packOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+        super(packOutput, "en_us", registryLookup);
     }
 
     @Override

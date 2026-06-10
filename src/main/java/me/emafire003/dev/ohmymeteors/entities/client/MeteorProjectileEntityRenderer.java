@@ -28,36 +28,32 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
         poseStack.scale(state.size, state.size, state.size);
         model.setupAnim(state);
 
-        /*
-        TODO MAKE this work
-       RenderType renderType = this.model.renderType(TEXTURE_NORMAL);
+        Identifier texture;
+
         switch (OhMyMeteors.CONFIG.visualsSection.meteor_texture_mode){
-            case HOT -> renderType =
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png"));
-            case MID -> renderType =
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png"));
-            case DYNAMIC_HEIGHT -> renderType = textureByHeight(state);
-            case DYNAMIC_DISTANCE -> renderType = textureByDistance(state);
+            case HOT -> texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png"));
+            case MID -> texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png"));
+            case DYNAMIC_HEIGHT -> texture = textureByHeight(state);
+            case DYNAMIC_DISTANCE -> texture = textureByDistance(state);
             case DYNAMIC_AUTO -> {
                 if(Math.abs(state.velocity.x()) > 0.85 || Math.abs(state.velocity.z()) > 0.85){
-                    renderType = textureByDistance(state);
+                    texture = textureByDistance(state);
                 }else{
-                    renderType = textureByHeight(state);
+                    texture = textureByHeight(state);
                 }
             }
-            default -> renderType =
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png"));
+            default -> texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png"));
 
         }
-        List<RenderType> list = ItemRenderer.getFoilRenderTypes(renderType, false, false);
-
-         */
 
         submitNodeCollector.order(0)
                 .submitModel(this.model,
                         state,
                         poseStack,
-                        TEXTURE, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, null);
+                        texture, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, null);
 
         /*TODO this could be used to render meteors as enchanted. May be useful later?
         submitNodeCollector.order(1)
@@ -65,7 +61,7 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
                         this.model,
                         state,
                         poseStack,
-                        ItemFeatureRenderer.getFoilRenderType(this.model.renderType(TEXTURE), false),
+                        ItemFeatureRenderer.getFoilRenderType((TEXTURE), false),
                         state.lightCoords,
                         OverlayTexture.NO_OVERLAY,
                         state.outlineColor,
@@ -78,13 +74,13 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
                         this.model,
                         state,
                         poseStack,
-                        ItemFeatureRenderer.getFoilRenderType(this.model.renderType(TEXTURE), true),
+                        ItemFeatureRenderer.getFoilRenderType((TEXTURE), true),
                         state.lightCoords,
                         OverlayTexture.NO_OVERLAY,
                         state.outlineColor,
                         null
                 );*/
-        /*List<RenderType> list = ItemFeatureRenderer.gettFoilBuffer(this.model.renderType(TEXTURE), false, false);
+        /*List<RenderType> list = ItemFeatureRenderer.gettFoilBuffer((TEXTURE), false, false);
 
         for (int i = 0; i < list.size(); i++) {
             submitNodeCollector.order(i)
@@ -105,35 +101,35 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
         super.submit(state, poseStack, submitNodeCollector, camera);
     }
 
-    public RenderType textureByHeight(MeteorProjectileRenderState state){
-        RenderType renderType;
+    public Identifier textureByHeight(MeteorProjectileRenderState state){
+        Identifier texture;
         if(state.y < state.moltenPos){
-            renderType =
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png"));
+            texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png"));
         }else if(state.y < state.midPos){
-            renderType =
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png"));
+            texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png"));
         }else{
-            renderType =
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png"));
+            texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png"));
         }
-        return renderType;
+        return texture;
     }
 
     //TODO add travel time option as well? Maybe?
-    public RenderType textureByDistance(MeteorProjectileRenderState state){
-        RenderType renderType;
+    public Identifier textureByDistance(MeteorProjectileRenderState state){
+        Identifier texture;
         if(state.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_hot+OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
-            renderType =
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png"));
+            texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png"));
         }else if(state.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
-            renderType =
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png"));
+            texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png"));
         }else{
-            renderType =
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png"));
+            texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png"));
         }
-        return renderType;
+        return texture;
     }
 
     @Override
