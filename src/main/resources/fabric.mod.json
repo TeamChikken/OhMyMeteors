@@ -41,7 +41,7 @@
 		"fabricloader": ">=0.18.4",
 		"minecraft": ">=1.21.10",
 		"java": ">=16",
-		"fabric-api": ">=0.141.0+1.21.11",
+		"fabric-api": ">=0.139.5.0+1.21.11",
 		"fzzy_config": ">=0.7.6"
 	},
 	"suggests": {

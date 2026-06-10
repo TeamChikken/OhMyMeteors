@@ -74,7 +74,7 @@ dependencies {
     include(modImplementation "maven.modrinth:particleanimationlib:${project.pal_version}")
 
     //Modmenu
-    modCompileOnly("com.terraformersmc:modmenu:${project.modmenu_version}")
+    modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
     //Fabric permission api
     modImplementation "me.lucko:fabric-permissions-api:${project.fabricperms_version}"

@@ -6,7 +6,7 @@ import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -21,7 +21,7 @@ public class EnUsConfigGenerator extends FabricLanguageProvider {
         generateModTranslations(builder);
         //call the api method and provide the builder to automatically append the config lang
         //That's it! You can of course put any other language translating here too.
-        ConfigApiJava.buildTranslations(OMMConfigV2.class, ResourceLocation.fromNamespaceAndPath(OhMyMeteors.MOD_ID, "ohmymeteors_config"), "en_us", true, builder::add);
+        ConfigApiJava.buildTranslations(OMMConfigV2.class, Identifier.fromNamespaceAndPath(OhMyMeteors.MOD_ID, "ohmymeteors_config"), "en_us", true, builder::add);
         builder.add("ohmymeteors.particle_mode_enum.FANCY", "FANCY");
         builder.add("ohmymeteors.particle_mode_enum.LESS", "LESS");
         builder.add("ohmymeteors.particle_mode_enum.MINIMAL", "MINIMAL");

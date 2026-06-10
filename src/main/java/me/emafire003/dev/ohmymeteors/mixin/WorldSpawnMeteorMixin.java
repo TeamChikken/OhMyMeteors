@@ -7,8 +7,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.Level;
@@ -17,6 +15,7 @@ import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.dimension.DimensionType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -40,7 +39,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
 
     @Shadow @Nullable public abstract ServerPlayer getRandomPlayer();
 
-    @Shadow public abstract boolean addFreshEntity(Entity entity);
+    @Shadow public abstract boolean addFreshEntity(@NonNull Entity entity);
 
     @Shadow public abstract @NotNull ChunkSource getChunkSource();
 
@@ -126,28 +125,5 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
             }
         }
     }
-
-
-    @Unique
-    public boolean checkDimension(Holder<DimensionType> current_dim){
-        //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
-        //and then stops checking
-        return Config.SPAWN_DIMENSIONS.contains(current_dim.getRegisteredName());
-    }
-
-    @Unique
-    public boolean checkBiome(Holder<Biome> current_biome){
-        //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
-        //and then stops checking
-
-        //If true means whitelist aka it HAS to be present
-        //if false means in MUST NOT be present
-        if(Config.BIOME_LIST_MODE){
-            return Config.BIOME_SPAWN_LIST.contains(current_biome.getRegisteredName());
-        }else{
-            return !Config.BIOME_SPAWN_LIST.contains(current_biome.getRegisteredName());
-        }
-    }
-
 
 }

@@ -244,7 +244,7 @@ public class Config {
 
         //V3
         //TODO add the other settings for the whitelist/blacklist
-        configs.addKeyValuePair(new Pair<>("spawn_dimensions", List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString())),"A list of the IDs of the dimensions in which meteors can naturally spawn in, vanilla or not.");
+        //configs.addKeyValuePair(new Pair<>("spawn_dimensions", List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString())),"A list of the IDs of the dimensions in which meteors can naturally spawn in, vanilla or not.");
         configs.addKeyValuePair(new Pair<>("dimension_chances", DIMENSION_CHANCES_default), "A map consisting of dimension=chance of spawning. The dimension must be present in the list above, otherwise meteors won't spawn at all. This chance will ALWAYS ovveride the default if present. The spawn chance works as described above.");
         configs.addKeyValuePair(new Pair<>("dimension_night_chances", DIMENSION_NIGHT_CHANCES_default), "The same as above but with a possibly different chance at night if enabled");
         configs.addKeyValuePair(new Pair<>("biome_list_mode", false),"If set to false will behave like a blacklist, aka meteors won't spawn in those biomes. If true will behave like a whitelist, meteors will spawn ONLY in those biomes.");

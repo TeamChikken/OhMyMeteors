@@ -8,7 +8,6 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.fog.environment.AtmosphericFogEnvironment;
 import net.minecraft.world.phys.AABB;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,7 +26,7 @@ public abstract class MeteorFogMixin {
             //Default: Vec3(4,141,165) #048da5
 
 
-            return new Vec3(CONFIG.visualsSection.meteor_skyglow_color.r(), CONFIG.visualsSection.meteor_skyglow_color.g(), CONFIG.visualsSection.meteor_skyglow_color.b());
+            return toColorValue(CONFIG.visualsSection.meteor_skyglow_color.r(), CONFIG.visualsSection.meteor_skyglow_color.g(), CONFIG.visualsSection.meteor_skyglow_color.b());
         }
         return original;
     }
