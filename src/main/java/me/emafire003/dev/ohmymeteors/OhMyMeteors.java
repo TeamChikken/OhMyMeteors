@@ -6,6 +6,7 @@ import me.emafire003.dev.ohmymeteors.commands.argument.MeteorShowerTypeArgumentT
 import me.emafire003.dev.ohmymeteors.commands.argument.MeteorSizeClassArgumentType;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
+import me.emafire003.dev.ohmymeteors.config.OMMConfigV2;
 import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
@@ -15,6 +16,7 @@ import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
+import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
 import net.luckperms.api.LuckPermsProvider;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
@@ -59,6 +61,8 @@ public class OhMyMeteors {
 
 	public static String PREFIX = "§8[Oh My, Meteors!] §r";
 
+	public static OMMConfigV2 CONFIG;
+
 	public static ResourceLocation getIdentifier(String path){
 		return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
 	}
@@ -86,6 +90,8 @@ public class OhMyMeteors {
 
 
 		Config.FILEPATH = PATH.resolve(OhMyMeteors.MOD_ID + "_config.yml");
+		//register new config
+		CONFIG = ConfigApiJava.registerAndLoadConfig(OMMConfigV2::new);
 
 		OMMBlocks.register(eventBus);
 		OMMItems.register(eventBus);

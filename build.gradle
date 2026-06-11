@@ -40,6 +40,11 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    maven {
+        name = "FzzyMaven"
+        url = uri("https://maven.fzzyhmstrs.me/")
+    }
+
     maven { url 'https://jitpack.io' }
     mavenCentral()
 }
@@ -181,11 +186,19 @@ dependencies {
     }
     runtimeOnly("maven.modrinth:forge-config-api-port:v21.1.6-1.21.1-NeoForge")
 
+    //FzzyConfig
+    implementation "me.fzzyhmstrs:fzzy_config:${project.fzzyconfig_version}"
+
+    //OpenPartiesAndClaims
+    compileOnly "maven.modrinth:open-parties-and-claims:${project.opac_version}"
+
     //SchemConvert
     implementation 'com.github.PiTheGuy:SchemConvert:master-SNAPSHOT'
     jarJar("com.github.PiTheGuy:SchemConvert:master-SNAPSHOT")
     //implementation 'com.github.PiTheGuy:SchemConvert:v1.2.5 '
 }
+
+//TODO datagen
 
 // This block of code expands all declared replace properties in the specified resource targets.
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.

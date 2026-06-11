@@ -2,8 +2,8 @@ package me.emafire003.dev.ohmymeteors.util;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
+import me.emafire003.dev.ohmymeteors.compat.opac.OPACCompat;
 import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
-import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
 
 public class MeteorUtils {
 
@@ -77,7 +79,7 @@ public class MeteorUtils {
         if(world.getRandom().nextBoolean()){
             invert_z = -1;
         }
-        Vec3 vel = new Vec3((world.getRandom().nextFloat()/Config.METEOR_DISPERSION_FACTOR)*invert_x, -1.0f*(world.getRandom().nextFloat()+ Config.DOWNWARDS_SPEED_MODIFIER), (world.getRandom().nextFloat()/Config.METEOR_DISPERSION_FACTOR)*invert_z);
+        Vec3 vel = new Vec3((world.getRandom().nextFloat()/CONFIG.meteorSpawning.meteor_dispersion_factor)*invert_x, -1.0f*(world.getRandom().nextFloat()+ CONFIG.meteorBehaviourSection.downwards_speed_modifier)*CONFIG.meteorBehaviourSection.downwards_speed_multiplier, (world.getRandom().nextFloat()/CONFIG.meteorSpawning.meteor_dispersion_factor)*invert_z);
 
         return new Tuple<>(pos, vel);
 
@@ -97,7 +99,7 @@ public class MeteorUtils {
         meteor.setSize(world.getRandom().nextIntBetweenInclusive(Math.max(0, min_size), Math.min(50, max_size)));
 
         if(homing){
-            meteor.setDeltaMovement(originPos.subtract(meteor.position()).normalize().multiply(1,1,1).add(0, Config.DOWNWARDS_SPEED_MODIFIER, 0));
+            meteor.setDeltaMovement(originPos.subtract(meteor.position()).normalize().multiply(1,1,1).add(0, CONFIG.meteorBehaviourSection.downwards_speed_modifier, 0).scale(CONFIG.meteorBehaviourSection.downwards_speed_multiplier));
         }else{
             meteor.setDeltaMovement(pos_vel.getB());
         }
@@ -165,16 +167,22 @@ public class MeteorUtils {
             return;
         }
         MeteorProjectileEntity meteor = getDownwardsMeteor(p.position(), world.getLevel(),
-                Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS);
+                CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance,
+                CONFIG.meteorSpawning.meteor_spawn_height, CONFIG.meteorSpawning.natural_meteor_min_size,
+                CONFIG.meteorSpawning.natural_meteor_max_size, CONFIG.meteorBehaviourSection.homing_meteors
+        );
 
         meteor.setSilenced(silenced);
 
         String message;
 
-        if(Config.SPAWN_HUGE_METEORS){
-            if(world.getRandom().nextIntBetweenInclusive(0, Config.HUGE_METEOR_CHANCE) == 0){
+        if(CONFIG.meteorSpawning.spawn_huge_meteors){
+            if(world.getRandom().nextIntBetweenInclusive(0, CONFIG.meteorSpawning.huge_meteor_chance) == 0){
                 meteor = getDownwardsMeteor(p.position(), world.getLevel(),
-                        Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT, Config.MAX_BIG_METEOR_SIZE, Config.HUGE_METEOR_SIZE_LIMIT, Config.HOMING_METEORS);
+                        CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance,
+                        CONFIG.meteorSpawning.meteor_spawn_height, CONFIG.meteorSpawning.max_big_meteor_size,
+                        CONFIG.meteorSpawning.huge_meteor_size_limit, CONFIG.meteorBehaviourSection.homing_meteors
+                );
 
                 message = "message.ohmymeteors.meteor_spawned.huge";
             } else {
@@ -185,12 +193,14 @@ public class MeteorUtils {
             message = "message.ohmymeteors.meteor_spawned";
         }
 
-        if(Config.ANNOUNCE_METEOR_SPAWN && !meteor.isSilenced()){
-            if(Config.ANNOUNCE_LOCATION){
+        if(CONFIG.notificationSection.announce_meteor_spawn && !meteor.isSilenced()){
+            if(CONFIG.notificationSection.announce_location){
                 String meteorPos = meteor.blockPosition().getX() + " x, " + meteor.blockPosition().getZ() + " z!";
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", meteorPos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", meteorPos).withStyle(ChatFormatting.RED)),
+                        CONFIG.notificationSection.actionbar_announcements));
             }else{
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)),
+                        CONFIG.notificationSection.actionbar_announcements));
             }
         }
 
@@ -201,22 +211,22 @@ public class MeteorUtils {
      * Also check out {@link #spawnMeteorShowerDelayed(ServerLevel, Player)} and {@link #spawnMeteorShowerDelayedDirection(ServerLevel, Player)}*/
     public static void spawnMeteorShowerInstant(ServerLevel world, Player p){
         int r;
-        if(Config.MAX_METEORS_IN_SHOWER < Config.MIN_METEORS_IN_SHOWER){
-            r = world.getRandom().nextIntBetweenInclusive(Math.min(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER), Math.max(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER));
+        if(CONFIG.meteorShowerSection.max_meteors_in_shower < CONFIG.meteorShowerSection.min_meteors_in_shower){
+            r = world.getRandom().nextIntBetweenInclusive(Math.min(CONFIG.meteorShowerSection.min_meteors_in_shower, CONFIG.meteorShowerSection.max_meteors_in_shower), Math.max(CONFIG.meteorShowerSection.min_meteors_in_shower, CONFIG.meteorShowerSection.max_meteors_in_shower));
             OhMyMeteors.LOGGER.warn("The Minimum number of meteors in the meteor shower in the config file is lower than the Maximum!");
         }else{
-            r = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+            r = world.getRandom().nextIntBetweenInclusive(CONFIG.meteorShowerSection.min_meteors_in_shower, CONFIG.meteorShowerSection.max_meteors_in_shower);
         }
         for(int i = 0; i < r; i++){
             spawnMeteor(world, p, true);
         }
         String message = "message.ohmymeteors.meteor_shower_spawned";
-        if(Config.ANNOUNCE_METEOR_SPAWN){
-            if(Config.ANNOUNCE_LOCATION){
+        if(CONFIG.notificationSection.announce_meteor_spawn){
+            if(CONFIG.notificationSection.announce_location){
                 String pos = p.blockPosition().getX() + " x, " + p.blockPosition().getZ() + " z!";
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", pos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", pos).withStyle(ChatFormatting.RED)), CONFIG.notificationSection.actionbar_announcements));
             }else{
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), CONFIG.notificationSection.actionbar_announcements));
             }
         }
     }
@@ -225,13 +235,13 @@ public class MeteorUtils {
      * unlike {@link #spawnMeteorShowerInstant(ServerLevel, Player)} where all meteors spawn at the same time.
      * Using {@link #spawnMeteorShowerDelayedDirection(ServerLevel, Player)} will also have them follow the same general direction*/
     public static void spawnMeteorShowerDelayed(ServerLevel world, Player p){
-        //int total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+        //int total = world.getRandom().nextIntBetweenInclusive(CONFIG.meteorShowerSection.min_meteors_in_shower, CONFIG.meteorShowerSection.max_meteors_in_shower);
         int total;
-        if(Config.MAX_METEORS_IN_SHOWER < Config.MIN_METEORS_IN_SHOWER){
-            total = world.getRandom().nextIntBetweenInclusive(Math.min(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER), Math.max(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER));
+        if(CONFIG.meteorShowerSection.max_meteors_in_shower < CONFIG.meteorShowerSection.min_meteors_in_shower){
+            total = world.getRandom().nextIntBetweenInclusive(Math.min(CONFIG.meteorShowerSection.min_meteors_in_shower, CONFIG.meteorShowerSection.max_meteors_in_shower), Math.max(CONFIG.meteorShowerSection.min_meteors_in_shower, CONFIG.meteorShowerSection.max_meteors_in_shower));
             OhMyMeteors.LOGGER.warn("The Minimum number of meteors in the meteor shower in the config file is lower than the Maximum!");
         }else{
-            total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+            total = world.getRandom().nextIntBetweenInclusive(CONFIG.meteorShowerSection.min_meteors_in_shower, CONFIG.meteorShowerSection.max_meteors_in_shower);
         }
         AtomicInteger spawned_meteors = new AtomicInteger();
         AtomicInteger random_spawn_delay = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(-10, +10));
@@ -244,25 +254,25 @@ public class MeteorUtils {
             if(spawned_meteors.get() >= total){
                 return false;
             }
-            if(ticks == Math.abs(Config.METEOR_SHOWER_DELAY_TICKS)+random_spawn_delay.get()+last_delay.get()){
+            if(ticks == Math.abs(CONFIG.meteorShowerSection.meteor_shower_delay_ticks)+random_spawn_delay.get()+last_delay.get()){
                 if(spawned_meteors.get() >= total){
                     return false;
                 }
                 spawnMeteor(world, p, true);
                 spawned_meteors.getAndIncrement();
-                last_delay.set(last_delay.get() + Math.abs(Config.METEOR_SHOWER_DELAY_TICKS) + random_spawn_delay.get());
+                last_delay.set(last_delay.get() + Math.abs(CONFIG.meteorShowerSection.meteor_shower_delay_ticks) + random_spawn_delay.get());
                 random_spawn_delay.set(world.getRandom().nextIntBetweenInclusive(-10, +10));
             }
             return true;
         });
 
         String message = "message.ohmymeteors.meteor_shower_spawned";
-        if(Config.ANNOUNCE_METEOR_SPAWN){
-            if(Config.ANNOUNCE_LOCATION){
+        if(CONFIG.notificationSection.announce_meteor_spawn){
+            if(CONFIG.notificationSection.announce_location){
                 String pos = p.blockPosition().getX() + " x, " + p.blockPosition().getZ() + " z!";
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", pos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", pos).withStyle(ChatFormatting.RED)), CONFIG.notificationSection.actionbar_announcements));
             }else{
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), CONFIG.notificationSection.actionbar_announcements));
             }
         }
     }
@@ -270,11 +280,11 @@ public class MeteorUtils {
     /**Spawns meteor showers that generally go in the same direction each delayed by a bit*/
     public static void spawnMeteorShowerDelayedDirection(ServerLevel world, Player p){
         int total;
-        if(Config.MAX_METEORS_IN_SHOWER < Config.MIN_METEORS_IN_SHOWER){
-            total = world.getRandom().nextIntBetweenInclusive(Math.min(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER), Math.max(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER));
+        if(CONFIG.meteorShowerSection.max_meteors_in_shower < CONFIG.meteorShowerSection.min_meteors_in_shower){
+            total = world.getRandom().nextIntBetweenInclusive(Math.min(CONFIG.meteorShowerSection.min_meteors_in_shower, CONFIG.meteorShowerSection.max_meteors_in_shower), Math.max(CONFIG.meteorShowerSection.min_meteors_in_shower, CONFIG.meteorShowerSection.max_meteors_in_shower));
             OhMyMeteors.LOGGER.warn("The Minimum number of meteors in the meteor shower in the config file is lower than the Maximum!");
         }else{
-            total = world.getRandom().nextIntBetweenInclusive(Config.MIN_METEORS_IN_SHOWER, Config.MAX_METEORS_IN_SHOWER);
+            total = world.getRandom().nextIntBetweenInclusive(CONFIG.meteorShowerSection.min_meteors_in_shower, CONFIG.meteorShowerSection.max_meteors_in_shower);
         }
         //AtomicInteger ticks = new AtomicInteger();
         AtomicInteger last_delay = new AtomicInteger();
@@ -282,43 +292,43 @@ public class MeteorUtils {
         AtomicInteger random_spawn_delay = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(-10, +10));
 
         Tuple<Vec3, Vec3> prev = getDownwardsMeteorPosAndVelocity(p.position(), world.getLevel(),
-                Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE, Config.METEOR_SPAWN_HEIGHT);
+                CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance, CONFIG.meteorSpawning.meteor_spawn_height);
 
-        AtomicInteger limit_a = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE));
-        AtomicInteger limit_b = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE));
+        AtomicInteger limit_a = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance));
+        AtomicInteger limit_b = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance));
 
         world.addFreshEntity(getDownwardsMeteorSameDirection(prev.getA(), prev.getB(), world,
-                Math.min(limit_b.get(), limit_a.get()), Math.max(limit_b.get(), limit_a.get()), Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS));
+                Math.min(limit_b.get(), limit_a.get()), Math.max(limit_b.get(), limit_a.get()), CONFIG.meteorSpawning.meteor_spawn_height, CONFIG.meteorSpawning.natural_meteor_min_size, CONFIG.meteorSpawning.natural_meteor_max_size, CONFIG.meteorBehaviourSection.homing_meteors));
         spawned_meteors.getAndIncrement();
 
         SchedulerUtils.runEveryTick((server, ticks) -> {
             if(spawned_meteors.get() >= total){
                 return false;
             }
-            if(ticks == Math.abs(Config.METEOR_SHOWER_DELAY_TICKS)+random_spawn_delay.get()+ last_delay.get()){
+            if(ticks == Math.abs(CONFIG.meteorShowerSection.meteor_shower_delay_ticks)+random_spawn_delay.get()+ last_delay.get()){
                 if(spawned_meteors.get() >= total){
                     return false;
                 }
-                limit_a.set(world.getRandom().nextIntBetweenInclusive(Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE));
-                limit_b.set(world.getRandom().nextIntBetweenInclusive(Config.MIN_METEOR_SPAWN_DISTANCE, Config.MAX_METEOR_SPAWN_DISTANCE));
+                limit_a.set(world.getRandom().nextIntBetweenInclusive(CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance));
+                limit_b.set(world.getRandom().nextIntBetweenInclusive(CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance));
 
                 MeteorProjectileEntity meteor = getDownwardsMeteorSameDirection(prev.getA(), prev.getB(), world,
-                        Math.min(limit_b.get(), limit_a.get()), Math.max(limit_b.get(), limit_a.get()), Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS);
+                        Math.min(limit_b.get(), limit_a.get()), Math.max(limit_b.get(), limit_a.get()), CONFIG.meteorSpawning.meteor_spawn_height, CONFIG.meteorSpawning.natural_meteor_min_size, CONFIG.meteorSpawning.natural_meteor_max_size, CONFIG.meteorBehaviourSection.homing_meteors);
                 meteor.setSilenced(true);
                 world.addFreshEntity(meteor);
                 spawned_meteors.getAndIncrement();
-                last_delay.set(last_delay.get() + Math.abs(Config.METEOR_SHOWER_DELAY_TICKS) + random_spawn_delay.get());
+                last_delay.set(last_delay.get() + Math.abs(CONFIG.meteorShowerSection.meteor_shower_delay_ticks) + random_spawn_delay.get());
                 random_spawn_delay.set(world.getRandom().nextIntBetweenInclusive(-10, +10));
             }
             return true;
         });
         String message = "message.ohmymeteors.meteor_shower_spawned";
-        if(Config.ANNOUNCE_METEOR_SPAWN){
-            if(Config.ANNOUNCE_LOCATION){
+        if(CONFIG.notificationSection.announce_meteor_spawn){
+            if(CONFIG.notificationSection.announce_location){
                 String pos = p.blockPosition().getX() + " x, " + p.blockPosition().getZ() + " z!";
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", pos).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message+".localized", pos).withStyle(ChatFormatting.RED)), CONFIG.notificationSection.actionbar_announcements));
             }else{
-                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), Config.ACTIONBAR_ANNOUNCEMENTS));
+                world.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable(message).withStyle(ChatFormatting.RED)), CONFIG.notificationSection.actionbar_announcements));
             }
         }
     }
@@ -332,7 +342,7 @@ public class MeteorUtils {
         //Checks all the dimensions specified in the config file. As soon as it finds one, sets dimension ok to true
         //and then stops checking
         AtomicBoolean dimension_ok = new AtomicBoolean(false);
-        Config.SPAWN_DIMENSIONS.forEach(dim -> {
+        CONFIG.meteorSpawning.spawn_dimensions.forEach(dim -> {
                     if(dimension_ok.get()){{
                         return;
                     }}
@@ -341,7 +351,9 @@ public class MeteorUtils {
                     }
                 }
         );
-
+        if(!CONFIG.meteorSpawning.dimension_list_mode){
+            return !dimension_ok.get();
+        }
         return dimension_ok.get();
     }
 
@@ -356,28 +368,54 @@ public class MeteorUtils {
 
         //If true means whitelist aka it HAS to be present
         //if false means in MUST NOT be present
-        if(Config.BIOME_LIST_MODE){
-            return Config.BIOME_SPAWN_LIST.contains(current_biome.getRegisteredName());
+        if(CONFIG.meteorSpawning.biome_list_mode){
+            return CONFIG.meteorSpawning.biome_spawn_list.contains(current_biome.getRegisteredName());
         }else{
-            return !Config.BIOME_SPAWN_LIST.contains(current_biome.getRegisteredName());
+            return !CONFIG.meteorSpawning.biome_spawn_list.contains(current_biome.getRegisteredName());
         }
+    }
+
+
+    public static boolean canSpawnInModdedRegion(ServerLevel level, BlockPos pos){
+        return canSpawnInModdedRegion(null, level, pos);
+    }
+
+    public static boolean canSpawnInModdedRegion(ServerPlayer player, BlockPos pos){
+        return canSpawnInModdedRegion(player, (ServerLevel) player.level(), pos);
     }
 
     /**Checks if the meteor can spawn in the given modded region
      *
      * @param p The player at whose position the meteor is going to spawn
+     * @param level The world/level in which the meteor is going to spawn or has spawned
+     * @param pos The position to check
      * @return true if the meteor can spawn in there, false otherwise
      * */
-    public static boolean canSpawnInModdedRegion(ServerPlayer p){
+    public static boolean canSpawnInModdedRegion(ServerPlayer p, ServerLevel level, BlockPos pos){
         if(ModList.get().isLoaded("flan")){
-            if(!FlanCompat.canSpawnHere(p, p.blockPosition())){
+            if(!FlanCompat.canSpawnHere(p, pos)){
+                if(CONFIG.notificationSection.verbose) {
+                    OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by a Flan claim, it has been discarded!");
+                }
                 return false;
             }
         }
 
         if(ModList.get().isLoaded("yawp")){
             //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere((ServerLevel) p.level(), p.blockPosition()) || YawpCompat.canSpawnHere((ServerLevel) p.level(), new BlockPos(p.blockPosition().getX(), Config.METEOR_SPAWN_HEIGHT, p.blockPosition().getZ())))){
+            if(!(YawpCompat.canSpawnHere(level, pos)) || YawpCompat.canSpawnHere(level, new BlockPos(pos.getX(), CONFIG.meteorSpawning.meteor_spawn_height, pos.getZ()))) {
+                if(CONFIG.notificationSection.verbose){
+                    OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by a YetAnotherWorldProtector claim, it has been discarded!");
+                }
+                return false;
+            }
+        }
+
+        if(ModList.get().isLoaded("openpartiesandclaims")){
+            if(!OPACCompat.canSpawnHere(level, pos)){
+                if(CONFIG.notificationSection.verbose){
+                    OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by an OpenPartiesAndClaims claim, it has been discarded!");
+                }
                 return false;
             }
         }
@@ -386,7 +424,7 @@ public class MeteorUtils {
 
     /** Check if the meteor can spawn in a given location and sends out error messages if verbose is true */
     public static boolean canMeteorSpawn(ServerPlayer p, Holder<DimensionType> current_dim, Holder<Biome> current_biome){
-        if(!canSpawnInModdedRegion(p)){
+        if(!canSpawnInModdedRegion(p, p.blockPosition())){
             return false;
         }
         if(!canSpawnInDimension(current_dim)){
@@ -400,7 +438,7 @@ public class MeteorUtils {
     }
 
     public static boolean canMeteorSpawnVerbose(ServerPlayer p, CommandSourceStack source, Holder<DimensionType> current_dim, Holder<Biome> current_biome){
-        if(!canSpawnInModdedRegion(p)){
+        if(!canSpawnInModdedRegion(p, p.blockPosition())){
             String msg = "The meteor cannot spawn at " + p.blockPosition() + " because of a region flag from Flan or YAWP prevents it in that location! (maybe you added a region in that location?)";
             source.sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Tried spawning meteor around player '"+p.getDisplayName().getString()+"' but failed.")).append(Component.literal(msg)));
             OhMyMeteors.LOGGER.warn(msg);

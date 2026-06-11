@@ -1,6 +1,5 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
-import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.core.RegistryAccess;
@@ -29,6 +28,8 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
+
 
 //(there would be a way to like list all of the loaded chunks but it seems a bit impractical when we can just target a random online player)
 @Mixin(ServerLevel.class)
@@ -49,13 +50,12 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
     public void tickSpawnMeteor(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
-
         //If chance is negative, it means that no natural meteor should spawn so return early
-        if(Config.METEOR_SPAWN_CHANCE < 0){
+        if(CONFIG.meteorSpawning.meteor_spawn_chance < 0 || tickRateManager().isFrozen()){
             return;
         }
 
-        if(Config.SHOULD_COOLDOWN_BETWEEN_METEORS && meteorCooldown > 0){
+        if(CONFIG.meteorSpawning.should_cooldown_between_meteors && meteorCooldown > 0){
             meteorCooldown = meteorCooldown - 1;
             return; //Hey. this return is important. I totally haven't discovered i forgot to put it here because like 200 meteors spawned in the span of a second in my face. Not at all.
         }
@@ -75,33 +75,33 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
 
         /// For the chance, biome > dim > global
         /// Aka the biome chance overrides the dimension chance which in turn overrides the global parameter
-        int chance = Config.METEOR_SPAWN_CHANCE;
+        int chance = CONFIG.meteorSpawning.meteor_spawn_chance;
 
         //If chance is negative, it means that no natural meteor should spawn
 
         //If the current dimension is in the map, it will override the chance thing
-        if(Config.DIMENSION_CHANCES.containsKey(current_dim.getRegisteredName())){
-            chance = Config.DIMENSION_CHANCES.get(current_dim.getRegisteredName());
+        if(CONFIG.meteorSpawning.dimension_chances.containsKey(current_dim.getRegisteredName())){
+            chance = CONFIG.meteorSpawning.dimension_chances.get(current_dim.getRegisteredName());
         }
 
         //If the biome is in the map the chance gets overridden again
-        if(Config.BIOME_CHANCES.containsKey(current_biome.getRegisteredName())){
-            chance = Config.BIOME_CHANCES.get(current_biome.getRegisteredName());
+        if(CONFIG.meteorSpawning.biome_chances.containsKey(current_biome.getRegisteredName())){
+            chance = CONFIG.meteorSpawning.biome_chances.get(current_biome.getRegisteredName());
         }
 
-        if(Config.MODIFY_SPAWN_CHANCE_AT_NIGHT && this.isNight()){
-            chance = Config.METEOR_NIGHT_SPAWN_CHANCE;
-            if(Config.DIMENSION_NIGHT_CHANCES.containsKey(current_dim.getRegisteredName())){
-                chance = Config.DIMENSION_NIGHT_CHANCES.get(current_dim.getRegisteredName());
+        if(CONFIG.meteorSpawning.modify_spawn_chance_at_night && this.isNight()){
+            chance = CONFIG.meteorSpawning.meteor_night_spawn_chance;
+            if(CONFIG.meteorSpawning.dimension_night_chances.containsKey(current_dim.getRegisteredName())){
+                chance = CONFIG.meteorSpawning.dimension_night_chances.get(current_dim.getRegisteredName());
             }
-            if(Config.BIOME_NIGHT_CHANCES.containsKey(current_biome.getRegisteredName())){
-                chance = Config.BIOME_NIGHT_CHANCES.get(current_biome.getRegisteredName());
+            if(CONFIG.meteorSpawning.biome_night_chances.containsKey(current_biome.getRegisteredName())){
+                chance = CONFIG.meteorSpawning.biome_night_chances.get(current_biome.getRegisteredName());
             }
         }
 
         if(this.getRandom().nextIntBetweenInclusive(0, chance) == 0){
-            if(Config.METEOR_SHOWERS_ENABLED){
-                if(this.getRandom().nextIntBetweenInclusive(0, Config.METEOR_SHOWER_CHANCE) == 0){
+            if(CONFIG.meteorShowerSection.meteor_showers_enabled){
+                if(this.getRandom().nextIntBetweenInclusive(0, CONFIG.meteorShowerSection.meteor_shower_chance) == 0){
                     int r = this.getRandom().nextIntBetweenInclusive(1, 2);
                     if(r == 1){
                         MeteorUtils.spawnMeteorShowerDelayed(((ServerLevel) (Object) this), p);
@@ -118,8 +118,8 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
                 MeteorUtils.spawnMeteor(((ServerLevel) (Object) this), p, false);
             }
 
-            if(Config.SHOULD_COOLDOWN_BETWEEN_METEORS){
-                meteorCooldown = 20*Config.MIN_METEOR_COOLDOWN_TIME;
+            if(CONFIG.meteorSpawning.should_cooldown_between_meteors){
+                meteorCooldown = 20*CONFIG.meteorSpawning.min_meteor_cooldown_time;
             }
         }
     }
