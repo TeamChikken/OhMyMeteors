@@ -55,18 +55,7 @@ public class OMMBlocks {
             ).build(null));
 
     public static final DeferredBlock<Block> METEORIC_ROCK = registerBlock("meteoric_rock",
-            () -> new MeteoricRockBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops().strength(4F).forceSolidOn()));
-
-
-    private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {
-        DeferredBlock<T> toReturn = BLOCKS.register(name, block);
-        registerBlockItem(name, toReturn);
-        return toReturn;
-    }
-
-    /* TODO fix
-    public static final Block METEORIC_ROCK = registerBlock("meteoric_rock",
-            new MeteoricRockBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
+            () -> new MeteoricRockBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
                     .emissiveRendering((blockState, getter, pos) -> {
                         switch (blockState.getValue(OMMProperties.ROCK_TEMPERATURE)){
                             case MID -> {
@@ -89,12 +78,15 @@ public class OMMBlocks {
                             }
                         }
                     })
-            .strength(4F).forceSolidOn()),
+                    .strength(4F).forceSolidOn())
+    );
 
-            //new Block(AbstractBlock.Settings.copy(Blocks.DEEPSLATE_IRON_ORE)),
-            CreativeModeTabs.NATURAL_BLOCKS, Items.SMOOTH_BASALT);
 
-     */
+    private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {
+        DeferredBlock<T> toReturn = BLOCKS.register(name, block);
+        registerBlockItem(name, toReturn);
+        return toReturn;
+    }
 
     private static <T extends Block> void registerBlockItem(String name, DeferredBlock<T> block) {
         OMMItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
@@ -104,35 +96,4 @@ public class OMMBlocks {
         BLOCKS.register(eventBus);
         BLOCK_ENTITIES.register(eventBus);
     }
-
-    /*
-    private static Block registerBlock(String name, Block block, ResourceKey<CreativeModeTab> tab, Item add_after) {
-
-        // Creates a new Block with the id "ohmymeteors:example_block", combining the namespace and path
-        public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", BlockBehaviour.Properties.of().mapColor(MapColor.STONE));
-        // Creates a new BlockItem with the id "ohmymeteors:example_block", combining the namespace and path
-        public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
-
-        Block the_block = BLOCKS.registerBlock(name, );
-        Block the_block = Registry.register(BuiltInRegistries.BLOCK, OhMyMeteors.getIdentifier(name), block);
-        Item the_item = Registry.register(BuiltInRegistries.ITEM, OhMyMeteors.getIdentifier(name), new BlockItem(block, new net.minecraft.world.item.Item.Properties()));
-        ItemGroupEvents.modifyEntriesEvent(tab).register(content -> content.addAfter(add_after, the_item));
-        return the_block;
-    }
-
-
-    private static <T extends BlockEntity> BlockEntityType<T> register(
-            String name,
-            FabricBlockEntityTypeBuilder.Factory<? extends T> entityFactory,
-            Block... blocks
-    ) {
-        return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, OhMyMeteors.getIdentifier(name),
-
-                FabricBlockEntityTypeBuilder.<T>create(entityFactory, blocks).build()
-        );
-    }
-
-    public static void registerBlocks(){
-
-    }*/
 }

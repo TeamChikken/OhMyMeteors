@@ -44,7 +44,10 @@ repositories {
         name = "FzzyMaven"
         url = uri("https://maven.fzzyhmstrs.me/")
     }
-
+    maven {
+        name = 'Kotlin for Forge'
+        url = 'https://thedarkcolour.github.io/KotlinForForge/'
+    }
     maven { url 'https://jitpack.io' }
     mavenCentral()
 }
@@ -188,6 +191,8 @@ dependencies {
 
     //FzzyConfig
     implementation "me.fzzyhmstrs:fzzy_config:${project.fzzyconfig_version}"
+    //required by fzzyconfig
+    implementation 'thedarkcolour:kotlinforforge-neoforge:5.4.0'
 
     //OpenPartiesAndClaims
     compileOnly "maven.modrinth:open-parties-and-claims:${project.opac_version}"

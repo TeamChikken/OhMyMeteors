@@ -3,10 +3,6 @@ package me.emafire003.dev.ohmymeteors.entities;
 import com.google.common.annotations.VisibleForTesting;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
-import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
-import me.emafire003.dev.ohmymeteors.compat.yawp.YawpCompat;
-import me.emafire003.dev.ohmymeteors.config.Config;
-import me.emafire003.dev.ohmymeteors.events.MeteorSpawnEvent;
 import me.emafire003.dev.ohmymeteors.particles.meteor_flash.FlashScaleParticleOptions;
 import me.emafire003.dev.ohmymeteors.particles.meteor_smoke.MeteorSmokeScaledOptions;
 import me.emafire003.dev.ohmymeteors.util.ExplosionUtils;
@@ -46,7 +42,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import org.jetbrains.annotations.NotNull;
-import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.List;

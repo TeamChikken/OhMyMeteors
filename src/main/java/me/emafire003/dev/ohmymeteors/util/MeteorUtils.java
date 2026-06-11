@@ -403,7 +403,9 @@ public class MeteorUtils {
 
         if(ModList.get().isLoaded("yawp")){
             //Checks the player pos and the place where the meteor would spawn
-            if(!(YawpCompat.canSpawnHere(level, pos)) || YawpCompat.canSpawnHere(level, new BlockPos(pos.getX(), CONFIG.meteorSpawning.meteor_spawn_height, pos.getZ()))) {
+            OhMyMeteors.LOGGER.info("Can spawn her: " + YawpCompat.canSpawnHere(level, pos));
+            OhMyMeteors.LOGGER.info("Can spawn here: " + YawpCompat.canSpawnHere(level, new BlockPos(pos.getX(), CONFIG.meteorSpawning.meteor_spawn_height, pos.getZ())));
+            if(!((YawpCompat.canSpawnHere(level, pos)) || YawpCompat.canSpawnHere(level, new BlockPos(pos.getX(), CONFIG.meteorSpawning.meteor_spawn_height, pos.getZ())))) {
                 if(CONFIG.notificationSection.verbose){
                     OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by a YetAnotherWorldProtector claim, it has been discarded!");
                 }
