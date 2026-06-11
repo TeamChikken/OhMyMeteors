@@ -78,8 +78,8 @@ dependencies {
     //Fabric permission api
     implementation "me.lucko:fabric-permissions-api:${project.fabricperms_version}"
 
-    //Flan TODO reanble when released
-    /*compileOnly("maven.modrinth:flan:${project.flan_version}"){
+    //Flan
+    compileOnly("maven.modrinth:flan:${project.flan_version}"){
         transitive = false
     }
 
@@ -87,7 +87,7 @@ dependencies {
     //implementation("maven.modrinth:yawp:${project.yawp_version}")
     compileOnly("curse.maven:yawp-663276:${project.yawp_version}"){
         transitive = false
-    }*/
+    }
 
     //FzzyConfig
     implementation "me.fzzyhmstrs:fzzy_config:${project.fzzyconfig_version}"
