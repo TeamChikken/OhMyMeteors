@@ -483,7 +483,7 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
         }
     }
 
-    /**If the meteor is micro size (<2) will just spawn a block and return null*/
+    /**If the meteor is micro size (less than 2) will just spawn a block and return null*/
     public StructurePlacerAPI getPlacer(MeteorSizeClass sizeClass, String filter){
         //If the dimension is even lower than 2, just spawn one block
         if(this.getSize() < 2){
