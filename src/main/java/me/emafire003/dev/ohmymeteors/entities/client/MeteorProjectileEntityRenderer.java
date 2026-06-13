@@ -1,6 +1,7 @@
 package me.emafire003.dev.ohmymeteors.entities.client;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -29,7 +30,7 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
 
         VertexConsumer vertexconsumer;
 
-        switch (OhMyMeteors.CONFIG.visualsSection.meteor_texture_mode){
+        switch (Config.METEOR_TEXTURE_MODE){
             case HOT -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
                     this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png")), false, false);
             case MID -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
@@ -80,10 +81,10 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
     //TODO add travel time option as well? Maybe?
     public VertexConsumer textureByDistance(T entity, MultiBufferSource vertexConsumers){
         VertexConsumer vertexconsumer;
-        if(entity.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_hot+OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
+        if(entity.travelledBlocks > Config.TEXTURE_CHANGE_DISTANCE_HOT+Config.TEXTURE_CHANGE_DISTANCE_MID){
             vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
                     this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png")), false, false);
-        }else if(entity.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
+        }else if(entity.travelledBlocks > Config.TEXTURE_CHANGE_DISTANCE_MID){
             vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
                     this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png")), false, false);
         }else{

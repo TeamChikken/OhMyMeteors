@@ -8,7 +8,6 @@ import xaero.pac.common.server.player.config.api.v2.PlayerConfigOptions;
 
 public class OPACCompat {
 
-    //TODO wiki and changelog and also test when built
     public static boolean canSpawnHere(ServerLevel level, BlockPos pos){
         OpenPACServerAPI api = OpenPACServerAPI.get(level.getServer());
         IPlayerChunkClaimAPI claim = api.getServerClaimsManager().get(level.dimension().location(), pos);

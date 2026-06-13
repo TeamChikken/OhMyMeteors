@@ -2,6 +2,7 @@ package me.emafire003.dev.ohmymeteors.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
+import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.minecraft.client.Camera;
@@ -13,9 +14,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import java.awt.*;
 import java.util.List;
-
-import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
 
 @Mixin(FogRenderer.class)
 public abstract class MeteorFogMixin {
@@ -26,21 +26,20 @@ public abstract class MeteorFogMixin {
         if(areMeteorsNearby(camera, clientLevel)){
             //TODO maybe add a transition?
             //Default: Vec3(4,141,165) #048da5
-            
-            
-            return new Vec3(CONFIG.visualsSection.meteor_skyglow_color.r(), CONFIG.visualsSection.meteor_skyglow_color.g(), CONFIG.visualsSection.meteor_skyglow_color.b());
+            Color color = Color.decode("#" + Config.METEOR_SKYGLOW_COLOR.replaceAll("#", ""));
+            return new Vec3(color.getRed(), color.getBlue(), color.getGreen());
         }
         return original;
     }
 
     @Unique
     private static boolean areMeteorsNearby(Camera camera, ClientLevel clientLevel){
-        if(!CONFIG.visualsSection.meteor_skyglow){
+        if(!Config.METEOR_SKYGLOW){
             return false;
         }
         //If the list isn't empty it measn at least a meteor has spawned and might be near the player
         if(!MeteorUtils.getAliveMeteors().isEmpty()){
-            List<MeteorProjectileEntity> meteors_around = clientLevel.getEntitiesOfClass(MeteorProjectileEntity.class, new AABB(camera.getBlockPosition()).inflate(CONFIG.visualsSection.meteor_render_distance, CONFIG.visualsSection.meteor_render_distance, CONFIG.visualsSection.meteor_render_distance), (e -> true));
+            List<MeteorProjectileEntity> meteors_around = clientLevel.getEntitiesOfClass(MeteorProjectileEntity.class, new AABB(camera.getBlockPosition()).inflate(Config.METEOR_RENDER_DISTANCE, Config.METEOR_RENDER_DISTANCE, Config.METEOR_RENDER_DISTANCE), (e -> true));
             return !meteors_around.isEmpty();
         }
         return false;

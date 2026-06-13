@@ -1,6 +1,7 @@
 package me.emafire003.dev.ohmymeteors.entities;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.config.Config;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -23,7 +24,7 @@ public class OMMEntities {
                     .sized(0.9F, 0.9F).build("meteor_cat"));
 
     public static int getMeteorTrackingDistance(){
-        return OhMyMeteors.CONFIG.visualsSection.meteor_render_distance;
+        return Config.METEOR_RENDER_DISTANCE;
     }
 
     public static void registerEntities(){

@@ -26,9 +26,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
-
-
 public class MeteorUtils {
 
     /// A list of currently active meteors out and about around the world. Used for the fog effect
@@ -79,7 +76,7 @@ public class MeteorUtils {
         if(world.getRandom().nextBoolean()){
             invert_z = -1;
         }
-        Vec3 vel = new Vec3((world.getRandom().nextFloat()/CONFIG.meteorSpawning.meteor_dispersion_factor)*invert_x, -1.0f*(world.getRandom().nextFloat()+ CONFIG.meteorBehaviourSection.downwards_speed_modifier)*CONFIG.meteorBehaviourSection.downwards_speed_multiplier, (world.getRandom().nextFloat()/CONFIG.meteorSpawning.meteor_dispersion_factor)*invert_z);
+        Vec3 vel = new Vec3((world.getRandom().nextFloat()/Config.METEOR_DISPERSION_FACTOR)*invert_x, -1.0f*(world.getRandom().nextFloat()+ Config.DOWNWARDS_SPEED_MODIFIER)*Config.DOWNWARDS_SPEED_MULTIPLIER, (world.getRandom().nextFloat()/Config.METEOR_DISPERSION_FACTOR)*invert_z);
 
         return new Tuple<>(pos, vel);
 
@@ -99,7 +96,7 @@ public class MeteorUtils {
         meteor.setSize(world.getRandom().nextIntBetweenInclusive(Math.max(0, min_size), Math.min(50, max_size)));
 
         if(homing){
-            meteor.setDeltaMovement(originPos.subtract(meteor.position()).normalize().multiply(1,1,1).add(0, CONFIG.meteorBehaviourSection.downwards_speed_modifier, 0).scale(CONFIG.meteorBehaviourSection.downwards_speed_multiplier));
+            meteor.setDeltaMovement(originPos.subtract(meteor.position()).normalize().multiply(1,1,1).add(0, Config.DOWNWARDS_SPEED_MODIFIER, 0).scale(Config.DOWNWARDS_SPEED_MULTIPLIER));
         }else{
             meteor.setDeltaMovement(pos_vel.getB());
         }
@@ -345,7 +342,7 @@ public class MeteorUtils {
                     }
                 }
         );
-        if(!CONFIG.meteorSpawning.dimension_list_mode){
+        if(!Config.DIMENSION_LIST_MODE){
             return !dimension_ok.get();
         }
         return dimension_ok.get();
@@ -375,7 +372,7 @@ public class MeteorUtils {
     }
 
     public static boolean canSpawnInModdedRegion(ServerPlayer player, BlockPos pos){
-        return canSpawnInModdedRegion(player, (ServerLevel) player.level(), pos);
+        return canSpawnInModdedRegion(player, (ServerLevel) player.getLevel(), pos);
     }
 
     /**Checks if the meteor can spawn in the given modded region
@@ -388,7 +385,7 @@ public class MeteorUtils {
     public static boolean canSpawnInModdedRegion(ServerPlayer p, ServerLevel level, BlockPos pos){
         if(FabricLoader.getInstance().isModLoaded("openpartiesandclaims")){
             if(!OPACCompat.canSpawnHere(level, pos)){
-                if(CONFIG.notificationSection.verbose){
+                if(Config.VERBOSE){
                     OhMyMeteors.LOGGER.warn("A meteor has entered or spawned in a region protected by an OpenPartiesAndClaims claim, it has been discarded!");
                 }
                 return false;

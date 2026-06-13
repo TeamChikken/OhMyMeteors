@@ -1,6 +1,6 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
-import me.emafire003.dev.ohmymeteors.OhMyMeteors;
+import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerPlayer;

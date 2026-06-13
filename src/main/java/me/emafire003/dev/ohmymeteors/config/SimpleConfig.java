@@ -31,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -129,33 +128,35 @@ public class SimpleConfig {
         reader.close();
     }
 
-    private String current_config;
+    private String config_new;
 
     //FINNALLY IT WORKS
     /**Updates from one config version to the other*/
     public void updateValues(HashMap<Pair<String, ?>, Pair<String, ?>> sub_map) throws IOException {
-        current_config = request.getConfig();
-        current_config = current_config.replaceAll("\\{", "éàè");
-        current_config = current_config.replaceAll("}", "àéà");
+        config_new = request.getConfig();
+        config_new = config_new.replaceAll("\\{", "éàè");
+        config_new = config_new.replaceAll("}", "àéà");
 
-        sub_map.forEach((regneedone, editedone) -> {
-            String already_modified_string = editedone.getFirst() + ":" + editedone.getSecond();
-            String regenned_string = regneedone.getFirst() + ":" + regneedone.getSecond();
+        sub_map.forEach((oldone, newone) -> {
+            String new_string = newone.getFirst() + ":" + newone.getSecond();
+            String old_string = oldone.getFirst() + ":" + oldone.getSecond();
 
             // The {} of maps is wrongly treated as a regex, so i needed to get a bit creative.
             // It subs all instances of {} with a string of unlikely chars which will be subbed before writing to file again by {}
-            regenned_string = regenned_string.replaceAll("\\{", "éàè");
-            regenned_string = regenned_string.replaceAll("}", "àéà");
-            already_modified_string = already_modified_string.replaceAll("\\{", "éàè");
-            already_modified_string = already_modified_string.replaceAll("}", "àéà");
+            old_string = old_string.replaceAll("\\{", "éàè");
+            old_string = old_string.replaceAll("}", "àéà");
+            new_string = new_string.replaceAll("\\{", "éàè");
+            new_string = new_string.replaceAll("}", "àéà");
 
-            if(!editedone.getFirst().equalsIgnoreCase("version") && editedone.getSecond() != null && regneedone.getSecond() != null){
-                current_config = current_config.replaceAll(regenned_string, already_modified_string);
+            if(!newone.getFirst().equalsIgnoreCase("version") && newone.getSecond() != null && oldone.getSecond() != null){
+                config_new = config_new.replaceAll(old_string, new_string);
             }
+
+
         });
         //Replacing the weird chars back to {}
-        current_config = current_config.replaceAll("éàè", "{");
-        current_config = current_config.replaceAll("àéà", "}");
+        config_new = config_new.replaceAll("éàè", "{");
+        config_new = config_new.replaceAll("àéà", "}");
 
         // try creating missing files
         request.file.delete();
@@ -163,142 +164,8 @@ public class SimpleConfig {
         Files.createFile( request.file.toPath() );
 
         PrintWriter writer = new PrintWriter(request.file, StandardCharsets.UTF_8);
-        writer.write(current_config);
+        writer.write( config_new );
         writer.close();
-    }
-
-    /**Used for migration to the new config format. Needs a list of the old config settings.
-     * Uses reflection to update to the new format*/
-    public void migrateToNew(List<String> settingNames) throws IOException {
-
-        settingNames.forEach(setting -> {
-            if(!Objects.equals(setting, "spacer")){
-                updateSettingByFieldString(setting);
-            }
-        });
-
-        /*File target = OhMyMeteors.PATH.resolve(OhMyMeteors.MOD_ID + ".oldformat").toFile();
-        try{
-            FileUtils.copyFile(request.file, target);
-            if(CONFIG.delete()){
-                LOGGER.info("Config deleted successfully");
-            }else{
-                LOGGER.error("The config could not be deleted");
-            }
-        } catch (IOException f) {
-            f.printStackTrace();
-        }*/
-        request.file.renameTo(new File(request.file.getPath()+".oldformat"));
-
-        OhMyMeteors.CONFIG.save();
-    }
-
-    public void updateSettingByFieldString(String fieldName){
-        Field currentSetting = null;
-        try {
-            currentSetting = OhMyMeteors.CONFIG.getClass().getField(fieldName);
-            currentSetting.setAccessible(true);
-            if(!updateSettingByType(currentSetting, fieldName, OhMyMeteors.CONFIG)){
-                LOGGER.error("There has been an error while trying to migrate the config!");
-            }
-
-        } catch (NoSuchFieldException ignored) {
-        }
-        if(currentSetting == null){
-            try {
-                currentSetting = OhMyMeteors.CONFIG.meteorSpawning.getClass().getField(fieldName);
-                currentSetting.setAccessible(true);
-                if(!updateSettingByType(currentSetting, fieldName, OhMyMeteors.CONFIG.meteorSpawning)){
-                    LOGGER.error("There has been an error while trying to migrate the config!");
-                }
-            } catch (NoSuchFieldException ignored) {
-            }
-        }
-        if(currentSetting == null){
-            try {
-                currentSetting = OhMyMeteors.CONFIG.meteorBehaviourSection.getClass().getField(fieldName);
-                currentSetting.setAccessible(true);
-                if(!updateSettingByType(currentSetting, fieldName, OhMyMeteors.CONFIG.meteorBehaviourSection)){
-                    LOGGER.error("There has been an error while trying to migrate the config!");
-                }
-            } catch (NoSuchFieldException ignored) {
-            }
-        }
-        if(currentSetting == null){
-            try {
-                currentSetting = OhMyMeteors.CONFIG.notificationSection.getClass().getField(fieldName);
-                currentSetting.setAccessible(true);
-                if(!updateSettingByType(currentSetting, fieldName, OhMyMeteors.CONFIG.notificationSection)){
-                    LOGGER.error("There has been an error while trying to migrate the config!");
-                }
-            } catch (NoSuchFieldException ignored) {
-            }
-        }
-        if(currentSetting == null){
-            try {
-                currentSetting = OhMyMeteors.CONFIG.lasersSection.getClass().getField(fieldName);
-                currentSetting.setAccessible(true);
-                if(!updateSettingByType(currentSetting, fieldName, OhMyMeteors.CONFIG.lasersSection)){
-                    LOGGER.error("There has been an error while trying to migrate the config!");
-                }
-            } catch (NoSuchFieldException ignored) {
-            }
-        }
-        if(currentSetting == null){
-            try {
-                currentSetting = OhMyMeteors.CONFIG.visualsSection.getClass().getField(fieldName);
-                currentSetting.setAccessible(true);
-                if(!updateSettingByType(currentSetting, fieldName, OhMyMeteors.CONFIG.visualsSection)){
-                    LOGGER.error("There has been an error while trying to migrate the config!");
-                }
-            } catch (NoSuchFieldException ignored) {
-            }
-        }
-        if(currentSetting == null){
-            try {
-                currentSetting = OhMyMeteors.CONFIG.meteorShowerSection.getClass().getField(fieldName);
-                currentSetting.setAccessible(true);
-                if(!updateSettingByType(currentSetting, fieldName, OhMyMeteors.CONFIG.meteorShowerSection)){
-                    LOGGER.error("There has been an error while trying to migrate the config!");
-                }
-            } catch (NoSuchFieldException ignored) {
-            }
-        }
-    }
-
-    private boolean updateSettingByType(Field currentSetting, String fieldName, Object object) {
-        Class<?> type = currentSetting.getType();
-        try {
-            if(type == int.class){
-                currentSetting.set(object, getOrDefault(fieldName, -1));
-            }
-            if(type == double.class){
-                currentSetting.set(object, getOrDefault(fieldName, -1.0d));
-            }
-            if(type == float.class){
-                currentSetting.set(object, getOrDefault(fieldName, -1.0f));
-            }
-            if(type == boolean.class){
-                currentSetting.set(object, getOrDefault(fieldName, false));
-            }
-            if(type == double.class){
-                currentSetting.set(object, getOrDefault(fieldName, -1.0d));
-            }
-            if(type == String.class){
-                currentSetting.set(object, getOrDefault(fieldName, "error"));
-            }
-            if(type == List.class){
-                currentSetting.set(object, getOrDefault(fieldName, List.of("error")));
-            }
-            if(type == Map.class){
-                currentSetting.set(object, getOrDefault(fieldName, Map.of("error", -1)));
-            }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-
     }
 
     /**Used to write to file the updated values stored in the UPDATE MAP*/
@@ -315,7 +182,7 @@ public class SimpleConfig {
         Files.createFile( request.file.toPath() );
 
         PrintWriter writer = new PrintWriter(request.file, StandardCharsets.UTF_8);
-        writer.write(current_config);
+        writer.write( config_new );
         writer.close();
     }
 
@@ -324,7 +191,7 @@ public class SimpleConfig {
         if( !entry.isEmpty() && !entry.startsWith( "#" )) {
             String[] parts = entry.split(":", 2);
             if( parts.length == 2) {
-                
+
                 // Recognizes comments after a value
                 String temp = parts[1].split(" #")[0];
                 config.put( parts[0], temp );
@@ -539,7 +406,7 @@ public class SimpleConfig {
         if(request.file.delete()){
             return true;
         }else{
-            LOGGER.warn("Normal deletion not possible, force deleting the config file!");
+            LOGGER.warn("Normal deletion not possibile, force deleting the config file!");
             FileDeleteStrategy.FORCE.delete(request.file);
         }
         LOGGER.warn( "Config '" + request.filename + "' was removed from existence!" );
@@ -548,49 +415,48 @@ public class SimpleConfig {
 
     /**Saves a new boolean value to the config file*/
     public void set( String key, boolean def ) {
-        if(current_config == null || current_config.isEmpty()){
-            current_config = request.getConfig();
+        if(config_new == null || config_new.isEmpty()){
+            config_new = request.getConfig();
         }
 
         String new_string = key + ":" + def;
         String old_string = key + ":" + this.get(key);
-        current_config = current_config.replaceAll(old_string, new_string);
+        config_new = config_new.replaceAll(old_string, new_string);
     }
 
     /**Saves a new String value to the config file*/
     public void set( String key, String def ) {
-        if(current_config == null || current_config.isEmpty()){
-            current_config = request.getConfig();
+        if(config_new == null || config_new.isEmpty()){
+            config_new = request.getConfig();
         }
 
         String new_string = key + ":" + def;
         String old_string = key + ":" + this.get(key);
-        current_config = current_config.replaceAll(old_string, new_string);
+        config_new = config_new.replaceAll(old_string, new_string);
     }
 
     /**Saves a new int value to the config file*/
     public void set( String key, int def ) {
-        if(current_config == null || current_config.isEmpty()){
-            current_config = request.getConfig();
+        if(config_new == null || config_new.isEmpty()){
+            config_new = request.getConfig();
         }
 
         String new_string = key + ":" + def;
         String old_string = key + ":" + this.get(key);
-        current_config = current_config.replaceAll(old_string, new_string);
+        config_new = config_new.replaceAll(old_string, new_string);
     }
 
     /**Saves a new double value to the config file*/
     public void set( String key, double def ) {
-        if(current_config == null || current_config.isEmpty()){
-            current_config = request.getConfig();
+        if(config_new == null || config_new.isEmpty()){
+            config_new = request.getConfig();
         }
 
         String new_string = key + ":" + def;
         String old_string = key + ":" + this.get(key);
-        current_config = current_config.replaceAll(old_string, new_string);
+        config_new = config_new.replaceAll(old_string, new_string);
     }
 
 
 
 }
-

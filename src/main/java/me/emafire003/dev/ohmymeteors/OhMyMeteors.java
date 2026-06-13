@@ -2,8 +2,6 @@ package me.emafire003.dev.ohmymeteors;
 
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.blocks.OMMProperties;
-import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
-import me.emafire003.dev.ohmymeteors.config.OMMConfigV2;
 import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
 import me.emafire003.dev.ohmymeteors.config.Config;
@@ -44,8 +42,6 @@ public class OhMyMeteors implements ModInitializer {
 	public static Path PATH = Path.of(FabricLoader.getInstance().getConfigDir() + "/" + MOD_ID + "/");
 
 	public static String PREFIX = "§8[Oh My, Meteors!] §r";
-
-	public static OMMConfigV2 CONFIG;
 
 	public static ResourceLocation getIdentifier(String path){
 		return ResourceLocation.tryBuild(MOD_ID, path);

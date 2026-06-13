@@ -3,6 +3,7 @@ package me.emafire003.dev.ohmymeteors.blocks.basic_laser;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.blocks.OMMProperties;
+import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
 import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
@@ -38,13 +39,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
 
 //Ah remeber that the whole chunk is loaded when a meteor enters it so this will be loaded as well no need for fancy stuff
 public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBlock {
@@ -74,18 +72,13 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
         this.registerDefaultState(this.stateDefinition.any().setValue(SHOW_AREA, false).setValue(IN_COOLDOWN, false).setValue(FIRING, false));
     }
 
- /*   @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(BasicMeteorLaserBlock::new);
-    }
-*/
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new BasicMeteorLaserBlockEntity(pos, state);
     }
 
     @Override
-    public @NotNull RenderShape getRenderShape(BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
@@ -95,9 +88,9 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
         return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, OMMBlocks.BASIC_METEOR_LASER_BLOCK_ENTITY, BasicMeteorLaserBlock::tick) : null;
     }
 
-        /**
-         * Wakes up all the lasers to check for meteors above them.
-         * They automatically go back to sleep after {@link #AWAKE_TIME_LIMIT} ticks*/
+    /**
+     * Wakes up all the lasers to check for meteors above them.
+     * They automatically go back to sleep after {@link #AWAKE_TIME_LIMIT} ticks*/
     public static void awakeLasers(){
         AWAKE = true;
         tickCounterAwakening = 0;
@@ -108,7 +101,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
     }
 
     @Override
-    public @NotNull InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         ItemStack stack = player.getItemInHand(hand);
         //Note: sneaking won't work since it disables this interaction
         if(stack.is(OMMItems.FOCUSING_LENSES)){
@@ -143,9 +136,9 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
     protected static void tick(Level world, BlockPos pos, BlockState state, BasicMeteorLaserBlockEntity blockEntity) {
         if(world instanceof ServerLevel serverWorld && world.canSeeSky(pos.above())){
 
-            if(CONFIG.lasersSection.should_basic_laser_cooldown && BLOCKS_IN_COOLDOWN.containsKey(blockEntity)){
+            if(Config.SHOULD_BASIC_LASER_COOLDOWN && BLOCKS_IN_COOLDOWN.containsKey(blockEntity)){
                 //The cooldown is ended, keep on with the rest
-                if(BLOCKS_IN_COOLDOWN.get(blockEntity) > CONFIG.lasersSection.basic_laser_cooldown*20){
+                if(BLOCKS_IN_COOLDOWN.get(blockEntity) > Config.BASIC_LASER_COOLDOWN*20){
                     removeCooldown(blockEntity, state, world, pos);
 
                 }else{//Increases the cooldown timer
@@ -159,7 +152,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
                 return;
             }
 
-            AABB box = new AABB(new BlockPos(pos.getX(), Math.min(pos.getY()+getYLevelAreaCoverage(), CONFIG.meteorSpawning.meteor_spawn_height), pos.getZ())).inflate(getRadiusAreaCoverage(), 1, getRadiusAreaCoverage());
+            AABB box = new AABB(new BlockPos(pos.getX(), Math.min(pos.getY()+getYLevelAreaCoverage(), Config.METEOR_SPAWN_HEIGHT), pos.getZ())).inflate(getRadiusAreaCoverage(), 1, getRadiusAreaCoverage());
 
             //useful to see where the box is, gets shown when the the show area blockstate property is true
             if(state.getValue(SHOW_AREA)){
@@ -191,7 +184,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
                 line.setTargetPos(lowerPos);
                 line.setOriginPos(box.getCenter());
                 line.setParticles((int) (lowerPos.distanceTo(box.getCenter())));
-                line.setForced(CONFIG.visualsSection.use_forced_particles);
+                line.setForced(Config.USE_FORCED_PARTICLES);
                 line.run();
 
                 //The horizontal lines at the top which point to the corner of the box
@@ -232,7 +225,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
 
             meteors.forEach( meteorProjectileEntity -> {
 
-                if(CONFIG.meteorBehaviourSection.spawn_scatter_meteors && meteorProjectileEntity.getSize() > CONFIG.meteorSpawning.natural_meteor_max_size/1.5){
+                if(meteorProjectileEntity.getSize() > Config.NATURAL_METEOR_MAX_SIZE/1.5){
                     meteorProjectileEntity.detonateScatter();
                 }else{
                     meteorProjectileEntity.detonateSimple();
@@ -243,7 +236,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
                 LineEffect lineEffect = LineEffect
                         .builder(serverWorld, OMMParticles.LASER_PARTICLE, Vec3.atLowerCornerOf(pos).add(0, 0.5, 0))
                         .targetPos(meteorProjectileEntity.position())
-                        .forced(CONFIG.visualsSection.use_forced_particles)
+                        .forced(Config.USE_FORCED_PARTICLES)
                         .particles((int) (Vec3.atLowerCornerOf(pos).distanceTo(meteorProjectileEntity.position())*3))
                         .build();
                 putInCooldown(blockEntity);
@@ -258,19 +251,20 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
                 //Plays the "pew" laser firing sound
                 world.playSound(null, pos, OMMSounds.LASER_FIRE, SoundSource.BLOCKS, 1f, 1.25f);
 
-                if(CONFIG.notificationSection.announce_meteor_destroyed){
-                    if(CONFIG.notificationSection.announce_location){
+
+                if(Config.ANNOUNCE_METEOR_DESTROYED){
+                    if(Config.ANNOUNCE_LOCATION){
                         String meteorPos = String.valueOf(meteorProjectileEntity.blockPosition().getX()) + " x, " + String.valueOf(meteorProjectileEntity.blockPosition().getZ()) + " z!";
                         if(meteorProjectileEntity.isHuge()){
-                            serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge.localized", meteorPos).withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
+                            serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge.localized", meteorPos).withStyle(ChatFormatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
                         }else{
-                            serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.localized", meteorPos).withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
+                            serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.localized", meteorPos).withStyle(ChatFormatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
                         }
                     }else{
                         if(meteorProjectileEntity.isHuge()){
-                            serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge").withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
+                            serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge").withStyle(ChatFormatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
                         }else{
-                            serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed").withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
+                            serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed").withStyle(ChatFormatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
                         }
                     }
 
@@ -282,13 +276,12 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
 
     }
 
-    //TOOD make sure this thingies work
     protected static int getYLevelAreaCoverage(){
-        return CONFIG.lasersSection.basic_laser_height;
+        return Config.BASIC_LASER_AREA_RADIUS;
     }
 
     protected static int getRadiusAreaCoverage(){
-        return CONFIG.lasersSection.basic_laser_height;
+        return Config.BASIC_LASER_HEIGHT;
     }
 
     @Override
@@ -314,7 +307,7 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
     }
 
     @Override
-    public @NotNull VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         return makeShape();
     }
 }
