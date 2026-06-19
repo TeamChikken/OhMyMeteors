@@ -51,7 +51,7 @@ public class OMMBlocks {
 
     public static final Block METEORIC_ROCK = registerBlock("meteoric_rock",
             new MeteoricRockBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
-                    .emissiveRendering((blockState, getter, pos) -> {
+                    .emissiveRendering((blockState -> {
                         switch (blockState.getValue(OMMProperties.ROCK_TEMPERATURE)){
                             case MID -> {
                                 return true;
@@ -61,7 +61,7 @@ public class OMMBlocks {
                                 return false;
                             }
                         }
-                    })
+                    }))
                     .lightLevel((blockState) -> {
                         switch (blockState.getValue(OMMProperties.ROCK_TEMPERATURE)){
                             case MID -> {

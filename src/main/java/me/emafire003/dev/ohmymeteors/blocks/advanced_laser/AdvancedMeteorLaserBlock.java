@@ -203,33 +203,33 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
 
                 //BUBBLE_POP could also work?
                 LineEffect lineEffect = LineEffect
-                        .builder(serverWorld, OMMParticles.LASER_PARTICLE, pos.above().getCenter())
+                        .builder(serverWorld, OMMParticles.LASER_PARTICLE, new Vec3(pos.above()))
                         .targetPos(meteorProjectileEntity.position())
-                        .particles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*2))
+                        .particles((int) (new Vec3(pos).distanceTo(meteorProjectileEntity.position())*2))
                         .forced(CONFIG.visualsSection.use_forced_particles)
                         .build();
 
                 lineEffect.setParticle(OMMParticles.LASER_PARTICLE_SMALL);
-                lineEffect.setOriginPos(pos.above().getCenter().add(0.5, -0.5, 0));
-                lineEffect.setParticles((int) (pos.above().getCenter().add(0.5, -0.5, 0).distanceTo(meteorProjectileEntity.position())*2));
+                lineEffect.setOriginPos(new Vec3(pos.above()).add(0.5, -0.5, 0));
+                lineEffect.setParticles((int) (new Vec3(pos.above()).add(0.5, -0.5, 0).distanceTo(meteorProjectileEntity.position())*2));
                 lineEffect.runFor(1);
 
-                lineEffect.setOriginPos(pos.above().getCenter().add(-0.5, -0.5, 0));
-                lineEffect.setParticles((int) (pos.above().getCenter().add(-0.5, -0.5, 0).distanceTo(meteorProjectileEntity.position())*2));
+                lineEffect.setOriginPos(new Vec3(pos.above()).add(-0.5, -0.5, 0));
+                lineEffect.setParticles((int) (new Vec3(pos.above()).add(-0.5, -0.5, 0).distanceTo(meteorProjectileEntity.position())*2));
                 lineEffect.runFor(1);
 
-                lineEffect.setOriginPos(pos.above().getCenter().add(0, -0.5, 0.5));
-                lineEffect.setParticles((int) (pos.above().getCenter().add(0, -0.5, 0.5).distanceTo(meteorProjectileEntity.position())*2));
+                lineEffect.setOriginPos(new Vec3(pos.above()).add(0, -0.5, 0.5));
+                lineEffect.setParticles((int) (new Vec3(pos.above()).add(0, -0.5, 0.5).distanceTo(meteorProjectileEntity.position())*2));
                 lineEffect.runFor(1);
 
-                lineEffect.setOriginPos(pos.above().getCenter().add(0, -0.5, -0.5));
-                lineEffect.setParticles((int) (pos.above().getCenter().add(0, -0.5, -0.5).distanceTo(meteorProjectileEntity.position())*2));
+                lineEffect.setOriginPos(new Vec3(pos.above()).add(0, -0.5, -0.5));
+                lineEffect.setParticles((int) (new Vec3(pos.above()).add(0, -0.5, -0.5).distanceTo(meteorProjectileEntity.position())*2));
                 lineEffect.runFor(1);
 
                 lineEffect.setParticle(OMMParticles.LASER_PARTICLE);
-                lineEffect.setOriginPos(pos.above().getCenter());
+                lineEffect.setOriginPos(new Vec3(pos.above()));
                 lineEffect.setTargetPos(meteorProjectileEntity.position());
-                lineEffect.setParticles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*2));
+                lineEffect.setParticles((int) (new Vec3(pos).distanceTo(meteorProjectileEntity.position())*2));
                 putInCooldown(blockEntity);
                 lineEffect.runFor(1, (effect, t) -> {
                     //If the ticks are 19/20 it means the effect is about to end (1 second = 20 ticks), so revert back the state

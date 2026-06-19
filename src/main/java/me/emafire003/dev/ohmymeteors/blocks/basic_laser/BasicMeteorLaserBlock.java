@@ -246,10 +246,10 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
                 serverWorld.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 4648287), pos.above().above().getX(), pos.above().above().getY(), pos.above().above().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
 
                 LineEffect lineEffect = LineEffect
-                        .builder(serverWorld, OMMParticles.LASER_PARTICLE, pos.getCenter().add(0, 0.5, 0))
+                        .builder(serverWorld, OMMParticles.LASER_PARTICLE, new Vec3(pos).add(0, 0.5, 0))
                         .targetPos(meteorProjectileEntity.position())
                         .forced(CONFIG.visualsSection.use_forced_particles)
-                        .particles((int) (pos.getCenter().distanceTo(meteorProjectileEntity.position())*3))
+                        .particles((int) (new Vec3(pos).distanceTo(meteorProjectileEntity.position())*3))
                         .build();
                 putInCooldown(blockEntity);
                 lineEffect.runFor(1, (effect, t) -> {

@@ -1,5 +1,6 @@
 package me.emafire003.dev.ohmymeteors.util;
 
+import com.mojang.datafixers.util.Pair;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.compat.flan.FlanCompat;
 import me.emafire003.dev.ohmymeteors.compat.opac.OPACCompat;
@@ -16,7 +17,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -54,7 +54,7 @@ public class MeteorUtils {
     /**Used to get a random meteor position and velocity oriented downwards
      *
      * @return a Pair, where the first value is the Position and teh second one the Velocity*/
-    public static Tuple<Vec3, Vec3> getDownwardsMeteorPosAndVelocity(Vec3 originPos, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height){
+    public static Pair<Vec3, Vec3> getDownwardsMeteorPosAndVelocity(Vec3 originPos, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height){
         //The invert is to also have a chance at having negative coordinates, otherwise they would always be positive
         int invert_x = 1;
         if(world.getRandom().nextBoolean()){
@@ -82,7 +82,7 @@ public class MeteorUtils {
         }
         Vec3 vel = new Vec3((world.getRandom().nextFloat()/CONFIG.meteorSpawning.meteor_dispersion_factor)*invert_x, -1.0f*(world.getRandom().nextFloat()+ CONFIG.meteorBehaviourSection.downwards_speed_modifier)*CONFIG.meteorBehaviourSection.downwards_speed_multiplier, (world.getRandom().nextFloat()/CONFIG.meteorSpawning.meteor_dispersion_factor)*invert_z);
 
-        return new Tuple<>(pos, vel);
+        return new Pair<>(pos, vel);
 
     }
 
@@ -92,9 +92,9 @@ public class MeteorUtils {
     public static MeteorProjectileEntity getDownwardsMeteor(Vec3 originPos, ServerLevel world, int min_spawn_d, int max_spawn_d, double spawn_height, int min_size, int max_size, boolean homing){
         MeteorProjectileEntity meteor = new MeteorProjectileEntity(OMMEntities.METEOR_PROJECTILE_ENTITY, world);
 
-        Tuple<Vec3, Vec3> pos_vel = getDownwardsMeteorPosAndVelocity(originPos, world, min_spawn_d, max_spawn_d, spawn_height);
+        Pair<Vec3, Vec3> pos_vel = getDownwardsMeteorPosAndVelocity(originPos, world, min_spawn_d, max_spawn_d, spawn_height);
 
-        meteor.setPosRaw(pos_vel.getA().x, pos_vel.getA().y, pos_vel.getA().z);
+        meteor.setPosRaw(pos_vel.getFirst().x, pos_vel.getFirst().y, pos_vel.getFirst().z);
 
         //TODO add variable or config mor max meteor size
         meteor.setSize(world.getRandom().nextIntBetweenInclusive(Math.max(0, min_size), Math.min(50, max_size)));
@@ -102,7 +102,7 @@ public class MeteorUtils {
         if(homing){
             meteor.setDeltaMovement(originPos.subtract(meteor.position()).normalize().multiply(1,1,1).add(0, CONFIG.meteorBehaviourSection.downwards_speed_modifier, 0).scale(CONFIG.meteorBehaviourSection.downwards_speed_multiplier));
         }else{
-            meteor.setDeltaMovement(pos_vel.getB());
+            meteor.setDeltaMovement(pos_vel.getSecond());
         }
 
         return meteor;
@@ -292,13 +292,13 @@ public class MeteorUtils {
         AtomicInteger spawned_meteors = new AtomicInteger();
         AtomicInteger random_spawn_delay = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(-10, +10));
 
-        Tuple<Vec3, Vec3> prev = getDownwardsMeteorPosAndVelocity(p.position(), world.getLevel(),
+        Pair<Vec3, Vec3> prev = getDownwardsMeteorPosAndVelocity(p.position(), world.getLevel(),
                 CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance, CONFIG.meteorSpawning.meteor_spawn_height);
 
         AtomicInteger limit_a = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance));
         AtomicInteger limit_b = new AtomicInteger(world.getRandom().nextIntBetweenInclusive(CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance));
 
-        world.addFreshEntity(getDownwardsMeteorSameDirection(prev.getA(), prev.getB(), world,
+        world.addFreshEntity(getDownwardsMeteorSameDirection(prev.getFirst(), prev.getSecond(), world,
                 Math.min(limit_b.get(), limit_a.get()), Math.max(limit_b.get(), limit_a.get()), CONFIG.meteorSpawning.meteor_spawn_height, CONFIG.meteorSpawning.natural_meteor_min_size, CONFIG.meteorSpawning.natural_meteor_max_size, CONFIG.meteorBehaviourSection.homing_meteors));
         spawned_meteors.getAndIncrement();
 
@@ -313,7 +313,7 @@ public class MeteorUtils {
                 limit_a.set(world.getRandom().nextIntBetweenInclusive(CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance));
                 limit_b.set(world.getRandom().nextIntBetweenInclusive(CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance));
 
-                MeteorProjectileEntity meteor = getDownwardsMeteorSameDirection(prev.getA(), prev.getB(), world,
+                MeteorProjectileEntity meteor = getDownwardsMeteorSameDirection(prev.getFirst(), prev.getSecond(), world,
                         Math.min(limit_b.get(), limit_a.get()), Math.max(limit_b.get(), limit_a.get()), CONFIG.meteorSpawning.meteor_spawn_height, CONFIG.meteorSpawning.natural_meteor_min_size, CONFIG.meteorSpawning.natural_meteor_max_size, CONFIG.meteorBehaviourSection.homing_meteors);
                 meteor.setSilenced(true);
                 world.addFreshEntity(meteor);

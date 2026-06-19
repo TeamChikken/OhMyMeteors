@@ -16,6 +16,6 @@ public class ConfigScreen extends Screen {
     @Override
     protected void init() {
         Util.getPlatform().openUri(Config.FILEPATH.toUri());
-        minecraft.setScreen(parent);
+        minecraft.gui.setScreen(parent);
     }
 }
