@@ -10,7 +10,6 @@ import me.emafire003.dev.ohmymeteors.particles.meteor_smoke.MeteorSmokeScaledOpt
 import me.emafire003.dev.ohmymeteors.util.ExplosionUtils;
 import me.emafire003.dev.ohmymeteors.util.MeteorSizeClass;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
-import me.emafire003.dev.ohmymeteors.util.ParticleMode;
 import me.emafire003.dev.structureplacerapi.StructurePlacerAPI;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;

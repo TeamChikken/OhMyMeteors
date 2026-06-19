@@ -10,7 +10,6 @@ import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
 import me.emafire003.dev.particleanimationlib.effects.CuboidEffect;
 import me.emafire003.dev.particleanimationlib.effects.LineEffect;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -237,7 +236,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
 
                 if(Config.ANNOUNCE_METEOR_DESTROYED){
                     if(Config.ANNOUNCE_LOCATION){
-                        String meteorPos = String.valueOf(meteorProjectileEntity.blockPosition().getX()) + " x, " + String.valueOf(meteorProjectileEntity.blockPosition().getZ()) + " z!";
+                        String meteorPos = meteorProjectileEntity.blockPosition().getX() + " x, " + meteorProjectileEntity.blockPosition().getZ() + " z!";
                         if(meteorProjectileEntity.isHuge()){
                             serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge.localized", meteorPos).withStyle(ChatFormatting.GREEN)), Config.ACTIONBAR_ANNOUNCEMENTS));
                         }else{
