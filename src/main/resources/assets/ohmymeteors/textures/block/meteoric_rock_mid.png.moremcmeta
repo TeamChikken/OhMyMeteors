@@ -1,7 +1,0 @@
-{
-    "overlay": {
-        "texture": "ohmymeteors:textures/block/meteoric_rock_mid_e.png",
-        "emissive": true,
-        "transparency": "translucent"
-    }
-}

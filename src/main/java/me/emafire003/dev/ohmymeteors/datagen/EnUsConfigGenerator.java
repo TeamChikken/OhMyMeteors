@@ -43,7 +43,10 @@ public class EnUsConfigGenerator extends FabricLanguageProvider {
         translationBuilder.add("block.ohmymeteors.basic_meteor_laser", "Basic Meteor Laser");
         translationBuilder.add("block.ohmymeteors.advanced_meteor_laser", "Advanced Meteor Laser");
         translationBuilder.add("block.ohmymeteors.meteoric_rock", "Meteoric Rock");
-
+        translationBuilder.add("item.ohmymeteors.basic_meteor_laser", "Basic Meteor Laser");
+        translationBuilder.add("item.ohmymeteors.advanced_meteor_laser", "Advanced Meteor Laser");
+        translationBuilder.add("item.ohmymeteors.meteoric_rock", "Meteoric Rock");
+        
         translationBuilder.add("item.ohmymeteors.meteoric_chunk", "Meteoric Chunk");
         translationBuilder.add("item.ohmymeteors.focusing_lenses", "Focusing Lenses");
         translationBuilder.add("item.ohmymeteors.meteoric_alloy", "Meteoric Alloy");
