@@ -152,12 +152,31 @@ public class MeteorUtils {
         return meteor;
     }
 
-    /**Spawns a meteor around a random alive online player
+    /**Spawns an homing meteor around an alive online player
+     *
+     * @param world The world in which the meteors are gonna be spawned in
+     * @param p The player around which the meteor will spawn
+     * @param silenced Weather or not the meteor should be announced in chat*/
+    public static void spawnHomingMeteor(ServerLevel world, Player p, boolean silenced){
+        spawnMeteor(world, p, silenced, true);
+    }
+
+    /**Spawns a meteor around an alive online player
      *
      * @param world The world in which the meteors are gonna be spawned in
      * @param p The player around which the meteor will spawn
      * @param silenced Weather or not the meteor should be announced in chat*/
     public static void spawnMeteor(ServerLevel world, Player p, boolean silenced){
+        spawnMeteor(world, p, silenced, CONFIG.meteorBehaviourSection.homing_meteors);
+    }
+
+    /**Spawns a meteor around an alive online player
+     *
+     * @param world The world in which the meteors are gonna be spawned in
+     * @param p The player around which the meteor will spawn
+     * @param silenced Weather or not the meteor should be announced in chat
+     * @param homing Weather or not the meteors should go towards the player*/
+    public static void spawnMeteor(ServerLevel world, Player p, boolean silenced, boolean homing){
 
         if(p == null){
             //for some reason it won't detect that there is player online sometimes
