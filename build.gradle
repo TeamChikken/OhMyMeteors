@@ -70,7 +70,8 @@ dependencies {
     include(modImplementation "maven.modrinth:structureplacerapi:${project.structureplacerapi_version}")
 
     //ParticleAnimationLib for cool particle effects
-    include(modImplementation "maven.modrinth:particleanimationlib:${project.pal_version}")
+    //include(modImplementation "maven.modrinth:particleanimationlib:${project.pal_version}")
+    include(modImplementation files("run/libs/particleanimationlib-0.1.3.jar"))
 
     //Modmenu
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
