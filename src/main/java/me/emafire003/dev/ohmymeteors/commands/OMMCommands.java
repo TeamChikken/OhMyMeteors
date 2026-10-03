@@ -22,13 +22,13 @@ public class OMMCommands {
 
         dispatcher.getRoot().addChild(omm_commands);
 
-        LiteralCommandNode<CommandSourceStack> pal_alias = Commands
+        LiteralCommandNode<CommandSourceStack> omm_alias = Commands
                 .literal("ohmymeteors")
                 .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                 .build();
 
 
-        dispatcher.getRoot().addChild(pal_alias);
+        dispatcher.getRoot().addChild(omm_alias);
 
         OMMCommand[] commands = new OMMCommand[] {
                 new SpawnMeteorCommand(),
@@ -38,6 +38,7 @@ public class OMMCommands {
 
         for (OMMCommand command : commands) {
             omm_commands.addChild(command.getNode(registryAccess));
+            omm_alias.addChild(command.getNode(registryAccess));
         }
     }
 
