@@ -1,6 +1,5 @@
 package me.emafire003.dev.ohmymeteors.blocks.basic_laser;
 
-import com.mojang.serialization.MapCodec;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.blocks.OMMBlocks;
 import me.emafire003.dev.ohmymeteors.blocks.OMMProperties;
@@ -42,7 +41,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,10 +75,11 @@ public class BasicMeteorLaserBlock extends BaseEntityBlock implements EntityBloc
         this.registerDefaultState(this.stateDefinition.any().setValue(SHOW_AREA, false).setValue(IN_COOLDOWN, false).setValue(FIRING, false));
     }
 
-    @Override
+    /*@Override
     protected @NonNull MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(BasicMeteorLaserBlock::new);
-    }
+    }*/
+    //TODO
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

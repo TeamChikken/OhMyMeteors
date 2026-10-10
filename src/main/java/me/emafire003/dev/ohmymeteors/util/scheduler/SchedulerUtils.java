@@ -49,7 +49,7 @@ public class SchedulerUtils {
     //Called from any function at any time
 
     /**Runs an action every tick and provides the tick count with an optional start delay.
-     * If the action lambda returns a falls the task is stopepd
+     * If the action lambda returns a false the task is stopped
      */
     public static void runEveryTick(ServerTickRunnable action) {
         ServerTaskScheduler.schedule(new ScheduledTask() {

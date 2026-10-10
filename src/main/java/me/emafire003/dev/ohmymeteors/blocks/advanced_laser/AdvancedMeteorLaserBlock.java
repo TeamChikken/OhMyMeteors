@@ -54,11 +54,6 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
     }
 
     @Override
-    protected @NonNull MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(AdvancedMeteorLaserBlock::new);
-    }
-
-    @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new AdvancedMeteorLaserBlockEntity(pos, state);
     }

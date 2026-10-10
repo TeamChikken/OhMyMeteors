@@ -16,13 +16,16 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.behavior.AnimalPanic;
 import net.minecraft.world.entity.projectile.*;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.world.level.blockscan.OrderedBlockMatcher;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -275,7 +278,8 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
     protected void calculateTextureChangePositions(){
         Optional<BlockPos> ground;
-        ground = BlockPos.MutableBlockPos.findClosestMatch(blockPosition(), 1, level().getHeight(), blockPos -> !level().getBlockState(blockPos).isAir());
+        OrderedBlockMatcher blockMatcher = level().findBlocksIn(BlockPos.betweenClosed(blockPosition(), blockPosition().atY(level().getHeight())));
+        ground = blockMatcher.findFirst();
         groundLevel = ground.orElse(new BlockPos(0, 64, 0)).getY();
                 distFromGround = OhMyMeteors.CONFIG.meteorSpawning.meteor_spawn_height-groundLevel;
         moltenPos = (distFromGround/3)+groundLevel;

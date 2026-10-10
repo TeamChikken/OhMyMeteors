@@ -159,13 +159,18 @@ public class ExplosionUtils {
 
         Vec3 vec3d = new Vec3(x, y, z);
         SphereExplosion explosionImpl = new SphereExplosion(world, entity, damageSource, behavior, vec3d, power, createFire, destructionType);
-        int i = explosionImpl.explode();
+        int blockCount = explosionImpl.explode();
         ParticleOptions particleEffect = explosionImpl.isSmall() ? smallParticle : largeParticle;
 
-        for(ServerPlayer serverPlayerEntity : world.players()) {
-            if (serverPlayerEntity.distanceToSqr(vec3d) < (double)4096.0F) {
-                Optional<Vec3> optional = Optional.ofNullable((Vec3)explosionImpl.getKnockbackByPlayer().get(serverPlayerEntity));
-                serverPlayerEntity.connection.send(new ClientboundExplodePacket(vec3d, power, i, optional, particleEffect, soundEvent, blockParticles));
+        for (ServerPlayer player : world.players()) {
+            if (player.distanceToSqr(vec3d) < 4096.0) {
+                Optional<Vec3> playerKnockback = Optional.ofNullable(explosionImpl.getHitPlayers().get(player));
+                player.connection
+                        .send(
+                                new ClientboundExplodePacket(
+                                        vec3d, power, blockCount, playerKnockback, particleEffect, soundEvent, blockParticles, entity == null || !entity.isSilent()
+                                )
+                        );
             }
         }
     }

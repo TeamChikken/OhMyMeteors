@@ -23,12 +23,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package me.emafire003.dev.ohmymeteors.util;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -55,6 +57,8 @@ import net.minecraft.world.level.gamerules.GameRules;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+
+import static net.minecraft.world.level.ServerExplosion.getSeenPercent;
 
 
 public class SphereExplosion implements Explosion {
@@ -187,7 +191,7 @@ public class SphereExplosion implements Explosion {
         return new ObjectArrayList<>(set);
     }
 
-    private void damageEntities() {
+    /*private void damageEntities() {
         float f = this.power * 2.0F;
         int i = Mth.floor(this.pos.x - f - 1.0);
         int j = Mth.floor(this.pos.x + f + 1.0);
@@ -230,6 +234,48 @@ public class SphereExplosion implements Explosion {
                         entity.push(vec3d);
                         if (entity instanceof Player playerEntity && !playerEntity.isSpectator() && (!playerEntity.isCreative() || !playerEntity.getAbilities().flying)) {
                             this.knockbackByPlayer.put(playerEntity, vec3d);
+                        }
+
+                        entity.onExplosionHit(this.entity);
+                    }
+                }
+            }
+        }
+    }*/
+
+    private void damageEntities() {
+        if (!(this.power < 1.0E-5F)) {
+            float doubleRadius = this.power * 2.0F;
+            int x0 = Mth.floor(this.pos.x - doubleRadius - 1.0);
+            int x1 = Mth.floor(this.pos.x + doubleRadius + 1.0);
+            int y0 = Mth.floor(this.pos.y - doubleRadius - 1.0);
+            int y1 = Mth.floor(this.pos.y + doubleRadius + 1.0);
+            int z0 = Mth.floor(this.pos.z - doubleRadius - 1.0);
+            int z1 = Mth.floor(this.pos.z + doubleRadius + 1.0);
+
+            for (Entity entity : this.world.getEntities(this.entity, new AABB(x0, y0, z0, x1, y1, z1))) {
+                if (!entity.ignoreExplosion(this)) {
+                    double dist = Math.sqrt(entity.distanceToSqr(this.pos)) / doubleRadius;
+                    if (!(dist > 1.0)) {
+                        Vec3 entityOrigin = entity instanceof PrimedTnt ? entity.position() : entity.getEyePosition();
+                        Vec3 direction = entityOrigin.subtract(this.pos).normalize();
+                        boolean shouldDamageEntity = this.behavior.shouldDamageEntity(this, entity);
+                        float knockbackMultiplier = this.behavior.getKnockbackMultiplier(entity);
+                        float exposure = !shouldDamageEntity && knockbackMultiplier == 0.0F ? 0.0F : getSeenPercent(this.pos, entity);
+                        if (shouldDamageEntity && (this.entity == null || this.entity.doTeamsAllowDamage(entity))) {
+                            entity.hurtServer(this.world, this.damageSource, this.behavior.getEntityDamageAmount(this, entity, exposure));
+                        }
+
+                        double knockbackResistance = entity instanceof LivingEntity livingEntity
+                                ? livingEntity.getAttributeValue(Attributes.EXPLOSION_KNOCKBACK_RESISTANCE)
+                                : 0.0;
+                        double knockbackPower = (1.0 - dist) * exposure * knockbackMultiplier * (1.0 - knockbackResistance);
+                        Vec3 knockback = direction.scale(knockbackPower);
+                        entity.pushFromExplosion(knockback);
+                        if (entity.is(EntityTypeTags.REDIRECTABLE_PROJECTILE) && entity instanceof Projectile projectile) {
+                            projectile.setOwner(this.damageSource.getEntity());
+                        } else if (entity instanceof Player player && !player.isSpectator() && (!player.isCreative() || !player.getAbilities().flying)) {
+                            this.hitPlayers.put(player, knockback);
                         }
 
                         entity.onExplosionHit(this.entity);
@@ -374,5 +420,10 @@ public class SphereExplosion implements Explosion {
         }
 
         return list.size();
+    }
+
+    private final Map<Player, Vec3> hitPlayers = new HashMap<>();
+    public Map<Player, Vec3> getHitPlayers() {
+        return this.hitPlayers;
     }
 }

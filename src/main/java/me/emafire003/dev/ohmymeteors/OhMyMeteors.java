@@ -126,7 +126,7 @@ HolderSet.Named<Block> METEOR_BYPASSES_TAG = BuiltInRegistries.BLOCK.getOrCreate
 	public static List<Identifier> METEOR_STRUCTURES = new ArrayList<>();
 
 	public static void reInitStructures(ServerLevel world){
-		 METEOR_STRUCTURES = new ArrayList<>(world.getStructureManager().listTemplates().filter(
+		 METEOR_STRUCTURES = new ArrayList<>(world.getStructureTemplateManager().listTemplates().filter(
 				identifier -> identifier.getNamespace().equals(OhMyMeteors.MOD_ID)
 		).toList());
 
