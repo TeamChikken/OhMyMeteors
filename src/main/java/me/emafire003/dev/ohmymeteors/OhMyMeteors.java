@@ -11,6 +11,7 @@ import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
+import me.emafire003.dev.ohmymeteors.util.datasaver.SimpleDataSaverUtils;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
 import net.fabricmc.api.ModInitializer;
@@ -67,6 +68,7 @@ public class OhMyMeteors implements ModInitializer {
 		OMMCommands.registerArguments();
 		CommandRegistrationCallback.EVENT.register(OMMCommands::registerCommands);
 
+		SimpleDataSaverUtils.readFile();
 		OMMProperties.registerBlockProperties();
 		OMMEntities.registerEntities();
 		OMMBlocks.registerBlocks();
@@ -96,6 +98,10 @@ public class OhMyMeteors implements ModInitializer {
 				LOGGER.error("There was an error while loading the config files!");
 				e.printStackTrace();
 			}
+		});
+
+		ServerLifecycleEvents.SERVER_STOPPING.register( server -> {
+			SimpleDataSaverUtils.saveFile();
 		});
 
 		ServerPlayerEvents.JOIN.register((serverPlayer -> {
