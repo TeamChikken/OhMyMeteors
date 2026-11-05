@@ -32,6 +32,8 @@ public class EnUsConfigGenerator extends LanguageProvider {
         add("message.ohmymeteors.meteor_spawned.huge", "WATCH OUT! A new HUGE meteor has spawned!");
         add("message.ohmymeteors.meteor_destroyed.huge", "A HUGE meteor has been destroyed!");
         add("message.ohmymeteors.meteor_shower_spawned", "!!! A METEOR SHOWER HAS BEGUN !!!");
+        add("message.ohmymeteors.meteor_chance_increments", "The chance of meteor spawning each tick is now 1 in %s!");
+        add("message.ohmymeteors.meteor_spawn_start", "Meteors will now start to spawn!!!");
 
         add("message.ohmymeteors.meteor_spawned.localized", "A new meteor has spawned around %s!");
         add("message.ohmymeteors.meteor_impacted.localized", "A meteor has impacted around %s!");

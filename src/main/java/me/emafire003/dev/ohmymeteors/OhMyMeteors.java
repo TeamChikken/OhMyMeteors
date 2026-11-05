@@ -23,6 +23,7 @@ import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.particles.meteor_flash.MeteorFlashParticle;
 import me.emafire003.dev.ohmymeteors.particles.meteor_smoke.MeteorSmokeParticle;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
+import me.emafire003.dev.ohmymeteors.util.datasaver.SimpleDataSaverUtils;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
 import net.minecraft.network.chat.Component;
@@ -110,6 +111,7 @@ public class OhMyMeteors {
 		//register new config
 		CONFIG = ConfigApiJava.registerAndLoadConfig(OMMConfigV2::new);
 
+        SimpleDataSaverUtils.readFile();
 		OMMBlocks.register(eventBus);
 		OMMItems.register(eventBus);
 		OMMProperties.registerBlockProperties();
@@ -147,7 +149,13 @@ public class OhMyMeteors {
 		}
 	}
 
-	@SubscribeEvent
+    @SubscribeEvent
+    public void onServerStopping(ServerStoppingEvent event) {
+        SimpleDataSaverUtils.saveFile();
+    }
+
+
+    @SubscribeEvent
 	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
 		if(event.getEntity().hasPermissions(4) && shouldWarn.get()){
 			event.getEntity().sendSystemMessage(Component.literal(PREFIX).append(
