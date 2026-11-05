@@ -1,6 +1,10 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
+import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
+import me.emafire003.dev.ohmymeteors.util.datasaver.SimpleDataSaverUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
@@ -24,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
@@ -57,6 +62,67 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
             return;
         }
 
+        boolean increasedSpawnChance = false;
+
+        /// If the option to increase the chance is enabled, increase the chance accordingly
+        if(CONFIG.meteorSpawning.increase_spawn_chance_with_time){
+            if(!(CONFIG.meteorSpawning.increase_spawn_chance_limit <= Math.abs(CONFIG.meteorSpawning.increase_spawn_chance_by)*SimpleDataSaverUtils.DATA.getChanceIncrements())){
+                if(SimpleDataSaverUtils.DATA.getLastIncreaseTickTime() == 0 ||
+                        ( ((levelData.getGameTime() % 2147483647L) != SimpleDataSaverUtils.DATA.getLastIncreaseTickTime()) &&
+                                ((levelData.getGameTime() % 2147483647L)-SimpleDataSaverUtils.DATA.getLastIncreaseTickTime())%CONFIG.meteorSpawning.increase_spawn_chance_every == 0)){
+                    SimpleDataSaverUtils.DATA.setChanceIncrements(SimpleDataSaverUtils.DATA.getChanceIncrements()+1);
+                    SimpleDataSaverUtils.DATA.setLastIncreaseTickTime(levelData.getGameTime() % 2147483647L);
+                    SimpleDataSaverUtils.saveFile();
+                    increasedSpawnChance = true;
+                }
+            }
+        }
+
+        /// If the option to spawn meteors only after some time is enabled, check how much time has passed
+        if(CONFIG.meteorSpawning.start_spawning_after_delay){
+            //If the gametime isn't longer than the number of specified days, return early and don't spawn meteors
+            if(!(levelData.getGameTime() % 2147483647L >= CONFIG.meteorSpawning.start_spawning_after_days * 24000L)){
+                return;
+            }
+            //Announcements stuff
+            if(!SimpleDataSaverUtils.DATA.timeTriggered){
+                SimpleDataSaverUtils.DATA.setTimeTriggered(true);
+                SimpleDataSaverUtils.saveFile();
+                if(CONFIG.notificationSection.announce_meteor_spawn_start){
+                    players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_spawn_start").withStyle(ChatFormatting.RED)),
+                            CONFIG.notificationSection.actionbar_announcements));
+                }
+            }
+
+        }
+
+        /// If the option to spawn meteors only after a dimension has been entered, check if it has
+        if(CONFIG.meteorSpawning.start_spawning_after_dimension){
+            AtomicBoolean found = new AtomicBoolean(false);
+            CONFIG.meteorSpawning.start_spawning_after_dimension_list.forEach( dim -> {
+                if(found.get() || SimpleDataSaverUtils.DATA.enteredDimensions.contains(dim)){
+                    found.set(true);
+                    return;
+                }
+
+            });
+            //If the dimension(s) specified in the config have not been entered yet, retrun without spawning.
+            if(!found.get()){
+                return;
+            }else{
+                //Announcements stuff
+                if(!SimpleDataSaverUtils.DATA.dimensionTriggered){
+                    SimpleDataSaverUtils.DATA.setDimensionTriggered(true);
+                    SimpleDataSaverUtils.saveFile();
+                    if(CONFIG.notificationSection.announce_meteor_spawn_start){
+                        players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_spawn_start").withStyle(ChatFormatting.RED)),
+                                CONFIG.notificationSection.actionbar_announcements));
+                    }
+                }
+            }
+        }
+
+        /// Returns early if we are in cooldown time
         if(CONFIG.meteorSpawning.should_cooldown_between_meteors && meteorCooldown > 0){
             meteorCooldown = meteorCooldown - 1;
             return; //Hey. this return is important. I totally haven't discovered i forgot to put it here because like 200 meteors spawned in the span of a second in my face. Not at all.
@@ -98,6 +164,21 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
             }
             if(CONFIG.meteorSpawning.biome_night_chances.containsKey(current_biome.getRegisteredName())){
                 chance = CONFIG.meteorSpawning.biome_night_chances.get(current_biome.getRegisteredName());
+            }
+        }
+
+        if(CONFIG.meteorSpawning.increase_spawn_chance_with_time){
+            if(CONFIG.meteorSpawning.increase_spawn_chance_limit >= Math.abs(CONFIG.meteorSpawning.increase_spawn_chance_by)*SimpleDataSaverUtils.DATA.getChanceIncrements()){
+                //Minus so it's an increase in chance. 1 in 100 is more likely than 1 in 110
+                chance = chance-CONFIG.meteorSpawning.increase_spawn_chance_by*SimpleDataSaverUtils.DATA.getChanceIncrements();
+                if(chance < 1){
+                    chance = 1;
+                }
+            }
+            if(CONFIG.notificationSection.announce_meteor_spawn_increments && increasedSpawnChance){
+                int finalChance = chance;
+                players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_chance_increments", finalChance).withStyle(ChatFormatting.RED)),
+                        CONFIG.notificationSection.actionbar_announcements));
             }
         }
 

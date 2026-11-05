@@ -57,6 +57,8 @@ public class EnUsConfigGenerator extends FabricLanguageProvider {
         translationBuilder.add("message.ohmymeteors.meteor_spawned.huge", "WATCH OUT! A new HUGE meteor has spawned!");
         translationBuilder.add("message.ohmymeteors.meteor_destroyed.huge", "A HUGE meteor has been destroyed!");
         translationBuilder.add("message.ohmymeteors.meteor_shower_spawned", "!!! A METEOR SHOWER HAS BEGUN !!!");
+        translationBuilder.add("message.ohmymeteors.meteor_chance_increments", "The chance of meteor spawning each tick is now 1 in %s!");
+        translationBuilder.add("message.ohmymeteors.meteor_spawn_start", "Meteors will now start to spawn!!!");
 
         translationBuilder.add("message.ohmymeteors.meteor_spawned.localized", "A new meteor has spawned around %s!");
         translationBuilder.add("message.ohmymeteors.meteor_impacted.localized", "A meteor has impacted around %s!");

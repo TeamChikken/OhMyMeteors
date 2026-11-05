@@ -7,6 +7,8 @@ import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.ParticleMode;
+import me.emafire003.dev.ohmymeteors.util.datasaver.SimpleData;
+import me.emafire003.dev.ohmymeteors.util.datasaver.SimpleDataSaverUtils;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
@@ -87,6 +89,20 @@ public class ConfigCommand implements OMMCommand {
         }
     }
 
+    private int restData(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        try{
+            SimpleDataSaverUtils.DATA = new SimpleData();
+            SimpleDataSaverUtils.saveFile();
+            SimpleDataSaverUtils.readFile();
+            context.getSource().sendSystemMessage(Component.literal(OhMyMeteors.PREFIX+"§rResetted the data (not the config)!"));
+            return 1;
+        }catch (Exception e){
+            context.getSource().sendFailure(Component.literal("[Oh My, Meteors!] ").append("§cThere has been an error while resetting the data file, check the logs"));
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     @Override
     public LiteralCommandNode<CommandSourceStack> getNode(CommandBuildContext registryAccess) {
         return Commands
@@ -96,6 +112,9 @@ public class ConfigCommand implements OMMCommand {
                         Commands.literal("reload").executes(this::reloadConfig)
                 ).then(
                         Commands.literal("open").executes(this::openConfig)
+                )
+                .then(
+                        Commands.literal("resetdata").executes(this::restData)
                 )
                 .then(
                         Commands.literal("preset")

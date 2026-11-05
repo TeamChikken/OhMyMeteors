@@ -135,7 +135,6 @@ public class OMMConfigV2 extends Config {
         );
         //configs.addKeyValuePair(new Pair<>("biome_chances", BIOME_CHANCES_default), "A map consisting of biome=chance of spawning. The spawn chance works as described above. The meteors must be able to spawn in those biomes, otherwise they won't!");
 
-        @ConfigGroup.Pop
         @Inline
         @Comment("The same as above but with a possibly different chance at night if enabled")
         public Map<String, Integer> biome_night_chances = Map.of(
@@ -143,6 +142,41 @@ public class OMMConfigV2 extends Config {
                 "modname:modbiome", 2025
         );
         //configs.addKeyValuePair(new Pair<>("biome_night_chances", BIOME_NIGHT_CHANCES_default),);
+
+        @Inline
+        @Comment("Weather or not to start spawning meteors only after some time has passed. Could work as a grace period.")
+        public boolean start_spawning_after_delay = false;
+
+        @Inline
+        @Comment("If the option of starting to spawn meteors with a delay is enabled, how many in game ticks should pass? (1 day = 24000 ticks = 20 minutes) ")
+        public double start_spawning_after_days = 5;
+
+        @Inline
+        @Comment("Weather or not to start spawning meteors after having entered a specific dimension.")
+        public boolean start_spawning_after_dimension = false;
+
+        @Comment("A list of the IDs of the dimensions in which after being enetered will allow the meteors to spawn if the option above is enabled")
+        public List<String> start_spawning_after_dimension_list = List.of(BuiltinDimensionTypes.END_EFFECTS.toString());
+
+        @Inline
+        @Comment("Weather or not to start increasing the spawn rate of meteors with the passing of time. Look at the Notification section for optional announcements of this occurrence")
+        public boolean increase_spawn_chance_with_time = false;
+
+        @Inline
+        @Comment("If increasing the meteor spawn rate is enabled, this is the interval in ticks between those increases")
+        public long increase_spawn_chance_every = 24000;
+
+        @Inline
+        @Comment("If increasing the meteor spawn rate is enabled, this is by how much the chance is increased each time. Expressed as '1 in <x>' chances of spawning a meteor each tick (similar to randomTickSpeed). Negative values will correspond to a decrease in chance")
+        public int increase_spawn_chance_by = 100;
+
+        @ConfigGroup.Pop
+        @Inline
+        @Comment("If increasing the meteor spawn rate is enabled, this is the limit as an absolute value (so both increase and decrease). Expressed as '1 in <x>' chances of spawning a meteor each tick (similar to randomTickSpeed)")
+        public int increase_spawn_chance_limit = 20000;
+
+
+        //TODO add increasing spawn rate
 
     //Group
         public ConfigGroup meteorSizes = new ConfigGroup("meteorSizes");
@@ -268,14 +302,20 @@ public class OMMConfigV2 extends Config {
         public boolean announce_meteor_destroyed = false;
         //configs.addKeyValuePair(new Pair<>("announce_meteor_destroyed", false),);
 
-        @Comment("Should the (^above^) announcement be displayed above the hotbar in the actionbar or in chat?")
+        @Comment("Should the (^above^) announcements be displayed above the hotbar in the actionbar or in chat?")
         public boolean actionbar_announcements = true;
         //configs.addKeyValuePair(new Pair<>("actionbar_announcements", true),);
 
-        @ConfigGroup.Pop
         @Comment("If announcements are enabled, should they also display the (approximate) coordinates of the meteor being spawned/destroyed?")
         public boolean announce_location = true;
         //configs.addKeyValuePair(new Pair<>("announce_location", true),);
+
+        @Comment("If the option to start meteors spawning after having entered a dimension or after some time is enabled, should the start of the meteor spawning be announced?")
+        public boolean announce_meteor_spawn_start = true;
+
+        @ConfigGroup.Pop
+        @Comment("If the option to increase meteor spanwn rates is enabled, should the increments be announced?")
+        public boolean announce_meteor_spawn_increments = true;
 
         public ConfigGroup explosionSounds = new ConfigGroup("explosionSounds");
         @Comment("Should the explosion sound of the meteor be heard by all players online?")
@@ -286,7 +326,6 @@ public class OMMConfigV2 extends Config {
         public boolean area_explosion_sound = false;
         //configs.addKeyValuePair(new Pair<>("area_explosion_sound", false),);
 
-        @ConfigGroup.Pop
         @Comment("The radius in blocks of the area in which the sound of the meteor will be heard if the option above is true")
         public int area_explosion_sound_radius = 500;
         //configs.addKeyValuePair(new Pair<>("area_explosion_sound_radius", 500),);
