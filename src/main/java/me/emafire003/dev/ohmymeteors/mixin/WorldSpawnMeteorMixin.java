@@ -89,7 +89,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
                 SimpleDataSaverUtils.DATA.setTimeTriggered(true);
                 SimpleDataSaverUtils.saveFile();
                 if(CONFIG.notificationSection.announce_meteor_spawn_start){
-                    players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_spawn_start").withStyle(ChatFormatting.RED)),
+                    players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_spawn_start").withStyle(ChatFormatting.RED)),
                             CONFIG.notificationSection.actionbar_announcements));
                 }
             }
@@ -115,7 +115,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
                     SimpleDataSaverUtils.DATA.setDimensionTriggered(true);
                     SimpleDataSaverUtils.saveFile();
                     if(CONFIG.notificationSection.announce_meteor_spawn_start){
-                        players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_spawn_start").withStyle(ChatFormatting.RED)),
+                        players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_spawn_start").withStyle(ChatFormatting.RED)),
                                 CONFIG.notificationSection.actionbar_announcements));
                     }
                 }
@@ -177,7 +177,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
             }
             if(CONFIG.notificationSection.announce_meteor_spawn_increments && increasedSpawnChance){
                 int finalChance = chance;
-                players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_chance_increments", finalChance).withStyle(ChatFormatting.RED)),
+                players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_chance_increments", finalChance).withStyle(ChatFormatting.RED)),
                         CONFIG.notificationSection.actionbar_announcements));
             }
         }

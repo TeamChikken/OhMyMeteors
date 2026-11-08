@@ -156,7 +156,7 @@ public class OMMConfigV2 extends Config {
         public boolean start_spawning_after_dimension = false;
 
         @Comment("A list of the IDs of the dimensions in which after being enetered will allow the meteors to spawn if the option above is enabled")
-        public List<String> start_spawning_after_dimension_list = List.of(BuiltinDimensionTypes.END_EFFECTS.toString());
+        public List<String> start_spawning_after_dimension_list = List.of(BuiltinDimensionTypes.END.identifier().toString());
 
         @Inline
         @Comment("Weather or not to start increasing the spawn rate of meteors with the passing of time. Look at the Notification section for optional announcements of this occurrence")
