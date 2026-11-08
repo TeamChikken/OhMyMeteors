@@ -167,7 +167,7 @@ public class MeteorUtils {
      * @param p The player around which the meteor will spawn
      * @param silenced Weather or not the meteor should be announced in chat*/
     public static void spawnMeteor(ServerLevel world, Player p, boolean silenced){
-        spawnMeteor(world, p, silenced, CONFIG.meteorBehaviourSection.homing_meteors);
+        spawnMeteor(world, p, silenced, Config.HOMING_METEORS);
     }
 
     /**Spawns a meteor around an alive online player
@@ -185,7 +185,7 @@ public class MeteorUtils {
         MeteorProjectileEntity meteor = getDownwardsMeteor(p.position(), world.getLevel(),
                 Config.MIN_METEOR_SPAWN_DISTANCE,
                 Config.MAX_METEOR_SPAWN_DISTANCE,
-                Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, Config.HOMING_METEORS);
+                Config.METEOR_SPAWN_HEIGHT, Config.NATURAL_METEOR_MIN_SIZE, Config.NATURAL_METEOR_MAX_SIZE, homing);
 
         meteor.setSilenced(silenced);
 

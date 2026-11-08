@@ -140,7 +140,7 @@ public class SpawnMeteorCommand implements OMMCommand {
         try{
 
             if(source.getLevel().players().isEmpty()){
-                source.sendSuccess( () -> Component.literal("Could not spawn a natural meteor since there are no players online!"),true);
+                source.sendSuccess(Component.literal("Could not spawn a natural meteor since there are no players online!"),true);
                 return -1;
             }
 
@@ -154,7 +154,7 @@ public class SpawnMeteorCommand implements OMMCommand {
             return 1;
         }catch(Exception e){
             e.printStackTrace();
-            source.sendSuccess( () -> Component.literal("Error: " + e),false);
+            source.sendSuccess(Component.literal("Error: " + e),false);
             return 0;
         }
     }
@@ -184,7 +184,7 @@ public class SpawnMeteorCommand implements OMMCommand {
             return 1;
         }catch(Exception e){
             e.printStackTrace();
-            source.sendSuccess( () -> Component.literal("Error: " + e),false);
+            source.sendSuccess(Component.literal("Error: " + e),false);
             return 0;
         }
     }
@@ -195,7 +195,7 @@ public class SpawnMeteorCommand implements OMMCommand {
         MeteorShowerType type = MeteorShowerTypeArgumentType.getMeteorShowerType(context, "type");
         try{
             if(source.getLevel().players().isEmpty()){
-                source.sendSuccess( () -> Component.literal("Could not spawn a natural meteor since there are no players online!"),true);
+                source.sendSuccess(Component.literal("Could not spawn a natural meteor since there are no players online!"),true);
                 return -1;
             }
             ServerPlayer p = EntityArgument.getPlayer(context, "target");
