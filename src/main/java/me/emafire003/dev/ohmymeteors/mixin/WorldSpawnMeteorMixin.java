@@ -1,5 +1,6 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
+import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.util.MeteorUtils;
 import me.emafire003.dev.ohmymeteors.util.datasaver.SimpleDataSaverUtils;
 import net.minecraft.ChatFormatting;
