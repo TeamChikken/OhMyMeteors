@@ -20,11 +20,11 @@ public class OMMEvents {
         //TODO technically this should be per-world. I don't think anyone will use it for more worlds tho...
         ServerEntityEvents.ENTITY_LOAD.register( ((entity, serverLevel) -> {
             if(OhMyMeteors.CONFIG.meteorSpawning.start_spawning_after_dimension_list
-                    .contains(serverLevel.dimensionTypeRegistration().getRegisteredName())
+                    .contains(serverLevel.dimensionTypeRegistration().toString())
                     &&
                     entity instanceof Player){
-                if(!SimpleDataSaverUtils.DATA.enteredDimensions.contains(serverLevel.dimensionTypeRegistration().getRegisteredName())){
-                    SimpleDataSaverUtils.DATA.enteredDimensions.add(serverLevel.dimensionTypeRegistration().getRegisteredName());
+                if(!SimpleDataSaverUtils.DATA.enteredDimensions.contains(serverLevel.dimensionTypeRegistration().toString())){
+                    SimpleDataSaverUtils.DATA.enteredDimensions.add(serverLevel.dimensionTypeRegistration().toString());
                 }
                 SimpleDataSaverUtils.saveFile();
             }
