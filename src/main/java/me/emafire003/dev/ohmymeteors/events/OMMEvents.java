@@ -20,11 +20,11 @@ public class OMMEvents {
             AdvancedMeteorLaserBlock.awakeLasers();
         }
         if(OhMyMeteors.CONFIG.meteorSpawning.start_spawning_after_dimension_list
-                .contains(event.getLevel().dimensionTypeRegistration().getRegisteredName())
+                .contains(event.getLevel().dimensionTypeRegistration().toString())
                 &&
                 event.getEntity() instanceof Player){
-            if(!SimpleDataSaverUtils.DATA.enteredDimensions.contains(event.getLevel().dimensionTypeRegistration().getRegisteredName())){
-                SimpleDataSaverUtils.DATA.enteredDimensions.add(event.getLevel().dimensionTypeRegistration().getRegisteredName());
+            if(!SimpleDataSaverUtils.DATA.enteredDimensions.contains(event.getLevel().dimensionTypeRegistration().toString())){
+                SimpleDataSaverUtils.DATA.enteredDimensions.add(event.getLevel().dimensionTypeRegistration().toString());
             }
             SimpleDataSaverUtils.saveFile();
         }
