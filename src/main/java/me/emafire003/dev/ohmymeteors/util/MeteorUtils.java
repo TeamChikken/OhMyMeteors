@@ -200,7 +200,7 @@ public class MeteorUtils {
                 meteor = getDownwardsMeteor(p.position(), world.getLevel(),
                         CONFIG.meteorSpawning.min_meteor_spawn_distance, CONFIG.meteorSpawning.max_meteor_spawn_distance,
                         CONFIG.meteorSpawning.meteor_spawn_height, CONFIG.meteorSpawning.max_big_meteor_size,
-                        CONFIG.meteorSpawning.huge_meteor_size_limit, CONFIG.meteorBehaviourSection.homing_meteors
+                        CONFIG.meteorSpawning.huge_meteor_size_limit, homing
                 );
 
                 message = "message.ohmymeteors.meteor_spawned.huge";
