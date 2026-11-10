@@ -39,6 +39,9 @@ public class EnUsConfigGenerator extends LanguageProvider {
         add("message.ohmymeteors.meteor_spawned.huge.localized", "WATCH OUT! A new HUGE meteor has spawned around %s!");
         add("message.ohmymeteors.meteor_destroyed.huge.localized", "A HUGE meteor has been destroyed around %s!");
         add("message.ohmymeteors.meteor_shower_spawned.localized", "!!! A METEOR SHOWER HAS BEGUN AROUND %s !!!");
+        add("message.ohmymeteors.meteor_chance_increments", "The chance of meteor spawning each tick is now 1 in %s!");
+        add("message.ohmymeteors.meteor_spawn_start", "Meteors will now start to spawn!!!");
+
 
         add("command.ohmymeteors.custom.reload", "You can use the §b/reload §rcommand to reload the datapack and see the effects of your changes!");
         add("command.ohmymeteors.custom.special", " classified as a §aspecial §rmeteor!");

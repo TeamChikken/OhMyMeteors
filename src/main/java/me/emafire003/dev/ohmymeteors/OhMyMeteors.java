@@ -15,6 +15,7 @@ import me.emafire003.dev.ohmymeteors.items.OMMItemTab;
 import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
+import me.emafire003.dev.ohmymeteors.util.datasaver.SimpleDataSaverUtils;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
 import net.luckperms.api.LuckPermsProvider;
@@ -39,6 +40,7 @@ import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +95,7 @@ public class OhMyMeteors {
 		//register new config
 		CONFIG = ConfigApiJava.registerAndLoadConfig(OMMConfigV2::new);
 
+        SimpleDataSaverUtils.readFile();
 		OMMBlocks.register(eventBus);
 		OMMItems.register(eventBus);
 		OMMProperties.registerBlockProperties();
@@ -129,6 +132,11 @@ public class OhMyMeteors {
 			e.printStackTrace();
 		}
 	}
+
+    @SubscribeEvent
+    public void onServerStopping(ServerStoppingEvent event){
+        SimpleDataSaverUtils.saveFile();
+    }
 
 	@SubscribeEvent
 	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
