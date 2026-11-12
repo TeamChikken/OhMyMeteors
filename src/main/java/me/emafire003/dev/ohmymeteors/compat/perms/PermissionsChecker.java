@@ -3,6 +3,7 @@ package me.emafire003.dev.ohmymeteors.compat.perms;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.util.Tristate;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.fml.ModList;
@@ -24,13 +25,16 @@ public class PermissionsChecker {
         };
     }
 
+
+
     public static Predicate<CommandSourceStack> hasPerms(String permission, int defaultValue) {
         return (source) -> {
+
             if(!permissions){
-                return source.hasPermission(2);
+                return source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_ADMIN);
             }else {
                 //checks if they are an operator
-                if(source.getEntity() != null && source.getEntity().hasPermissions(4)){
+                if(source.getEntity() != null && source.permissions().hasPermission(Permissions.COMMANDS_ADMIN)){
                     checkPermission(source.getEntity(), permission).asBoolean();
                     return true;
                 }
@@ -38,6 +42,7 @@ public class PermissionsChecker {
             }
         };
     }
+
     public static LuckPerms luckPerms = null;
 
     public static Tristate checkPermission(Entity entity, String permission) {

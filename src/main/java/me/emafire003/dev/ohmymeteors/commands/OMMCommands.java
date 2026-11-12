@@ -5,6 +5,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.permissions.Permissions;
 
 public class OMMCommands {
 
@@ -13,14 +14,14 @@ public class OMMCommands {
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess, Commands.CommandSelection environment) {
         LiteralCommandNode<CommandSourceStack> omm_commands = Commands
                 .literal("omm")
-                .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+                .requires(serverCommandSource -> serverCommandSource.permissions().hasPermission(Permissions.COMMANDS_ADMIN))
                 .build();
 
         dispatcher.getRoot().addChild(omm_commands);
 
         LiteralCommandNode<CommandSourceStack> omm_alias = Commands
                 .literal("ohmymeteors")
-                .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+                .requires(serverCommandSource -> serverCommandSource.permissions().hasPermission(Permissions.COMMANDS_ADMIN))
                 .build();
 
 

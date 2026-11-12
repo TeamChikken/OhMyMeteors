@@ -11,7 +11,7 @@ import me.fzzyhmstrs.fzzy_config.config.ConfigSection;
 import me.fzzyhmstrs.fzzy_config.util.Translatable;
 import me.fzzyhmstrs.fzzy_config.validation.misc.ValidatedColor;
 import me.fzzyhmstrs.fzzy_config.validation.number.ValidatedInt;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +28,7 @@ import java.util.Map;
 public class OMMConfigV2 extends Config {
 
     public OMMConfigV2(){
-        super(ResourceLocation.fromNamespaceAndPath(OhMyMeteors.MOD_ID, "ohmymeteors_config"));
+        super(Identifier.fromNamespaceAndPath(OhMyMeteors.MOD_ID, "ohmymeteors_config"));
     }
 
     @Name("Meteor Spawning")
@@ -37,7 +37,7 @@ public class OMMConfigV2 extends Config {
 
     public static class MeteorSpawningSection extends ConfigSection {
 
-    //Group
+        //Group
         public ConfigGroup simpleSpawns = new ConfigGroup("simpleSpawns");
 
         @Comment("Expressed as '1 in <x>' chances of spawning a meteor each tick (similar to randomTickSpeed). " +
@@ -93,11 +93,11 @@ public class OMMConfigV2 extends Config {
         @Comment("The higher the value the less the meteor will go diagonally, and will keep mostly vertical. (randomness remains so it's not 100%). Generally, you should remain between 1 and 10.")
         public double meteor_dispersion_factor = 3.1;
         //configs.addKeyValuePair(new Pair<>("meteor_dispersion_factor", 3.1), );
-    //Group
+        //Group
         public ConfigGroup spawnsPrecise = new ConfigGroup("spawnPrecise");
 
         @Comment("A list of the IDs of the dimensions in which meteors can or cannot naturally spawn in (see mode setting below), vanilla or not.")
-        public List<String> spawn_dimensions = List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString());
+        public List<String> spawn_dimensions = List.of(BuiltinDimensionTypes.OVERWORLD.identifier().toString(), BuiltinDimensionTypes.END.identifier().toString());
         //configs.addKeyValuePair(new Pair<>("spawn_dimensions", List.of(BuiltinDimensionTypes.OVERWORLD_EFFECTS.toString(), BuiltinDimensionTypes.END_EFFECTS.toString())),"A list of the IDs of the dimensions in which meteors can naturally spawn in, vanilla or not.");
 //TODO new setting write in changelog
         @Comment("If set to false will behave like a blacklist, aka meteors won't spawn in those dimensions. If true will behave like a whitelist, meteors will spawn ONLY in those dimensions.")
@@ -106,20 +106,20 @@ public class OMMConfigV2 extends Config {
         @Inline
         @Comment("A map consisting of dimension:chance of spawning. The dimension must one in which the meteor can spawn in as specified above, otherwise meteors won't spawn at all. This chance will ALWAYS override the default if present. The spawn chance works as described above.")
         public Map<String, Integer> dimension_chances =  Map.of(
-                BuiltinDimensionTypes.END_EFFECTS.toString(), meteor_spawn_chance*10
+                BuiltinDimensionTypes.END.identifier().toString(), meteor_spawn_chance*10
         );
         //configs.addKeyValuePair(new Pair<>("dimension_chances", DIMENSION_CHANCES_default), );
 
         @Inline
         @Comment("The same as above but with a possibly different chance at night if enabled")
         public Map<String, Integer> dimension_night_chances = Map.of(
-                BuiltinDimensionTypes.END_EFFECTS.toString(), meteor_night_spawn_chance*10
-                );
+                BuiltinDimensionTypes.END.identifier().toString(), meteor_night_spawn_chance*10
+        );
         //configs.addKeyValuePair(new Pair<>("dimension_night_chances", DIMENSION_NIGHT_CHANCES_default), );
 
         @Inline
         @Comment("A list of the IDs of the biomes in which meteors can or cannot naturally spawn in (see mode setting below), vanilla or not.")
-        public List<String> biome_spawn_list = List.of(Biomes.CHERRY_GROVE.location().toString(), Biomes.SOUL_SAND_VALLEY.location().toString(), "modname:modbiome");
+        public List<String> biome_spawn_list = List.of(Biomes.CHERRY_GROVE.identifier().toString(), Biomes.SOUL_SAND_VALLEY.identifier().toString(), "modname:modbiome");
         //configs.addKeyValuePair(new Pair<>("biome_spawn_list", BIOME_SPAWN_LIST_default),"A black or whitelist of the biomes in which meteor will or will not spawn according to the setting above");
 
         @Inline
@@ -130,7 +130,7 @@ public class OMMConfigV2 extends Config {
         @Inline
         @Comment("A map consisting of biome=chance of spawning. The spawn chance works as described above. The meteors must be able to spawn in those biomes, otherwise they won't!")
         public Map<String, Integer> biome_chances =  Map.of(
-                Biomes.DESERT.location().toString(), meteor_spawn_chance-10,
+                Biomes.DESERT.identifier().toString(), meteor_spawn_chance-10,
                 "modname:modbiome", 2025
         );
         //configs.addKeyValuePair(new Pair<>("biome_chances", BIOME_CHANCES_default), "A map consisting of biome=chance of spawning. The spawn chance works as described above. The meteors must be able to spawn in those biomes, otherwise they won't!");
@@ -138,7 +138,7 @@ public class OMMConfigV2 extends Config {
         @Inline
         @Comment("The same as above but with a possibly different chance at night if enabled")
         public Map<String, Integer> biome_night_chances = Map.of(
-                Biomes.DESERT.location().toString(), meteor_night_spawn_chance-5,
+                Biomes.DESERT.identifier().toString(), meteor_night_spawn_chance-5,
                 "modname:modbiome", 2025
         );
         //configs.addKeyValuePair(new Pair<>("biome_night_chances", BIOME_NIGHT_CHANCES_default),);
@@ -156,7 +156,7 @@ public class OMMConfigV2 extends Config {
         public boolean start_spawning_after_dimension = false;
 
         @Comment("A list of the IDs of the dimensions in which after being enetered will allow the meteors to spawn if the option above is enabled")
-        public List<String> start_spawning_after_dimension_list = List.of(BuiltinDimensionTypes.END_EFFECTS.toString());
+        public List<String> start_spawning_after_dimension_list = List.of(BuiltinDimensionTypes.END.identifier().toString());
 
         @Inline
         @Comment("Weather or not to start increasing the spawn rate of meteors with the passing of time. Look at the Notification section for optional announcements of this occurrence")
@@ -178,7 +178,7 @@ public class OMMConfigV2 extends Config {
 
         //TODO add increasing spawn rate
 
-    //Group
+        //Group
         public ConfigGroup meteorSizes = new ConfigGroup("meteorSizes");
 
         @ValidatedInt.Restrict(min = 1)
@@ -267,7 +267,6 @@ public class OMMConfigV2 extends Config {
         public int downwards_speed_modifier = 0;
         //configs.addKeyValuePair(new Pair<>("downwards_speed_modifier", 0),);
 
-//TODO new setting changelog
         @Comment("A factor to MULTIPLY the speed at which the meteor falls downwards. It is added to a randomly generated number between 1 and 0")
         public double downwards_speed_multiplier = 1.0;
 
@@ -275,10 +274,8 @@ public class OMMConfigV2 extends Config {
         public boolean homing_meteors = false;
         //configs.addKeyValuePair(new Pair<>("homing_meteors", false),);
 
-//TODO new setting changelog
         @Comment("If true meteors will try to load chunks like enderpearls, hopefully making contact and exploding")
         public boolean meteors_load_chunks = false;
-//TODO new setting changelog
         @Comment("How many chunks should be loaded before the meteors gets discarded? Aka how many loaded chunks are too many? (Each chunk is 16 blocks")
         public int chunk_loading_limit = 25;
 
@@ -390,7 +387,6 @@ public class OMMConfigV2 extends Config {
         @Comment("Should meteor and laser particles be forced? They will be rendered further away and look better, but if there are too many of them you may want to disable this for lag reasons. Note: some particles will never displays as forced, like the lasers target box")
         public boolean use_forced_particles = true;
         //configs.addKeyValuePair(new Pair<>("use_forced_particles", true),);
-    //TODO new setting
 
         @Comment("Note: this setting influences client AND server performance a lot. It is a serverside setting. \nFANCY: the best particle animations, when spawning a lot of meteors can be laggy, \nLESS: a compromise, a bit less lag with still good looking particles ,\nMINIMAL: a compromise, a lot less laggy with some particles, \nNONE: most performant, no particles will be sent to clients ")
         public ParticleMode particles_mode = ParticleMode.FANCY;
@@ -405,15 +401,12 @@ public class OMMConfigV2 extends Config {
         public boolean meteor_skyglow = true;
         //configs.addKeyValuePair(new Pair<>("meteor_skyglow", true),);
 
-        //"#048da5" TODO reimplement correctly
         @Comment("The color to apply to the sky when a meteor passes by if it's enabled. By default it's a lightblue-cyan color. Bear in mind that Minecraft still applies its own colors, so some shades (like green) work less well than others (blue)")
         public ValidatedColor meteor_skyglow_color = new ValidatedColor(4,141,161);
         //configs.addKeyValuePair(new Pair<>("meteor_skyglow_color", "#048da5"),);
 
-    //TODO new setting
         @Comment("Chose how the meteor entity projectile looks. \nDYNAMIC_AUTO: The texture goes from normal to hot the closer it gets to ground level or the longer it travels even horizonatally \nDYNAMIC_HEIGHT: The texture goes from normal to hot the closer it gets to ground level \nDYNAMIC_DISTANCE: The texture goes from normal to hot the more it travels \nNORMAL: Fixed texture on the Normal one \nMID: Fixed texture to the Mid level of hotness texture \nHOT: Fixed texture to the Hot level of hotness texture ")
         public MeteorEntityTextureMode meteor_texture_mode = MeteorEntityTextureMode.DYNAMIC_AUTO;
-    //TODO new setting
         @Comment("The distance in blocks between texture changes from mid to hot when the meteor texture mode is set on DYNAMIC_DISTANCE (or auto using distance)")
         public int texture_change_distance_hot = 70;
         @Comment("The distance in blocks between texture changes from normal to mid when the meteor texture mode is set on DYNAMIC_DISTANCE (or auto using distance)")

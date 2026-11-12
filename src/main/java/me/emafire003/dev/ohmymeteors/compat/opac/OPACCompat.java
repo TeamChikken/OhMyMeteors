@@ -11,7 +11,7 @@ public class OPACCompat {
     //TODO wiki and changelog and also test when built
     public static boolean canSpawnHere(ServerLevel level, BlockPos pos){
         OpenPACServerAPI api = OpenPACServerAPI.get(level.getServer());
-        IPlayerChunkClaimAPI claim = api.getServerClaimsManager().get(level.dimension().location(), pos);
+        IPlayerChunkClaimAPI claim = api.getServerClaimsManager().get(level.dimension().identifier(), pos);
         return api.getChunkProtection().getConfig(claim).isOptionAllowed(PlayerConfigOptions.CLAIM_EXCEPTION_ENTITIES_BY_EXPLOSIONS);
     }
 }

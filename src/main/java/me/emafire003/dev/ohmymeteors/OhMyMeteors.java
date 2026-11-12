@@ -9,27 +9,27 @@ import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
 import me.emafire003.dev.ohmymeteors.config.OMMConfigV2;
 import me.emafire003.dev.ohmymeteors.events.OMMEvents;
 import me.emafire003.dev.ohmymeteors.commands.OMMCommands;
-import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.items.OMMItemTab;
 import me.emafire003.dev.ohmymeteors.items.OMMItems;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
+import me.emafire003.dev.ohmymeteors.util.OMMTags;
 import me.emafire003.dev.ohmymeteors.util.datasaver.SimpleDataSaverUtils;
 import me.emafire003.dev.ohmymeteors.util.scheduler.SchedulerUtils;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
 import net.luckperms.api.LuckPermsProvider;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.core.HolderSet;
-import net.minecraft.tags.TagKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
@@ -41,6 +41,8 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +51,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 //TODO look at meteorutils todo
 //TODO maybe add here or in an addon a buildable siren and a cannon or gun or automatic laser that shoots incoming meteors. Maybe an addon.
 
@@ -59,14 +62,14 @@ public class OhMyMeteors {
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final String MOD_ID = "ohmymeteors";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	public static Path PATH = Path.of(FMLLoader.getGamePath() + "/config/" + MOD_ID + "/");
+	public static Path PATH = Path.of(FMLLoader.getCurrent().getGameDir() + "/config/" + MOD_ID + "/");
 
 	public static String PREFIX = "§8[Oh My, Meteors!] §r";
 
 	public static OMMConfigV2 CONFIG;
 
-	public static ResourceLocation getIdentifier(String path){
-		return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+	public static Identifier getIdentifier(String path){
+		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}
 
 	// The constructor for the mod class is the first code that is run when your mod is loaded.
@@ -91,7 +94,6 @@ public class OhMyMeteors {
 		eventBus.addListener(this::registerCustomArgumentType);
 
 
-		Config.FILEPATH = PATH.resolve(OhMyMeteors.MOD_ID + "_config.yml");
 		//register new config
 		CONFIG = ConfigApiJava.registerAndLoadConfig(OMMConfigV2::new);
 
@@ -102,7 +104,7 @@ public class OhMyMeteors {
 		OMMEntities.register(eventBus);
 		OMMSounds.register(eventBus);
 		OMMItemTab.register(eventBus);
-		registerTags();
+		OMMTags.registerTags();
 		OMMParticles.register(eventBus);
 
 
@@ -112,7 +114,29 @@ public class OhMyMeteors {
 
 	}
 
-    AtomicBoolean shouldWarn = new AtomicBoolean(false);
+	public static final DeferredRegister<TicketType> TICKET_TYPES = defreg(Registries.TICKET_TYPE);
+
+	private static <T> DeferredRegister<T> defreg(ResourceKey<Registry<T>> registryKey)
+	{
+		return defreg(modid -> DeferredRegister.create(registryKey, modid));
+	}
+
+	private static <T, R extends DeferredRegister<T>> R defreg(Function<String, R> regFactory)
+	{
+		R register = regFactory.apply(MOD_ID);
+		register.register(ModList.get().getModContainerById(MOD_ID).get().getEventBus());
+		return register;
+	}
+
+	//Dunno, 14 is the enderpearl thingy sooo
+	//public static TicketType METEOR_CHUCK_TICKET = Registry.register(BuiltInRegistries.TICKET_TYPE, OhMyMeteors.MOD_ID+":meteor", new TicketType(5*20, 14));
+
+	public static final DeferredHolder<TicketType, TicketType> METEOR_CHUCK_TICKET = TICKET_TYPES.register("meteor", () -> new TicketType(
+			5*20,
+			TicketType.ENDER_PEARL.flags()
+	));
+
+	AtomicBoolean shouldWarn = new AtomicBoolean(false);
 	private static MinecraftServer serverInstance = null;
 
 	// Loads the config file on server startup as well as the scheduler
@@ -120,7 +144,7 @@ public class OhMyMeteors {
 	public void onServerStarting(ServerStartingEvent event) {
 		// Do something when the server starts
 		try{
-            shouldWarn.set(!Config.reloadConfig());
+            //shouldWarn.set(!Config.reloadConfig());
 			if(ModList.get().isLoaded("luckperms")){
 				PermissionsChecker.luckPerms = LuckPermsProvider.get();
 			}
@@ -140,7 +164,7 @@ public class OhMyMeteors {
 
 	@SubscribeEvent
 	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
-		if(event.getEntity().hasPermissions(4) && shouldWarn.get()){
+		if(event.getEntity().permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_ADMIN) && shouldWarn.get()){
 			event.getEntity().sendSystemMessage(Component.literal(PREFIX).append(
 					Component.literal("§cWarning! The config file has been restored to the default settings because something" +
 							" has gone wrong while loading it! A copy of the old file has been created.")));
@@ -196,21 +220,7 @@ public class OhMyMeteors {
 		);
 	}
 
-
-	public static final TagKey<Block> METEOR_BYPASSES = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses"));
-	public static final TagKey<Block> METEOR_BYPASSES_AND_DESTROY = TagKey.create(Registries.BLOCK, getIdentifier("meteor_bypasses_and_destroy"));
-	public static final TagKey<Block> METEOR_EXPLOSION_SAFE = TagKey.create(Registries.BLOCK, getIdentifier("meteor_explosion_safe"));
-
-
-	@SuppressWarnings("unused")
-	public static void registerTags(){
-		HolderSet.Named<Block> METEOR_BYPASSES_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_BYPASSES);
-		HolderSet.Named<Block> METEOR_BYPASSES_AND_DESTROY_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_BYPASSES_AND_DESTROY);
-		HolderSet.Named<Block> METEOR_EXPLOSION_SAFE_TAG = BuiltInRegistries.BLOCK.getOrCreateTag(METEOR_EXPLOSION_SAFE);
-
-	}
-
-	public static List<ResourceLocation> METEOR_STRUCTURES = new ArrayList<>();
+	public static List<Identifier> METEOR_STRUCTURES = new ArrayList<>();
 
 	public static void reInitStructures(ServerLevel world){
 		 METEOR_STRUCTURES = new ArrayList<>(world.getStructureManager().listTemplates().filter(
@@ -221,19 +231,19 @@ public class OhMyMeteors {
 
 		//this allows to have "ignore_<structure>" to "remove" a default structure with a datapack
 		//or "ignoredefault" to have it remove all the structures
-		List<ResourceLocation> structures_copy = new ArrayList<>(METEOR_STRUCTURES);
+		List<Identifier> structures_copy = new ArrayList<>(METEOR_STRUCTURES);
 
 		//the stream is to avoid concurrent modification exception
 		structures_copy.forEach(id -> {
 			if(id.getPath().contains("ignore_")){
 				//If in the root folder, adjust the thingy
 				if(id.getPath().startsWith("ignore_")){
-					METEOR_STRUCTURES.remove(ResourceLocation.fromNamespaceAndPath(id.getNamespace(),
+					METEOR_STRUCTURES.remove(Identifier.fromNamespaceAndPath(id.getNamespace(),
 							id.getPath().replaceAll("ignore_", "").split("_")[0]+"/"+id.getPath().replaceAll("ignore_", "")));
 					METEOR_STRUCTURES.remove(id);
 				}else{
 					//Removes the targeted structure
-					METEOR_STRUCTURES.remove(ResourceLocation.fromNamespaceAndPath(id.getNamespace(), id.getPath().replaceAll("ignore_", "")));
+					METEOR_STRUCTURES.remove(Identifier.fromNamespaceAndPath(id.getNamespace(), id.getPath().replaceAll("ignore_", "")));
 					METEOR_STRUCTURES.remove(id);//Since this ignore_structure also needs to be removed
 				}
 

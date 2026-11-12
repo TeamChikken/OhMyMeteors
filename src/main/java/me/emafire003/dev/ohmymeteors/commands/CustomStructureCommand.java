@@ -16,11 +16,11 @@ import me.emafire003.dev.ohmymeteors.util.MeteorSizeClass;
 import me.emafire003.dev.ohmymeteors.util.packutils.PackMeta;
 import me.emafire003.dev.ohmymeteors.util.packutils.PackUtilThing;
 import net.minecraft.commands.CommandBuildContext;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.fml.loading.FMLLoader;
 
@@ -38,7 +38,7 @@ public class CustomStructureCommand implements OMMCommand {
 
     private int addStructure(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
-            ResourceLocation structureId = ResourceLocationArgument.getId(context, "structureId");
+            Identifier structureId = IdentifierArgument.getId(context, "structureId");
             MeteorSizeClass size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "sizeClass");
             boolean special = BoolArgumentType.getBool(context, "special");
 
@@ -77,7 +77,7 @@ public class CustomStructureCommand implements OMMCommand {
 
             return 1;
         }catch (Exception e){
-            ResourceLocation structureId = ResourceLocationArgument.getId(context, "structureId");
+            Identifier structureId = IdentifierArgument.getId(context, "structureId");
             context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.add.failed", structureId.getPath())));
             e.printStackTrace();
             return 0;
@@ -91,7 +91,7 @@ public class CustomStructureCommand implements OMMCommand {
             boolean special = BoolArgumentType.getBool(context, "special");
 
             //the path where worldedit schematics are stored
-            Path we_schempath = Path.of(FMLLoader.getGamePath()+"/config/worldedit/schematics/");
+            Path we_schempath = Path.of(FMLLoader.getCurrent().getGameDir()+"/config/worldedit/schematics/");
 
             schemId = schemId.replaceAll("\\.schem", "");
 
@@ -154,7 +154,7 @@ public class CustomStructureCommand implements OMMCommand {
             boolean special = BoolArgumentType.getBool(context, "special");
 
             //the path where litematica schematics are stored
-            Path lm_schempath = Path.of(FMLLoader.getGamePath()+"/schematics/");
+            Path lm_schempath = Path.of(FMLLoader.getCurrent().getGameDir()+"/schematics/");
 
             schemId = schemId.replaceAll("\\.litematic", "");
 
@@ -213,7 +213,7 @@ public class CustomStructureCommand implements OMMCommand {
 
     private int removeStructure(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
-            ResourceLocation structureId = ResourceLocationArgument.getId(context, "structureId");
+            Identifier structureId = IdentifierArgument.getId(context, "structureId");
             MeteorSizeClass size = MeteorSizeClassArgumentType.getMeteorSizeClass(context, "sizeClass");
             boolean special = BoolArgumentType.getBool(context, "special");
 
@@ -230,7 +230,7 @@ public class CustomStructureCommand implements OMMCommand {
 
             return 1;
         }catch (Exception e){
-            ResourceLocation structureId = ResourceLocationArgument.getId(context, "structureId");
+            Identifier structureId = IdentifierArgument.getId(context, "structureId");
             context.getSource().sendFailure(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("command.ohmymeteors.custom.remove.failed", structureId.getPath())));
             e.printStackTrace();
             return 0;
@@ -458,7 +458,7 @@ public class CustomStructureCommand implements OMMCommand {
                         Commands.literal("add")
                                 .then(
                                         Commands.literal("structureblock").then(
-                                                Commands.argument("structureId", ResourceLocationArgument.id()
+                                                Commands.argument("structureId", IdentifierArgument.id()
                                                         )
                                                         .then(
                                                                 Commands.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())
@@ -498,7 +498,7 @@ public class CustomStructureCommand implements OMMCommand {
                 .then(
                         Commands.literal("remove")
                                 .then(
-                                        Commands.argument("structureId", ResourceLocationArgument.id()
+                                        Commands.argument("structureId", IdentifierArgument.id()
                                                 )
                                                 .then(
                                                         Commands.argument("sizeClass", MeteorSizeClassArgumentType.meteorSizeClass())

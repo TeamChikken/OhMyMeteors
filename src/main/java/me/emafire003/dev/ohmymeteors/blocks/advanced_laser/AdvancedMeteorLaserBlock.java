@@ -9,6 +9,7 @@ import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
 import me.emafire003.dev.ohmymeteors.sounds.OMMSounds;
 import me.emafire003.dev.particleanimationlib.effects.CuboidEffect;
 import me.emafire003.dev.particleanimationlib.effects.LineEffect;
+import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -64,7 +65,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
-        return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, OMMBlocks.ADVANCED_METEOR_LASER_BLOCK_ENTITY.get(), AdvancedMeteorLaserBlock::tick) : null;
+        return !world.isClientSide() && world.dimensionType().hasSkyLight() ? createTickerHelper(type, OMMBlocks.ADVANCED_METEOR_LASER_BLOCK_ENTITY.get(), AdvancedMeteorLaserBlock::tick) : null;
     }
 
     /**
@@ -197,7 +198,7 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
 
                 meteorProjectileEntity.detonateSimple();
 
-                serverWorld.sendParticles(OMMParticles.LASER_FLASH_PARTICLE.get(), pos.above().above().getX(), pos.above().above().getY(), pos.above().above().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
+                serverWorld.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 4648287), pos.above().above().getX(), pos.above().above().getY(), pos.above().above().getZ(), 2, 0.01, 0.01, 0.01, 0.1);
 
                 //BUBBLE_POP could also work?
                 LineEffect lineEffect = LineEffect
@@ -245,15 +246,15 @@ public class AdvancedMeteorLaserBlock extends BasicMeteorLaserBlock {
                     if(CONFIG.notificationSection.announce_location){
                         String meteorPos = meteorProjectileEntity.blockPosition().getX() + " x, " + String.valueOf(meteorProjectileEntity.blockPosition().getZ()) + " z!";
                         if(meteorProjectileEntity.isHuge()){
-                            serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge.localized", meteorPos).withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
+                            serverWorld.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge.localized", meteorPos).withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
                         }else{
-                            serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.localized", meteorPos).withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
+                            serverWorld.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.localized", meteorPos).withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
                         }
                     }else{
                         if(meteorProjectileEntity.isHuge()){
-                            serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge").withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
+                            serverWorld.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed.huge").withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
                         }else{
-                            serverWorld.players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed").withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
+                            serverWorld.players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_destroyed").withStyle(ChatFormatting.GREEN)), CONFIG.notificationSection.actionbar_announcements));
                         }
                     }
 

@@ -1,7 +1,8 @@
 package me.emafire003.dev.ohmymeteors.entities;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
-import me.emafire003.dev.ohmymeteors.config.Config;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,12 +23,18 @@ public class OMMEntities {
             "meteor_projectile", () ->
             EntityType.Builder.<MeteorProjectileEntity>of(MeteorProjectileEntity::new, MobCategory.MISC)
                     .clientTrackingRange(getMeteorTrackingDistance())
-                    .sized(0.9F, 0.9F).build("meteor_projectile"));
+                    .sized(0.9F, 0.9F).build(ResourceKey.create(
+                            Registries.ENTITY_TYPE,
+                            OhMyMeteors.getIdentifier("meteor_projectile")
+                    )));
 
     public static final Supplier<EntityType<MeteorCatEntity>> METEOR_KITTY_CAT = ENTITY_TYPES.register(
             "meteor_cat", () ->
             EntityType.Builder.<MeteorCatEntity>of(MeteorCatEntity::new, MobCategory.CREATURE)
-                    .sized(0.9F, 0.9F).build("meteor_cat"));
+                    .sized(0.9F, 0.9F).build(ResourceKey.create(
+                            Registries.ENTITY_TYPE,
+                            OhMyMeteors.getIdentifier("meteor_cat")
+                    )));
 
     public static int getMeteorTrackingDistance(){
         return OhMyMeteors.CONFIG.visualsSection.meteor_render_distance;

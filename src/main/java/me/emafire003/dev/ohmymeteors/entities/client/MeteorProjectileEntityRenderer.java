@@ -2,99 +2,150 @@ package me.emafire003.dev.ohmymeteors.entities.client;
 
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.entities.MeteorProjectileEntity;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.resources.Identifier;
 
-public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> extends EntityRenderer<T> {
+public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> extends EntityRenderer<T, MeteorProjectileRenderState> {
     protected MeteorProjectileEntityModel<?> model;
+
+    public static final Identifier TEXTURE_NORMAL = OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png");
 
     public MeteorProjectileEntityRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
         this.model = new MeteorProjectileEntityModel<>(ctx.bakeLayer(MeteorProjectileEntityModel.METEOR));
     }
 
-
     @Override
-    public void render(T entity, float yaw, float tickDelta, PoseStack matrices,
-                       MultiBufferSource vertexConsumers, int light) {
+    public void submit(MeteorProjectileRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
 
-        matrices.pushPose();
+        poseStack.pushPose();
+        poseStack.translate(0, -state.boundingBoxHeight /1.5, 0);
+        poseStack.scale(state.size, state.size, state.size);
+        model.setupAnim(state);
 
-        VertexConsumer vertexconsumer;
+        Identifier texture;
 
         switch (OhMyMeteors.CONFIG.visualsSection.meteor_texture_mode){
-            case HOT -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png")), false, false);
-            case MID -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png")), false, false);
-            case DYNAMIC_HEIGHT -> vertexconsumer = textureByHeight(entity, vertexConsumers);
-            case DYNAMIC_DISTANCE -> vertexconsumer = textureByDistance(entity, vertexConsumers);
+            case HOT -> texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png"));
+            case MID -> texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png"));
+            case DYNAMIC_HEIGHT -> texture = textureByHeight(state);
+            case DYNAMIC_DISTANCE -> texture = textureByDistance(state);
             case DYNAMIC_AUTO -> {
-                if(Math.abs(entity.getDeltaMovement().x()) > 0.85 || Math.abs(entity.getDeltaMovement().z()) > 0.85){
-                    vertexconsumer = textureByDistance(entity, vertexConsumers);
+                if(Math.abs(state.velocity.x()) > 0.85 || Math.abs(state.velocity.z()) > 0.85){
+                    texture = textureByDistance(state);
                 }else{
-                    vertexconsumer = textureByHeight(entity, vertexConsumers);
+                    texture = textureByHeight(state);
                 }
             }
-            default -> vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+            default -> texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png"));
 
         }
 
-        matrices.translate(0, -entity.getDimensions(entity.getPose()).height()/1.5, 0);
+        submitNodeCollector.order(0)
+                .submitModel(this.model,
+                        state,
+                        poseStack,
+                        texture, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, null);
 
-        matrices.scale(entity.getSize(), entity.getSize(), entity.getSize());
+        /*TODO this could be used to render meteors as enchanted. May be useful later?
+        submitNodeCollector.order(1)
+                .submitModel(
+                        this.model,
+                        state,
+                        poseStack,
+                        ItemFeatureRenderer.getFoilRenderType((TEXTURE), false),
+                        state.lightCoords,
+                        OverlayTexture.NO_OVERLAY,
+                        state.outlineColor,
+                        null
+                );*/
 
-        //yay it finally works, it needed the entity tickCount as well :D
-        model.setupAnim(entity, 0f, 0f, entity.tickCount + tickDelta, 0f, 0f);
+/*
+        submitNodeCollector.order(0)
+                .submitModel(
+                        this.model,
+                        state,
+                        poseStack,
+                        ItemFeatureRenderer.getFoilRenderType((TEXTURE), true),
+                        state.lightCoords,
+                        OverlayTexture.NO_OVERLAY,
+                        state.outlineColor,
+                        null
+                );*/
+        /*List<RenderType> list = ItemFeatureRenderer.gettFoilBuffer((TEXTURE), false, false);
 
-        this.model.renderToBuffer(matrices, vertexconsumer, light, OverlayTexture.NO_OVERLAY);
-        matrices.popPose();
+        for (int i = 0; i < list.size(); i++) {
+            submitNodeCollector.order(i)
+                    .submitModel(
+                            this.model,
+                            state,
+                            poseStack,
+                            list.get(i),
+                            state.lightCoords,
+                            OverlayTexture.NO_OVERLAY,
+                            state.outlineColor,
+                            null
+                    );
+        }*/
 
-        super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
+
+        poseStack.popPose();
+        super.submit(state, poseStack, submitNodeCollector, camera);
     }
 
-    public VertexConsumer textureByHeight(T entity, MultiBufferSource vertexConsumers){
-        VertexConsumer vertexconsumer;
-        if(entity.position().y() < entity.moltenPos){
-            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png")), false, false);
-        }else if(entity.position().y() < entity.midPos){
-            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png")), false, false);
+    public Identifier textureByHeight(MeteorProjectileRenderState state){
+        Identifier texture;
+        if(state.y < state.moltenPos){
+            texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png"));
+        }else if(state.y < state.midPos){
+            texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png"));
         }else{
-            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+            texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png"));
         }
-        return vertexconsumer;
+        return texture;
     }
 
     //TODO add travel time option as well? Maybe?
-    public VertexConsumer textureByDistance(T entity, MultiBufferSource vertexConsumers){
-        VertexConsumer vertexconsumer;
-        if(entity.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_hot+OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
-            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png")), false, false);
-        }else if(entity.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
-            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png")), false, false);
+    public Identifier textureByDistance(MeteorProjectileRenderState state){
+        Identifier texture;
+        if(state.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_hot+OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
+            texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock_hot_static.png"));
+        }else if(state.travelledBlocks > OhMyMeteors.CONFIG.visualsSection.texture_change_distance_mid){
+            texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png"));
         }else{
-            vertexconsumer = ItemRenderer.getFoilBufferDirect(vertexConsumers,
-                    this.model.renderType(OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")), false, false);
+            texture =
+                    (OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png"));
         }
-        return vertexconsumer;
+        return texture;
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(T entity) {
-        //OhMyMeteors.getIdentifier("textures/block/meteoric_rock.png")
-        return OhMyMeteors.getIdentifier("textures/block/meteoric_rock_mid_static.png");
+    public MeteorProjectileRenderState createRenderState() {
+        return new MeteorProjectileRenderState();
+    }
+
+    public void extractRenderState(T meteorEntity, MeteorProjectileRenderState meteorState, float f) {
+        super.extractRenderState(meteorEntity, meteorState, f);
+        meteorState.size = meteorEntity.getSize();
+        meteorState.rotationState.copyFrom(meteorEntity.rotationState);
+        meteorState.velocity = meteorEntity.getDeltaMovement();
+
+        meteorState.groundLevel = meteorEntity.groundLevel;
+        meteorState.lastPos = meteorEntity.lastPos;
+        meteorState.midPos = meteorEntity.midPos;
+        meteorState.moltenPos = meteorEntity.moltenPos;
     }
 }

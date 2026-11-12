@@ -3,31 +3,48 @@ package me.emafire003.dev.ohmymeteors.particles;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.RandomSource;
 
-public class LaserParticle extends TextureSheetParticle {
-    
-    LaserParticle(ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
-        super(clientWorld, d, e, f, g, h, i);
+public class LaserParticle extends SingleQuadParticle {
+
+    LaserParticle(ClientLevel clientWorld, double d, double e, double f, double g, double h, double i, TextureAtlasSprite sprite) {
+        super(clientWorld, d, e, f, g, h, i, sprite);
         float j = this.random.nextFloat() * 0.1F + 0.2F;
         this.rCol = j;
         this.gCol = j;
         this.bCol = j;
         this.setSize(0.02F, 0.02F);
-        this.quadSize = this.quadSize * (this.random.nextFloat() * 0.5F + 0.5F);
+        this.quadSize = this.quadSize * (this.random.nextFloat() * 0.6F + 0.5F);
         this.xd *= 0.02F;
         this.yd *= 0.02F;
         this.zd *= 0.02F;
-        this.lifetime = 1*20; //aka 1 second
-    }
+        this.lifetime = (int)(20.0 / (Math.random() * 0.8 + 0.2));
+    }/*(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i, Sprite sprite) {
+        super(clientWorld, d, e,f,g, h, i, sprite);
+        float j = this.random.nextFloat() * 0.1F + 0.2F;
+        this.red = j;
+        this.green = j;
+        this.blue = j;
+        this.setBoundingBoxSpacing(0.02F, 0.02F);
+        this.scale = this.scale * (this.random.nextFloat() * 0.5F + 0.5F);
+        this.velocityX *= 0.02F;
+        this.velocityY *= 0.02F;
+        this.velocityZ *= 0.02F;
+        this.maxAge = 1*20; //aka 1 second
+    }*/
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    public SingleQuadParticle.Layer getLayer() {
+        return Layer.TRANSLUCENT;
     }
+
+   /* @Override
+    public ParticleTextureSheet getType() {
+        return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
+    }*/
 
     @Override
     public void move(double dx, double dy, double dz) {
@@ -75,9 +92,10 @@ public class LaserParticle extends TextureSheetParticle {
             this.spriteProvider = spriteProvider;
         }
 
-        public Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
-            LaserParticle suspendParticle = new LaserParticle(clientWorld, d, e, f, g, h, i);
-            suspendParticle.pickSprite(this.spriteProvider);
+        public Particle createParticle(
+                SimpleParticleType simpleParticleType, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i, RandomSource random
+        ) {
+            LaserParticle suspendParticle = new LaserParticle(clientWorld, d, e, f, g, h, i, this.spriteProvider.get(random));
             suspendParticle.setColor(1.0F, 1.0F, 1.0F);
             return suspendParticle;
         }

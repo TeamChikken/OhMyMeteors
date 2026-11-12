@@ -3,7 +3,7 @@ package me.emafire003.dev.ohmymeteors.sounds;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -19,7 +19,7 @@ public class OMMSounds {
     public static Supplier<SoundEvent> LASER_AREA_OFF = registerSoundEvent("laser_area_off");
 
     private static Supplier<SoundEvent> registerSoundEvent(String name) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(OhMyMeteors.MOD_ID, name);
+        Identifier id = Identifier.fromNamespaceAndPath(OhMyMeteors.MOD_ID, name);
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(id));
     }
 

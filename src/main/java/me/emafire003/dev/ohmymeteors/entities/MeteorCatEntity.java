@@ -1,23 +1,18 @@
 package me.emafire003.dev.ohmymeteors.entities;
 
-import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.mixin.CatCollarInvoker;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Cat;
-import net.minecraft.world.entity.animal.CatVariant;
+import net.minecraft.world.entity.animal.feline.Cat;
 import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.core.Holder;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class MeteorCatEntity extends Cat {
 
@@ -31,51 +26,32 @@ public class MeteorCatEntity extends Cat {
     }
 
     public static AttributeSupplier.Builder createCatAttributes() {
-        return Mob.createMobAttributes()
+        return Animal.createAnimalAttributes()
                 .add(Attributes.MAX_HEALTH, 15.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.35F)
                 .add(Attributes.ATTACK_DAMAGE, 3.0)
                 .add(Attributes.BURNING_TIME, 0); //So even if it gets on fire it won't last
     }
 
-
     @Override
-    public boolean hurt(DamageSource source, float amount) {
+    public boolean hurtServer(ServerLevel world, DamageSource source, float amount) {
         if(source.is(DamageTypeTags.IS_FIRE)){
             return false;
         }
-        return super.hurt(source, amount);
-    }
-
-    //Compat stuff aka removing variants and such.
-    // The idea is, always return the same texture but keep the tracked data there in order not to cause too many issues.
-    // The only other way would be copying over the methods of the cat to a new Entity without extending the cat
-    @Override
-    public ResourceLocation getTextureId() {
-        return OhMyMeteors.getIdentifier("textures/entity/meteor_cat.png");
-    }
-
-    /*@Override
-    public RegistryEntry<CatVariant> getVariant() {
-        return null;
-    }
-*/
-    @Override
-    public void setVariant(Holder<CatVariant> registryEntry) {
-
+        return super.hurtServer(world, source, amount);
     }
 
     //TODO if to breed with cats, just needs to remove the "meteor" part
     //also should not need overriding
     @Nullable
     public MeteorCatEntity getBreedOffspring(ServerLevel serverWorld, AgeableMob passiveEntity) {
-        MeteorCatEntity catEntity = OMMEntities.METEOR_KITTY_CAT.get().create(serverWorld);
+        MeteorCatEntity catEntity = OMMEntities.METEOR_KITTY_CAT.get().create(serverWorld, EntitySpawnReason.BREEDING);
         //EntityType.CAT.create(serverWorld);
         if (catEntity != null && passiveEntity instanceof MeteorCatEntity catEntity2) {
 
 
             if (this.isTame()) {
-                catEntity.setOwnerUUID(this.getOwnerUUID());
+                catEntity.setOwner(this.getOwner());
                 catEntity.setTame(true, true);
                 if (this.random.nextBoolean()) {
                     ((CatCollarInvoker) catEntity).invokeSetCollarColor(this.getCollarColor());

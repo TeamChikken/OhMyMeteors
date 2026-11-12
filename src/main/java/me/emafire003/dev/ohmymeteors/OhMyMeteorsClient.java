@@ -4,7 +4,6 @@ import me.emafire003.dev.ohmymeteors.entities.OMMEntities;
 import me.emafire003.dev.ohmymeteors.entities.client.MeteorCatEntityRenderer;
 import me.emafire003.dev.ohmymeteors.entities.client.MeteorProjectileEntityModel;
 import me.emafire003.dev.ohmymeteors.entities.client.MeteorProjectileEntityRenderer;
-import me.emafire003.dev.ohmymeteors.particles.LaserFlashParticle;
 import me.emafire003.dev.ohmymeteors.particles.LaserParticle;
 import me.emafire003.dev.ohmymeteors.particles.LaserParticleSmall;
 import me.emafire003.dev.ohmymeteors.particles.OMMParticles;
@@ -33,16 +32,15 @@ public class OhMyMeteorsClient{
     public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(OMMParticles.LASER_PARTICLE.get(), LaserParticle.EggCrackFactory::new);
         event.registerSpriteSet(OMMParticles.LASER_PARTICLE_SMALL.get(), LaserParticleSmall.EggCrackFactory::new);
-        event.registerSpriteSet(OMMParticles.LASER_FLASH_PARTICLE.get(), LaserFlashParticle.LaserFlashFactory::new);
         event.registerSpriteSet(OMMParticles.METEOR_SMOKE_COSY.get(), MeteorSmokeParticle.CosyProvider::new);
-        event.registerSpriteSet(OMMParticles.METEOR_FLASH.get(), MeteorFlashParticle.FlashFactory::new);
+        event.registerSpriteSet(OMMParticles.METEOR_FLASH.get(), MeteorFlashParticle.LaserFlashFactory::new);
     }
 
     public static void registerEntityStuff(){
         EntityRenderers.register(OMMEntities.METEOR_PROJECTILE_ENTITY.get(), MeteorProjectileEntityRenderer::new);
         EntityRenderers.register(OMMEntities.METEOR_KITTY_CAT.get(), MeteorCatEntityRenderer::new);
-
     }
+
 
     @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event){

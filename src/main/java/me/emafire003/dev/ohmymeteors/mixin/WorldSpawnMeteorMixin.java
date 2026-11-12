@@ -11,14 +11,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Debug;
@@ -32,7 +30,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
 
@@ -41,6 +38,10 @@ import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
 //(there would be a way to like list all of the loaded chunks but it seems a bit impractical when we can just target a random online player)
 @Mixin(ServerLevel.class)
 public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLevel {
+
+    protected WorldSpawnMeteorMixin(WritableLevelData levelData, ResourceKey<Level> dimension, RegistryAccess registryAccess, Holder<DimensionType> dimensionTypeRegistration, boolean isClientSide, boolean isDebug, long biomeZoomSeed, int maxChainedNeighborUpdates) {
+        super(levelData, dimension, registryAccess, dimensionTypeRegistration, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
+    }
 
     @Shadow @Nullable public abstract ServerPlayer getRandomPlayer();
 
@@ -89,7 +90,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
                 SimpleDataSaverUtils.DATA.setTimeTriggered(true);
                 SimpleDataSaverUtils.saveFile();
                 if(CONFIG.notificationSection.announce_meteor_spawn_start){
-                    players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_spawn_start").withStyle(ChatFormatting.RED)),
+                    players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_spawn_start").withStyle(ChatFormatting.RED)),
                             CONFIG.notificationSection.actionbar_announcements));
                 }
             }
@@ -115,7 +116,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
                     SimpleDataSaverUtils.DATA.setDimensionTriggered(true);
                     SimpleDataSaverUtils.saveFile();
                     if(CONFIG.notificationSection.announce_meteor_spawn_start){
-                        players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_spawn_start").withStyle(ChatFormatting.RED)),
+                        players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_spawn_start").withStyle(ChatFormatting.RED)),
                                 CONFIG.notificationSection.actionbar_announcements));
                     }
                 }
@@ -157,7 +158,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
             chance = CONFIG.meteorSpawning.biome_chances.get(current_biome.getRegisteredName());
         }
 
-        if(CONFIG.meteorSpawning.modify_spawn_chance_at_night && this.isNight()){
+        if(CONFIG.meteorSpawning.modify_spawn_chance_at_night && this.isDarkOutside()){
             chance = CONFIG.meteorSpawning.meteor_night_spawn_chance;
             if(CONFIG.meteorSpawning.dimension_night_chances.containsKey(current_dim.getRegisteredName())){
                 chance = CONFIG.meteorSpawning.dimension_night_chances.get(current_dim.getRegisteredName());
@@ -177,7 +178,7 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
             }
             if(CONFIG.notificationSection.announce_meteor_spawn_increments && increasedSpawnChance){
                 int finalChance = chance;
-                players().forEach(player -> player.displayClientMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_chance_increments", finalChance).withStyle(ChatFormatting.RED)),
+                players().forEach(player -> player.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.translatable("message.ohmymeteors.meteor_chance_increments", finalChance).withStyle(ChatFormatting.RED)),
                         CONFIG.notificationSection.actionbar_announcements));
             }
         }
@@ -207,9 +208,9 @@ public abstract class WorldSpawnMeteorMixin extends Level implements WorldGenLev
         }
     }
 
-    protected WorldSpawnMeteorMixin(WritableLevelData properties, ResourceKey<Level> registryRef, RegistryAccess registryManager, Holder<DimensionType> dimensionEntry, Supplier<ProfilerFiller> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
+    /*protected WorldSpawnMeteorMixin(WritableLevelData properties, ResourceKey<Level> registryRef, RegistryAccess registryManager, Holder<DimensionType> dimensionEntry, Supplier<ProfilerFiller> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
-    }
+    }*/
 
 
 }

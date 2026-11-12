@@ -5,7 +5,8 @@ import me.emafire003.dev.ohmymeteors.blocks.advanced_laser.AdvancedMeteorLaserBl
 import me.emafire003.dev.ohmymeteors.blocks.advanced_laser.AdvancedMeteorLaserBlockEntity;
 import me.emafire003.dev.ohmymeteors.blocks.basic_laser.BasicMeteorLaserBlock;
 import me.emafire003.dev.ohmymeteors.blocks.basic_laser.BasicMeteorLaserBlockEntity;
-import me.emafire003.dev.ohmymeteors.items.OMMItems;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -19,6 +20,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
 
+import static me.emafire003.dev.ohmymeteors.items.OMMItems.ITEMS;
+
 public class OMMBlocks {
 
     // Create a Deferred Register to hold Blocks which will all be registered under the "ohmymeteors" namespace
@@ -27,9 +30,9 @@ public class OMMBlocks {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, OhMyMeteors.MOD_ID);
 
-
     public static final DeferredBlock<Block> BASIC_METEOR_LASER = registerBlock("basic_meteor_laser",
             () -> new BasicMeteorLaserBlock(BlockBehaviour.Properties.of()
+                    .setId(ResourceKey.create(Registries.BLOCK, OhMyMeteors.getIdentifier("basic_meteor_laser")))
                     .strength(1.9f)
                     .lightLevel(value -> 1) //Makes a little bit of light
                     .sound(SoundType.COPPER)
@@ -37,12 +40,13 @@ public class OMMBlocks {
             ));
 
     public static final Supplier<BlockEntityType<BasicMeteorLaserBlockEntity>> BASIC_METEOR_LASER_BLOCK_ENTITY =
-            BLOCK_ENTITIES.register("basic_meteor_laser_be", () -> BlockEntityType.Builder.of(
+            BLOCK_ENTITIES.register("basic_meteor_laser_be", () -> new BlockEntityType<>(
                     BasicMeteorLaserBlockEntity::new, BASIC_METEOR_LASER.get()
-            ).build(null));
+            ));
 
     public static final DeferredBlock<Block> ADVANCED_METEOR_LASER = registerBlock("advanced_meteor_laser",
             () -> new AdvancedMeteorLaserBlock(BlockBehaviour.Properties.of()
+                    .setId(ResourceKey.create(Registries.BLOCK, OhMyMeteors.getIdentifier("advanced_meteor_laser")))
                     .strength(2f)
                     .lightLevel(value -> 2) //Makes a little bit moreof light
                     .sound(SoundType.COPPER)
@@ -50,12 +54,14 @@ public class OMMBlocks {
             ));
 
     public static final Supplier<BlockEntityType<AdvancedMeteorLaserBlockEntity>> ADVANCED_METEOR_LASER_BLOCK_ENTITY =
-            BLOCK_ENTITIES.register("advanced_meteor_laser", () -> BlockEntityType.Builder.of(
+            BLOCK_ENTITIES.register("advanced_meteor_laser", () -> new BlockEntityType<>(
                     AdvancedMeteorLaserBlockEntity::new, ADVANCED_METEOR_LASER.get()
-            ).build(null));
+            ));
 
     public static final DeferredBlock<Block> METEORIC_ROCK = registerBlock("meteoric_rock",
-            () -> new MeteoricRockBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
+            () -> new MeteoricRockBlock(BlockBehaviour.Properties.of()
+                    .setId(ResourceKey.create(Registries.BLOCK, OhMyMeteors.getIdentifier("meteoric_rock")))
+                    .requiresCorrectToolForDrops()
                     .emissiveRendering((blockState, getter, pos) -> {
                         switch (blockState.getValue(OMMProperties.ROCK_TEMPERATURE)){
                             case MID -> {
@@ -89,7 +95,7 @@ public class OMMBlocks {
     }
 
     private static <T extends Block> void registerBlockItem(String name, DeferredBlock<T> block) {
-        OMMItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
+        ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, OhMyMeteors.getIdentifier(name)))));
     }
 
     public static void register(IEventBus eventBus) {

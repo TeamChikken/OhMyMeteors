@@ -5,7 +5,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.compat.perms.PermissionsChecker;
-import me.emafire003.dev.ohmymeteors.config.Config;
 import me.emafire003.dev.ohmymeteors.util.ParticleMode;
 import me.emafire003.dev.ohmymeteors.util.datasaver.SimpleData;
 import me.emafire003.dev.ohmymeteors.util.datasaver.SimpleDataSaverUtils;
@@ -13,17 +12,13 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
-import net.neoforged.fml.loading.FMLEnvironment;
-
 public class ConfigCommand implements OMMCommand {
 
     private int openConfig(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try{
             CommandSourceStack source = context.getSource();
 
-            source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Please open the config file from Modmenu!").withStyle(ChatFormatting.GOLD).append(Component.literal(Config.FILEPATH.toFile().toString()).withStyle(ChatFormatting.LIGHT_PURPLE).append(Component.literal("'").withStyle(ChatFormatting.GOLD)))));
+            //source.sendSystemMessage(Component.literal(OhMyMeteors.PREFIX).append(Component.literal("Please open the config file from Modmenu!").withStyle(ChatFormatting.GOLD).append(Component.literal(Config.FILEPATH.toFile().toString()).withStyle(ChatFormatting.LIGHT_PURPLE).append(Component.literal("'").withStyle(ChatFormatting.GOLD)))));
             /*if(source.getEntity().level().isClientSide()){
                 ConfigApi.INSTANCE.openScreen(OhMyMeteors.MOD_ID);
                 return 1;
@@ -112,9 +107,9 @@ public class ConfigCommand implements OMMCommand {
                 .requires(PermissionsChecker.hasPerms(OhMyMeteors.MOD_ID+".commands.config", 2))
                 .then(
                         Commands.literal("reload").executes(this::reloadConfig)
-                ).then(
+                )/*.then(
                         Commands.literal("open").executes(this::openConfig)
-                )
+                )*/
                 .then(
                         Commands.literal("resetdata").executes(this::restData)
                 )

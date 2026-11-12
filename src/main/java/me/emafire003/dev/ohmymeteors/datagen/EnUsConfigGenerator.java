@@ -4,7 +4,7 @@ import me.emafire003.dev.ohmymeteors.OhMyMeteors;
 import me.emafire003.dev.ohmymeteors.config.OMMConfigV2;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
 public class EnUsConfigGenerator extends LanguageProvider {
@@ -82,7 +82,7 @@ public class EnUsConfigGenerator extends LanguageProvider {
     @Override
     protected void addTranslations() {
         generateModTranslations();
-        ConfigApiJava.buildTranslations(OMMConfigV2.class, ResourceLocation.fromNamespaceAndPath(OhMyMeteors.MOD_ID, "ohmymeteors_config"), "en_us", true, this::add);
+        ConfigApiJava.buildTranslations(OMMConfigV2.class, Identifier.fromNamespaceAndPath(OhMyMeteors.MOD_ID, "ohmymeteors_config"), "en_us", true, this::add);
         add("ohmymeteors.particle_mode_enum.FANCY", "FANCY");
         add("ohmymeteors.particle_mode_enum.LESS", "LESS");
         add("ohmymeteors.particle_mode_enum.MINIMAL", "MINIMAL");
