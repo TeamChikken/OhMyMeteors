@@ -26,6 +26,10 @@ public class EnUsConfigGenerator extends LanguageProvider {
         add("item.ohmymeteors.focusing_lenses", "Focusing Lenses");
         add("item.ohmymeteors.meteoric_alloy", "Meteoric Alloy");
         add("item.ohmymeteors.meteor_cat_spawn_egg", "Meteor Cat Spawn Egg");
+        add("item.ohmymeteors.basic_meteor_laser", "Basic Meteor Laser");
+        add("item.ohmymeteors.advanced_meteor_laser", "Advanced Meteor Laser");
+        add("item.ohmymeteors.meteoric_rock", "Meteoric Rock");
+        
 
         add("message.ohmymeteors.meteor_spawned", "A new meteor has spawned!");
         add("message.ohmymeteors.meteor_destroyed", "A meteor has been destroyed!");
