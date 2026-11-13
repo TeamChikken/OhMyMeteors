@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.world.level.blockscan.OrderedBlockMatcher;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -272,12 +273,14 @@ public class MeteorProjectileEntity extends AbstractHurtingProjectile {
 
     protected void calculateTextureChangePositions(){
         Optional<BlockPos> ground;
-        ground = BlockPos.MutableBlockPos.findClosestMatch(blockPosition(), 1, level().getHeight(), blockPos -> !level().getBlockState(blockPos).isAir());
+        OrderedBlockMatcher blockMatcher = level().findBlocksIn(BlockPos.betweenClosed(blockPosition(), blockPosition().atY(level().getHeight())));
+        ground = blockMatcher.findFirst();
         groundLevel = ground.orElse(new BlockPos(0, 64, 0)).getY();
         distFromGround = OhMyMeteors.CONFIG.meteorSpawning.meteor_spawn_height-groundLevel;
         moltenPos = (distFromGround/3)+groundLevel;
         midPos = (distFromGround*2/3)+groundLevel;
     }
+
 
 
     /*public void setupAnimationStates() {

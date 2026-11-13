@@ -62,7 +62,7 @@ public class OMMBlocks {
             () -> new MeteoricRockBlock(BlockBehaviour.Properties.of()
                     .setId(ResourceKey.create(Registries.BLOCK, OhMyMeteors.getIdentifier("meteoric_rock")))
                     .requiresCorrectToolForDrops()
-                    .emissiveRendering((blockState, getter, pos) -> {
+                    .emissiveRendering((blockState) -> {
                         switch (blockState.getValue(OMMProperties.ROCK_TEMPERATURE)){
                             case MID -> {
                                 return true;

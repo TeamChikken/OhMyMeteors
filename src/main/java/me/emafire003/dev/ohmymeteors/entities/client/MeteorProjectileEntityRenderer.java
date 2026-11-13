@@ -53,7 +53,7 @@ public class MeteorProjectileEntityRenderer<T  extends MeteorProjectileEntity> e
                 .submitModel(this.model,
                         state,
                         poseStack,
-                        texture, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, null);
+                        texture, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
 
         /*TODO this could be used to render meteors as enchanted. May be useful later?
         submitNodeCollector.order(1)

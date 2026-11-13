@@ -8,6 +8,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.fog.environment.AtmosphericFogEnvironment;
 import net.minecraft.world.phys.AABB;
+import org.joml.Vector3fc;
 import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -22,14 +23,14 @@ import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
 public abstract class MeteorFogMixin {
 
     @ModifyReturnValue(method = "getBaseColor", at = @At("RETURN"))
-    private static int modifyColor(int original, @Local(argsOnly = true, name = "camera") Camera camera, @Local(argsOnly = true, name = "level") ClientLevel clientLevel){
-        if(ohMyMeteors$areMeteorsNearby(camera, clientLevel)){
+    private static Vector3fc modifyColor(Vector3fc original, @Local(argsOnly = true, name = "camera") Camera camera, @Local(argsOnly = true, name = "level") ClientLevel clientLevel){
+        /*if(ohMyMeteors$areMeteorsNearby(camera, clientLevel)){
             //TODO maybe add a transition?
             //Default: Vec3(4,141,165) #048da5
 
 
             return ohMyMeteors$toColorValue(CONFIG.visualsSection.meteor_skyglow_color.r(), CONFIG.visualsSection.meteor_skyglow_color.g(), CONFIG.visualsSection.meteor_skyglow_color.b());
-        }
+        }*/ //TODO fix somehow
         return original;
     }
 

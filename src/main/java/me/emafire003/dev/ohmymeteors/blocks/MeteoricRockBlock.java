@@ -27,6 +27,8 @@ import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 
 import static me.emafire003.dev.ohmymeteors.OhMyMeteors.CONFIG;
+
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 public class MeteoricRockBlock extends Block {
@@ -61,12 +63,12 @@ public class MeteoricRockBlock extends Block {
         if(stack.is(Items.ECHO_SHARD)){
             if(state.getValue(PRESERVED)){
                 ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.WAX_OFF, CONFIG.visualsSection.use_forced_particles, CONFIG.visualsSection.use_forced_particles,
-                        pos.getCenter().x(), pos.getCenter().y(), pos.getCenter().z(),
+                        new Vec3(pos).x(), new Vec3(pos).y(), new Vec3(pos).z(),
                         30, 0.5, 0.5, 0.5, 1.0);
                 level.setBlockAndUpdate(pos, state.setValue(PRESERVED, false));
             }else{
                 ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.WAX_ON, CONFIG.visualsSection.use_forced_particles, CONFIG.visualsSection.use_forced_particles,
-                        pos.getCenter().x(), pos.getCenter().y(), pos.getCenter().z(),
+                        new Vec3(pos).x(), new Vec3(pos).y(), new Vec3(pos).z(),
                         30, 0.5, 0.5, 0.5, 1.0);
                 level.setBlockAndUpdate(pos, state.setValue(PRESERVED, true));
             }
@@ -77,7 +79,7 @@ public class MeteoricRockBlock extends Block {
         }
         if(stack.is(Items.FLINT_AND_STEEL) || stack.is(Items.FIRE_CHARGE)){
             ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.SMOKE, CONFIG.visualsSection.use_forced_particles, CONFIG.visualsSection.use_forced_particles,
-                    pos.getCenter().x(), pos.getCenter().y(), pos.getCenter().z(),
+                    new Vec3(pos).x(), new Vec3(pos).y(), new Vec3(pos).z(),
                     30, 0.05, 0.05, 0.05, 0.2);
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1.4f);
             promoteHotness(state, pos, level);
@@ -85,7 +87,7 @@ public class MeteoricRockBlock extends Block {
         }
         if(stack.is(Items.SNOWBALL)){
             ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.SMOKE, CONFIG.visualsSection.use_forced_particles, CONFIG.visualsSection.use_forced_particles,
-                    pos.getCenter().x(), pos.getCenter().y(), pos.getCenter().z(),
+                    new Vec3(pos).x(), new Vec3(pos).y(), new Vec3(pos).z(),
                     30, 0.05, 0.05, 0.05, 0.5);
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1.4f);
             demoteHotness(state, pos, level);
@@ -103,12 +105,12 @@ public class MeteoricRockBlock extends Block {
         if(stack.is(Items.ECHO_SHARD)){
             if(state.getValue(PRESERVED)){
                 ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.WAX_OFF, CONFIG.visualsSection.use_forced_particles, CONFIG.visualsSection.use_forced_particles,
-                        pos.getCenter().x(), pos.getCenter().y(), pos.getCenter().z(),
+                        new Vec3(pos).x(), new Vec3(pos).y(), new Vec3(pos).z(),
                         30, 0.5, 0.5, 0.5, 1.0);
                 level.setBlockAndUpdate(pos, state.setValue(PRESERVED, false));
             }else{
                 ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.WAX_ON, CONFIG.visualsSection.use_forced_particles, CONFIG.visualsSection.use_forced_particles,
-                        pos.getCenter().x(), pos.getCenter().y(), pos.getCenter().z(),
+                        new Vec3(pos).x(), new Vec3(pos).y(), new Vec3(pos).z(),
                         30, 0.5, 0.5, 0.5, 1.0);
                 level.setBlockAndUpdate(pos, state.setValue(PRESERVED, true));
             }
@@ -119,7 +121,7 @@ public class MeteoricRockBlock extends Block {
         }
         if(stack.is(Items.FLINT_AND_STEEL) || stack.is(Items.FIRE_CHARGE)){
             ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.SMOKE, CONFIG.visualsSection.use_forced_particles, CONFIG.visualsSection.use_forced_particles,
-                    pos.getCenter().x(), pos.getCenter().y(), pos.getCenter().z(),
+                    new Vec3(pos).x(), new Vec3(pos).y(), new Vec3(pos).z(),
                     30, 0.05, 0.05, 0.05, 0.2);
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1.4f);
             promoteHotness(state, pos, level);
@@ -127,7 +129,7 @@ public class MeteoricRockBlock extends Block {
         }
         if(stack.is(Items.SNOWBALL)){
             ((ServerLevel) level).sendParticles((ServerPlayer) player, ParticleTypes.SMOKE, CONFIG.visualsSection.use_forced_particles, CONFIG.visualsSection.use_forced_particles,
-                    pos.getCenter().x(), pos.getCenter().y(), pos.getCenter().z(),
+                    new Vec3(pos).x(), new Vec3(pos).y(), new Vec3(pos).z(),
                     30, 0.05, 0.05, 0.05, 0.5);
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1.4f);
             demoteHotness(state, pos, level);

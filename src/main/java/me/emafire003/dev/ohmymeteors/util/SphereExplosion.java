@@ -26,6 +26,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
@@ -357,7 +358,7 @@ public class SphereExplosion implements Explosion {
         if (this.destructionType != Explosion.BlockInteraction.TRIGGER_BLOCK) {
             return false;
         } else {
-            return this.entity != null && this.entity.getType() == EntityType.BREEZE_WIND_CHARGE
+            return this.entity != null && this.entity.getType() == EntityTypes.BREEZE_WIND_CHARGE
                     ? this.world.getGameRules().get(GameRules.MOB_GRIEFING)
                     : true;
         }
@@ -366,7 +367,7 @@ public class SphereExplosion implements Explosion {
     @Override
     public boolean shouldAffectBlocklikeEntities() {
         boolean bl = this.world.getGameRules().get(GameRules.MOB_GRIEFING);
-        boolean bl2 = this.entity == null || this.entity.getType() != EntityType.BREEZE_WIND_CHARGE && this.entity.getType() != EntityType.WIND_CHARGE;
+        boolean bl2 = this.entity == null || this.entity.getType() != EntityTypes.BREEZE_WIND_CHARGE && this.entity.getType() != EntityTypes.WIND_CHARGE;
         return bl ? bl2 : this.destructionType.shouldAffectBlocklikeEntities() && bl2;
     }
 

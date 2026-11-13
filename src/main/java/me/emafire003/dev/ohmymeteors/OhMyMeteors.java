@@ -223,11 +223,12 @@ public class OhMyMeteors {
 	public static List<Identifier> METEOR_STRUCTURES = new ArrayList<>();
 
 	public static void reInitStructures(ServerLevel world){
-		 METEOR_STRUCTURES = new ArrayList<>(world.getStructureManager().listTemplates().filter(
+		METEOR_STRUCTURES = new ArrayList<>(world.getStructureTemplateManager().listTemplates().filter(
 				identifier -> identifier.getNamespace().equals(OhMyMeteors.MOD_ID)
 		).toList());
 
-		 METEOR_STRUCTURES.remove(getIdentifier("error"));
+
+		METEOR_STRUCTURES.remove(getIdentifier("error"));
 
 		//this allows to have "ignore_<structure>" to "remove" a default structure with a datapack
 		//or "ignoredefault" to have it remove all the structures

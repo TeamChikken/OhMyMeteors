@@ -168,7 +168,7 @@ public class ExplosionUtils {
                 player.connection
                         .send(
                                 new ClientboundExplodePacket(
-                                        vec3d, power, blockCount, playerKnockback, particleEffect, soundEvent, blockParticles
+                                        vec3d, power, blockCount, playerKnockback, particleEffect, soundEvent, blockParticles, entity == null || !entity.isSilent()
                                 )
                         );
             }
