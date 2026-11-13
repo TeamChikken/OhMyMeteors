@@ -15,6 +15,9 @@ public class MeteorCatEntityRenderer extends CatRenderer {
     public void extractRenderState(Cat catEntity, CatRenderState catEntityRenderState, float f) {
         super.extractRenderState(catEntity, catEntityRenderState, f);
         catEntityRenderState.texture = OhMyMeteors.getIdentifier("textures/entity/meteor_cat.png");
+        if(catEntity.isBaby()){
+            catEntityRenderState.texture = OhMyMeteors.getIdentifier("textures/entity/meteor_cat_baby.png");
+        }
         catEntityRenderState.isCrouching = catEntity.isCrouching();
         catEntityRenderState.isSprinting = catEntity.isSprinting();
         catEntityRenderState.isSitting = catEntity.isInSittingPose();
