@@ -48,6 +48,7 @@ repositories {
         name = 'Kotlin for Forge'
         url = 'https://thedarkcolour.github.io/KotlinForForge/'
     }
+    maven {url 'https://repo.nyon.dev/releases'}
     maven { url 'https://jitpack.io' }
     mavenCentral()
 }
@@ -179,12 +180,13 @@ dependencies {
     implementation("curse.maven:yawp-663276:${project.yawp_version}"){
         transitive = false
     }
-    runtimeOnly("maven.modrinth:forge-config-api-port:gtX4TxQk")
+    runtimeOnly("maven.modrinth:forge-config-api-port:XmQjDLuW")
 
     //FzzyConfig
     implementation "me.fzzyhmstrs:fzzy_config:${project.fzzyconfig_version}"
     //required by fzzyconfig
-    implementation 'thedarkcolour:kotlinforforge-neoforge:5.4.0'
+    //implementation "thedarkcolour:kotlinforforge-neoforge:${project.kotlinforge_version}"
+    implementation("dev.nyon:KotlinLangForge:2.19.0-k2.4.21-3.1+neoforge")
 
     //OpenPartiesAndClaims
     compileOnly "maven.modrinth:open-parties-and-claims:${project.opac_version}"
@@ -233,6 +235,12 @@ publishing {
             url "file://${project.projectDir}/repo"
         }
     }
+}
+
+java {
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
+    withJavadocJar()
 }
 
 tasks.withType(JavaCompile).configureEach {
