@@ -1,7 +1,7 @@
-//Credit to Explodee mod, Author: KnownSH https://github.com/KnownSH/Explodee
-//The code is based around their mixin of the Explosion class
-//MIT-0 License
-/*
+/*Credit to Explodee mod, Author: KnownSH https://github.com/KnownSH/Explodee
+The code is based around their mixin of the Explosion class
+MIT-0 License
+
 MIT No Attribution
 
 Copyright 2025 KnownSH
@@ -25,7 +25,6 @@ package me.emafire003.dev.ohmymeteors.util;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
