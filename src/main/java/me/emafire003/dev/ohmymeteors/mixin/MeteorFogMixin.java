@@ -1,5 +1,6 @@
 package me.emafire003.dev.ohmymeteors.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import me.emafire003.dev.ohmymeteors.OhMyMeteors;
@@ -12,6 +13,7 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.phys.AABB;
+import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.joml.Vector4fc;
 import org.spongepowered.asm.mixin.Debug;
