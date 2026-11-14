@@ -107,7 +107,6 @@ public class OhMyMeteors {
 		OMMTags.registerTags();
 		OMMParticles.register(eventBus);
 
-
 		if(ModList.get().isLoaded("flan")){
 			FlanCompat.registerFlan();
 		}

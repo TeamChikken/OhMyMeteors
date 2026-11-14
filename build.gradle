@@ -234,6 +234,11 @@ publishing {
         }
     }
 }
+java {
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
+    withJavadocJar()
+}
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation

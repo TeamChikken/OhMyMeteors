@@ -1,16 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "I": {
-      "item": "ohmymeteors:meteoric_alloy"
-    },
-    "L": {
-      "item": "ohmymeteors:focusing_lenses"
-    },
-    "O": {
-      "item": "ohmymeteors:basic_meteor_laser"
-    }
-
+    "I": "ohmymeteors:meteoric_alloy",
+    "L": "ohmymeteors:focusing_lenses",
+    "O": "ohmymeteors:basic_meteor_laser"
   },
   "pattern": [
     "ILI",
